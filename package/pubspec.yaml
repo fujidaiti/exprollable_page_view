@@ -1,7 +1,7 @@
 name: exprollable_page_view
 description: Yet another PageView widget whose viewport can be expanded along the scrolling. **Exprollable** is a coined word combining the words expandable and scrollable. This project is an attemt to clone the modal sheet UI used in [Apple Books](https://www.apple.com/jp/apple-books/) app on iOS.
 version: 1.0.0-beta
-repository: git@github.com:fujidaiti/exprollable_page_view.git
+repository: https://github.com/fujidaiti/exprollable_page_view
 
 environment:
   sdk: ">=2.19.0 <3.0.0"
