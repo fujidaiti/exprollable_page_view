@@ -12,7 +12,7 @@ Run the example application and explore the all features of this package.
 
 ```shell
 git clone git@github.com:fujidaiti/exprollable_page_view.git
-cd exprollable_page_view/example
+cd example
 flutter pub get
 flutter run
 ```
