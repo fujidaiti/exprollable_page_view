@@ -1,5 +1,8 @@
 [![Pub](https://img.shields.io/pub/v/exprollable_page_view.svg?logo=flutter&color=blue&style=flat-square)](https://pub.dev/packages/exprollable_page_view)
 
+[English](https://github.com/fujidaiti/exprollable_page_view/blob/master/package/README.md)|[日本語](https://github.com/fujidaiti/exprollable_page_view/blob/master/package/res/README.jp.md)
+
+
 # ExprollablePageView
 
 Yet another PageView widget whose viewport can be expanded along the scrolling. **Exprollable** is a coined word combining the words expandable and scrollable. This project is an attemt to clone the modal sheet UI used in [Apple Books](https://www.apple.com/jp/apple-books/) app on iOS.
