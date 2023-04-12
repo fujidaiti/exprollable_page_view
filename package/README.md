@@ -1,3 +1,5 @@
+[![Pub Version](https://img.shields.io/pub/v/fms)](https://pub.dev/packages/fms)
+
 # ExprollablePageView
 
 Yet another PageView widget whose viewport can be expanded along the scrolling. **Exprollable** is a coined word combining the words expandable and scrollable. This project is an attemt to clone the modal sheet UI used in [Apple Books](https://www.apple.com/jp/apple-books/) app on iOS.
