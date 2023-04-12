@@ -1,4 +1,4 @@
-[![Pub Version](https://img.shields.io/pub/v/fms)](https://pub.dev/packages/fms)
+[![Pub](https://img.shields.io/pub/v/exprollable_page_view.svg?logo=flutter&color=blue&style=flat-square)](https://pub.dev/packages/exprollable_page_view)
 
 # ExprollablePageView
 
