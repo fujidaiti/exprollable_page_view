@@ -67,7 +67,8 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
   @override
   void didUpdateWidget(covariant ExprollablePageView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!identical(controller, oldWidget.controller)) {
+    if (!(controller is _DefaultPageController &&
+        widget.controller == null)) {
       detach(controller);
       attach(oldWidget.controller ?? _DefaultPageController());
     }
