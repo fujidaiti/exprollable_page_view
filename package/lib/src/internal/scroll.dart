@@ -75,7 +75,7 @@ class ScrollAbsorberGroup extends ScrollAbsorber {
   final List<VoidCallback> _callbacks = [];
 
   void attach(ScrollAbsorber absorber) {
-    assert(!_absorbers.contains(absorber));
+    if (_absorbers.contains(absorber)) return;
     absorber.correct((it) {
       it.capacity = capacity;
       if (pixels != null) {
@@ -89,7 +89,7 @@ class ScrollAbsorberGroup extends ScrollAbsorber {
   }
 
   void detach(ScrollAbsorber absorber) {
-    assert(_absorbers.contains(absorber));
+    if (!_absorbers.contains(absorber)) return;
     final index = _absorbers.indexOf(absorber);
     absorber.removeListener(_callbacks[index]);
     _absorbers.removeAt(index);
@@ -115,7 +115,14 @@ class ScrollAbsorberGroup extends ScrollAbsorber {
   @override
   void dispose() {
     super.dispose();
-    _absorbers.forEach(detach);
+    assert(_absorbers.length == _callbacks.length);
+    for (var i = 0; i < _absorbers.length; ++i) {
+      final absorber = _absorbers[i];
+      final callback = _callbacks[i];
+      absorber.removeListener(callback);
+    }
+    _absorbers.clear();
+    _callbacks.clear();
   }
 }
 
