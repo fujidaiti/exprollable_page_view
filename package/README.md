@@ -75,7 +75,7 @@ controller = ExprollablePageController(
 
 ### Slidable list items
 
-One of the advantages of `ExprollablePageView` over built-in `PageView` is that we can use widgets which has a horizontal slide action such as [flutter_slidable](https://pub.dev/packages/flutter_slidable) in the each page. You can see an example that uses flutter_slidable in `example/lib/src/complex_example/album_details.dart`.
+One of the advantages of `ExprollablePageView` over built-in `PageView` is that widgets with horizontal slide action such as [flutter_slidable](https://pub.dev/packages/flutter_slidable) can be used within the each page. You can see an example that uses flutter_slidable in `example/lib/src/complex_example/album_details.dart`.
 
 ![SlideActionDemo](https://user-images.githubusercontent.com/68946713/231349155-aa6bb0a7-f85f-4bab-b7d0-30692338f61b.gif)
 
