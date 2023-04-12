@@ -4,6 +4,7 @@ import 'package:example/src/complex_example/slide_in_out_app_bar.dart';
 import 'package:exprollable_page_view/exprollable_page_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 void showAlbumDetailsDialog(BuildContext context, int index) {
   showModalExprollable(
@@ -299,16 +300,45 @@ class AlbumTracklist extends ConsumerWidget {
               delegate: SliverChildBuilderDelegate(
                 childCount: tracks.length,
                 (context, index) {
-                  return ListTile(
-                    onTap: () {},
-                    trailing: const Icon(Icons.more_vert),
-                    title: Text(tracks[index].title),
-                    subtitle: Text(tracks[index].displayDuration),
+                  return AlbumTrackListTile(
+                    track: tracks[index],
                   );
                 },
               ),
             );
           },
         );
+  }
+}
+
+class AlbumTrackListTile extends StatelessWidget {
+  const AlbumTrackListTile({
+    super.key,
+    required this.track,
+  });
+
+  final Track track;
+
+  @override
+  Widget build(BuildContext context) {
+    return Slidable(
+      startActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (_) {},
+            icon: Icons.favorite_border,
+            backgroundColor: Colors.deepPurpleAccent,
+            foregroundColor: Colors.white60,
+          )
+        ],
+      ),
+      child: ListTile(
+        onTap: () {},
+        trailing: const Icon(Icons.more_vert),
+        title: Text(track.title),
+        subtitle: Text(track.displayDuration),
+      ),
+    );
   }
 }
