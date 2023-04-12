@@ -53,8 +53,6 @@ Widget build(BuildContext context) {
 }
 ```
 
-
-
 Use `ExprollablePageController` to controll how the viewport changes along the scrolling. Below is an example controller for snapping to the three states:
 
 1. The viewport is completely expanded (`viewportFraction == 1.0`)
@@ -74,6 +72,10 @@ controller = ExprollablePageController(
   ],
 );
 ```
+
+### Slidable list items
+
+One of the advantages of `ExprollablePageView` over built-in `PageView` is that we can use widgets which has a horizontal slide action such as [flutter_slidable](https://pub.dev/packages/flutter_slidable) in the each page. You can see an example that uses flutter_slidable in `example/lib/src/complex_example/album_details.dart`.
 
 You can explore all the fuetures in the example app. See `example` directory for more details.
 
