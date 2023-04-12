@@ -77,4 +77,9 @@ controller = ExprollablePageController(
 
 `ExprollablePageView`の利点の一つは、[flutter_slidable](https://pub.dev/packages/flutter_slidable)のような水平方向のスライドアクションを持つWidgetを各ページで使用できることです。`example/lib/src/complex_example/album_details.dart`にflutter_slidableを使用した例があります。
 
+
+![SlideActionDemo](https://user-images.githubusercontent.com/68946713/231349155-aa6bb0a7-f85f-4bab-b7d0-30692338f61b.gif)
+
+
+
 サンプルアプリでその他すべての機能を確認することができます。詳しくは `example` ディレクトリを参照してください。
