@@ -2,10 +2,9 @@
 
 [English](https://github.com/fujidaiti/exprollable_page_view/blob/master/package/README.md)|[日本語](https://github.com/fujidaiti/exprollable_page_view/blob/master/package/res/README.jp.md)
 
-
 # ExprollablePageView
 
-Yet another PageView widget that its viewport expands (shrinks) as it scrolls. **Exprollable** is a coined word combining the words expandable and scrollable. This project is an attemt to clone the modal sheet UI used in [Apple Books](https://www.apple.com/jp/apple-books/) app on iOS.
+Yet another PageView widget that expands (shrinks) its viewport as it scrolls. **Exprollable** is a coined word combining the words expandable and scrollable. This project is an attemt to clone the modal sheet UI used in [Apple Books](https://www.apple.com/jp/apple-books/) app on iOS.
 
 Here is what you can do with this widget: ([Youtube](https://youtube.com/shorts/L5xxO24UEzc?feature=share))
 
