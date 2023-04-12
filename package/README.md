@@ -4,7 +4,8 @@ Yet another PageView widget whose viewport can be expanded along the scrolling. 
 
 Here is what you can do with this widget: ([Youtube](https://youtube.com/shorts/L5xxO24UEzc?feature=share))
 
-https://user-images.githubusercontent.com/68946713/231106708-a9f33eda-e7a4-4701-a0ae-ef32a6bf511b.mp4
+![demo](https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif)
+
 
 ## Try it
 
