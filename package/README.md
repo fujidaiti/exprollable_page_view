@@ -12,27 +12,25 @@ Here is an example of what you can do with this widget: ([Youtube](https://youtu
 
 ## Index
 
-- [ExprollablePageView](#exprollablepageview)
-  - [Index](#index)
-  - [Try it](#try-it)
-  - [Install](#install)
-  - [Usage](#usage)
-    - [ExprollablePageView](#exprollablepageview-1)
-    - [ExprollablePageController](#exprollablepagecontroller)
-      - [Viewport fraction and offset](#viewport-fraction-and-offset)
-      - [Overshoot effect](#overshoot-effect)
-    - [ModalExprollable](#modalexprollable)
-    - [Slidable list items](#slidable-list-items)
-  - [How to](#how-to)
-    - [get the curret page?](#get-the-curret-page)
-    - [make the PageView like a BottomSheet?](#make-the-pageview-like-a-bottomsheet)
-    - [observe the state of the viewport?](#observe-the-state-of-the-viewport)
-      - [1. Listen `ExprollablePageController.viewport`](#1-listen-exprollablepagecontrollerviewport)
-      - [2. Listen `PageViewportUpdateNotification`](#2-listen-pageviewportupdatenotification)
-    - [add space between pages?](#add-space-between-pages)
-    - [prevent my AppBar going off the screen when `overshootEffect` is true?](#prevent-my-appbar-going-off-the-screen-when-overshooteffect-is-true)
-  - [Questions](#questions)
-  - [Contributing](#contributing)
+- [Try it](#try-it)
+- [Install](#install)
+- [Usage](#usage)
+  - [ExprollablePageView](#exprollablepageview-1)
+  - [ExprollablePageController](#exprollablepagecontroller)
+    - [Viewport fraction and offset](#viewport-fraction-and-offset)
+    - [Overshoot effect](#overshoot-effect)
+  - [ModalExprollable](#modalexprollable)
+  - [Slidable list items](#slidable-list-items)
+- [How to](#how-to)
+  - [get the curret page?](#get-the-curret-page)
+  - [make the PageView like a BottomSheet?](#make-the-pageview-like-a-bottomsheet)
+  - [observe the state of the viewport?](#observe-the-state-of-the-viewport)
+    - [1. Listen `ExprollablePageController.viewport`](#1-listen-exprollablepagecontrollerviewport)
+    - [2. Listen `PageViewportUpdateNotification`](#2-listen-pageviewportupdatenotification)
+  - [add space between pages?](#add-space-between-pages)
+  - [prevent my AppBar going off the screen when `overshootEffect` is true?](#prevent-my-appbar-going-off-the-screen-when-overshooteffect-is-true)
+- [Questions](#questions)
+- [Contributing](#contributing)
 
 
 ## Try it
@@ -46,8 +44,6 @@ flutter pub get
 flutter run
 ```
 
-
-
 ## Install
 
 Add this package to your project using `pub` command.
@@ -55,8 +51,6 @@ Add this package to your project using `pub` command.
 ```shell
 flutter pub add exprollable_page_view
 ```
-
-
 
 ## Usage
 
@@ -107,8 +101,6 @@ The constructor of `ExprollablePageView` has almost the same signature as `PageV
   });
 ```
 
-
-
 ### ExprollablePageController
 
 A subclass of `PageController` that is used by the internal `PageView`. It also controlls how the `ExprollablePageView` changes its viewport as it scrolls.
@@ -136,7 +128,7 @@ A subclass of `PageController` that is used by the internal `PageView`. It also 
 
 - `maxViewportOffset`: The maximum offset of the viewport. Typically used with custom `snapViewportOffsets`. 
 
-- `snapViewportOffsets`: A list of offsets to snap the viewport to. An example of this feature can be found in [make the PageView like a BottomSheet](#make-the-pageview-like-a-bottomsheet?) section.
+- `snapViewportOffsets`: A list of offsets to snap the viewport to. An example of this feature can be found in [make the PageView like a BottomSheet](#make-the-pageview-like-a-bottomsheet) section.
 
 - `overshootEffect`: Indicates if overshoot effect is enabled. See [Overshoot effect](#overshoot-effect) section for more details.
 
@@ -144,21 +136,21 @@ A subclass of `PageController` that is used by the internal `PageView`. It also 
 
 #### Viewport fraction and offset
 
-The state of the viewport is described by the 2 mesurements: **fraction** and **offset**. A fraction indicates how much space each page should occupy in the viewport, and it must be between 0.0 and 1.0. An offset is the distance from the top of the viewport to the top of the currently focused page.  
+The state of the viewport is described by the 2 mesurements: **fraction** and **offset**. A fraction indicates how much space each page should occupy in the viewport, and it must be between 0.0 and 1.0. An offset is the distance from the top of the viewport to the top of the current page.  
 
-![fraction and offset](https://via.placeholder.com/640x360/0bd/fff?text=fractionAndOffset)
+![viewport-fraction-offset](https://user-images.githubusercontent.com/68946713/231830114-f4d9bec4-cb85-41f8-a9fd-7b3f21ff336a.png)
 
-`ViewportOffset` is a class that represents an offset. `ViewportOffset.expanded` and `ViewportOffset.shrunk` are the offsets at which the viewport fraction is 1.0 and the minimum, respectively. It also has a factory constructor `ViewportOffset.fractional` that creates an offset from a fractional value. `ViewportOffset.fractional(1.0)` is equivalent to `ViewportOffset.shrunk`, and `ViewportOffset.fractional(0.0)` matches the bottom of the viewport. Some examples of the use of this class can be found in [make the PageView like a BottomSheet](#make-the-pageview-like-a-bottomsheet?), [observe the state of the viewport](#observe-the-state-of the-viewport?).
+`ViewportOffset` is a class that represents an offset. It has 2 pre-defined offsets, `ViewportOffset.expanded` and `ViewportOffset.shrunk`, at which the viewport fraction is 1.0 and the minimum, respectively. It also has a factory constructor `ViewportOffset.fractional` that creates an offset from a fractional value. For example, `ViewportOffset.fractional(1.0)` is equivalent to `ViewportOffset.shrunk`, and `ViewportOffset.fractional(0.0)` matches the bottom of the viewport. Some examples of the use of this class can be found in [make the PageView like a BottomSheet](#make-the-pageview-like-a-bottomsheet), [observe the state of the viewport](#observe-the-state-of-the-viewport).
 
-![pl](https://via.placeholder.com/640x360/0bd/fff?text=Hello!!!)
+![viewport-offsets](https://user-images.githubusercontent.com/68946713/231827251-fed9575c-980a-40b8-b01a-da984d58f3ec.png)
 
 
 
 #### Overshoot effect
 
-If `ExprollablePageController.overshootEffect` is enabled, the upper segment of the current page will slightly exceed the top of the viewport when it goes fullscreen. To be precise, this means that the viewport offset will take a negative value when the viewport fraction is 1.0. This trick creates a dynamic visual effect when the page goes fullscreen.
+If `ExprollablePageController.overshootEffect` is enabled, the upper segment of the current page will slightly exceed the top of the viewport when it goes fullscreen. To be precise, this means that the viewport offset will take a negative value when the viewport fraction is 1.0. This trick creates a dynamic visual effect when the page goes fullscreen. The figure below is a demonstration of how the overshoot effect affects (disabled in the left, enabled in the right).
 
-![pl](https://via.placeholder.com/640x360/0bd/fff?text=Hello!!!)
+![overshoot-disabled](https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif) ![overshoot-enabled](https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif)
 
 Overshoot effect will works correctly only if:
 
@@ -197,7 +189,8 @@ showModalExprollable(
   );
 ```
 
-![pl](https://via.placeholder.com/640x360/0bd/fff?text=Hello!!!)
+![modal-exprollable](https://user-images.githubusercontent.com/68946713/231827874-71a0ea47-6576-4fcc-ae37-d1bc38825234.gif)
+
 
 ### Slidable list items
 
@@ -238,7 +231,7 @@ For complete code, see [custom_snap_offsets_example.dart](https://github.com/fuj
 ```dart
 const peekOffset = ViewportOffset.fractional(0.5);
 controller = ExprollablePageController(
-  minViewportFraction = 0.9,
+  minViewportFraction: 0.9,
   initialViewportOffset: peekOffset,
   maxViewportOffset: peekOffset,
   snapViewportOffsets: [
