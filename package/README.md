@@ -64,7 +64,7 @@ Use `ExprollablePageController` to controll how the viewport changes along the s
 ```dart
 const peekOffset = ViewportOffset.fractional(0.5);
 controller = ExprollablePageController(
-  minViewportFraction = 0.9,
+  minViewportFraction: 0.9,
   initialViewportOffset: peekOffset,
   maxViewportOffset: peekOffset,
   snapViewportOffsets: [
@@ -81,7 +81,7 @@ One of the advantages of `ExprollablePageView` over built-in `PageView` is that 
 
 ![SlideActionDemo](https://user-images.githubusercontent.com/68946713/231349155-aa6bb0a7-f85f-4bab-b7d0-30692338f61b.gif)
 
-You can explore all the fuetures in the example app. See `example` directory for more details.
+You can explore all the features in the example app. See `example` directory for more details.
 
 ## Lisence
 
