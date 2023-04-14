@@ -84,7 +84,7 @@ Widget build(BuildContext context) {
 }
 ```
 
-The constructor of `ExprollablePageView` has almost the same signature as `PageView.builder`. All parameters except `itemBuilder` and `onViewportChanged` are passed to the internal `PageView`. See [PageView's docs](https://api.flutter.dev/flutter/widgets/PageView/PageView.builder.html) for more details on each parameter.
+The constructor of `ExprollablePageView` has almost the same signature as `PageView.builder`. See [PageView's docs](https://api.flutter.dev/flutter/widgets/PageView/PageView.builder.html) for more details on each parameter.
 
 ```dart
   const ExprollablePageView({
@@ -101,6 +101,7 @@ The constructor of `ExprollablePageView` has almost the same signature as `PageV
     ScrollBehavior? scrollBehavior,
     bool padEnds = true,
     void Function(PageViewportMetrics metrics)? onViewportChanged,
+    void Function(int page)? onPageChanged,
   });
 ```
 
@@ -220,6 +221,16 @@ pageController.currentPage.addListener(() {
   final page = pageController.currentPage.value;
 });
 ```
+
+`ExprollablePageView.onPageChanged` is another option to track the current page, which is equivalent to the above solusion as it just listens `ExprollablePageController.currentPage` internally.
+
+```dart
+ExprollablePageView(
+  onPageChanged: (page) { ... },
+);
+```
+
+
 
 ### make the PageView like a BottomSheet?
 
