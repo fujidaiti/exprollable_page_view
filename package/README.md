@@ -148,7 +148,7 @@ The state of the viewport is described by the 2 mesurements: **fraction** and **
 
 #### Overshoot effect
 
-If `ExprollablePageController.overshootEffect` is enabled, the upper segment of the current page will slightly exceed the top of the viewport when it goes fullscreen. To be precise, this means that the viewport offset will take a negative value when the viewport fraction is 1.0. This trick creates a dynamic visual effect when the page goes fullscreen. The figure below is a demonstration of how the overshoot effect affects (disabled in the left, enabled in the right).
+If `ExprollablePageController.overshootEffect` is enabled, the upper segment of the current page will slightly exceed the top of the viewport when it goes fullscreen. To be precise, this means that the viewport offset will take a negative value when the viewport fraction is 1.0. This trick creates a dynamic visual effect when the page goes fullscreen. The figures below are a demonstration of how the overshoot effect affects (disabled in the left, enabled in the right).
 
 ![overshoot-disabled](https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif) ![overshoot-enabled](https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif)
 
