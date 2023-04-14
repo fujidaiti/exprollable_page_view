@@ -274,7 +274,7 @@ controller.viewport.addListener(() {
 
 #### 2. Listen `PageViewportUpdateNotification`
 
-`ExprollablePageView` dispatches `PageViewportUpdateNotification` every time its state changes, and it contains a `PageViewportMetrics`. You can listen the notifications using `NotificationListener` widget. Make sure that the `NotificationListener` is an ancestor of the `ExprollablePageView` in your widget tree. This way is useful when you want to do something with the state in an ancestor widget of `ExprollablePageView`.
+`ExprollablePageView` dispatches `PageViewportUpdateNotification` every time its state changes, and it contains a `PageViewportMetrics`. You can listen the notifications using `NotificationListener` widget. Make sure that the `NotificationListener` is an ancestor of the `ExprollablePageView` in your widget tree. This method is useful when you want to perform a state-dependent action, but do not have a controller.
 
 
 ```dart
