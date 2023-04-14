@@ -21,6 +21,7 @@ class ExprollablePageView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.scrollBehavior,
     this.padEnds = true,
+    this.onViewportChanged,
   });
 
   final IndexedWidgetBuilder itemBuilder;
@@ -42,6 +43,7 @@ class ExprollablePageView extends StatefulWidget {
   final Clip clipBehavior;
   final ScrollBehavior? scrollBehavior;
   final bool padEnds;
+  final void Function(PageViewportMetrics metrics)? onViewportChanged;
 
   @override
   State<ExprollablePageView> createState() => _ExprollablePageViewState();
@@ -67,8 +69,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
   @override
   void didUpdateWidget(covariant ExprollablePageView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!(controller is _DefaultPageController &&
-        widget.controller == null)) {
+    if (!(controller is _DefaultPageController && widget.controller == null)) {
       detach(controller);
       attach(oldWidget.controller ?? _DefaultPageController());
     }
@@ -87,6 +88,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
 
   void onViewportChanged() {
     allowPaging.value = checkIfPagingIsAllowed();
+    widget.onViewportChanged?.call(controller.viewport);
     PageViewportUpdateNotification(
       StaticPageViewportMetrics.from(controller.viewport),
     ).dispatch(context);
@@ -137,8 +139,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
                     return _PageItemContainer(
                       page: page,
                       controller: controller,
-                      builder: (context) =>
-                          widget.itemBuilder(context, page),
+                      builder: (context) => widget.itemBuilder(context, page),
                     );
                   },
                 ),
@@ -183,8 +184,7 @@ class _PageItemContainerState extends State<_PageItemContainer> {
       page: widget.page,
       pageController: widget.controller,
     );
-    scrollController =
-        widget.controller.createScrollController(widget.page);
+    scrollController = widget.controller.createScrollController(widget.page);
     isActive = ValueNotifier(checkActiveness());
     widget.controller.currentPage.addListener(invalidateActiveness);
   }
@@ -201,8 +201,7 @@ class _PageItemContainerState extends State<_PageItemContainer> {
 
   void invalidateActiveness() => isActive.value = checkActiveness();
 
-  bool checkActiveness() =>
-      widget.page == widget.controller.currentPage.value;
+  bool checkActiveness() => widget.page == widget.controller.currentPage.value;
 
   @override
   void didUpdateWidget(_PageItemContainer oldWidget) {
@@ -211,8 +210,7 @@ class _PageItemContainerState extends State<_PageItemContainer> {
       oldWidget.controller
         ..disposeScrollController(oldWidget.page)
         ..currentPage.removeListener(invalidateActiveness);
-      scrollController =
-          widget.controller.createScrollController(widget.page);
+      scrollController = widget.controller.createScrollController(widget.page);
       widget.controller.currentPage.removeListener(invalidateActiveness);
     }
 
