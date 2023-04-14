@@ -45,8 +45,7 @@ class InheritedPageContentScrollController extends InheritedWidget {
   final PageContentScrollController controller;
 
   @override
-  bool updateShouldNotify(
-          InheritedPageContentScrollController oldWidget) =>
+  bool updateShouldNotify(InheritedPageContentScrollController oldWidget) =>
       !identical(controller, oldWidget.controller);
 }
 
@@ -102,8 +101,7 @@ class ExprollablePageController extends PageController {
   }
 
   final _absorberGroup = ScrollAbsorberGroup();
-  final Map<int, PageContentScrollController> _contentScrollControllers =
-      {};
+  final Map<int, PageContentScrollController> _contentScrollControllers = {};
 
   late final _SnapViewportOffsetPhysics _snapPhysics;
 
@@ -119,8 +117,7 @@ class ExprollablePageController extends PageController {
 
   PageContentScrollController createScrollController(int page) {
     assert(!_contentScrollControllers.containsKey(page));
-    final controller =
-        PageContentScrollController._(snapPhysics: _snapPhysics);
+    final controller = PageContentScrollController._(snapPhysics: _snapPhysics);
     _contentScrollControllers[page] = controller;
     _absorberGroup.attach(controller.absorber);
     return controller;
@@ -157,8 +154,7 @@ class ExprollablePageController extends PageController {
   }
 
   static ExprollablePageController? of(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<
-          InheritedExprollablePageController>()
+      .dependOnInheritedWidgetOfExactType<InheritedExprollablePageController>()
       ?.controller;
 }
 
@@ -212,6 +208,8 @@ mixin PageViewportMetrics on ViewportMetrics {
   bool get overshootEffect;
   double get shrunkOffset;
   double get expandedOffset;
+  bool get isShrunk => offset >= shrunkOffset;
+  bool get isExpanded => offset <= expandedOffset;
 }
 
 @immutable
@@ -383,8 +381,7 @@ class PageViewport extends ChangeNotifier
       const ExpandedViewportOffset().toConcreteValue(this);
 
   @override
-  double get shrunkOffset =>
-      const ShrunkViewportOffset().toConcreteValue(this);
+  double get shrunkOffset => const ShrunkViewportOffset().toConcreteValue(this);
 
   double get _initialAbsorberPixels {
     final initialOffset = _initialOffset.toConcreteValue(this);
@@ -602,8 +599,7 @@ class _SnapViewportOffsetPhysics extends ScrollPhysics {
   final PageViewport viewport;
 
   @override
-  ScrollPhysics applyTo(ScrollPhysics? ancestor) =>
-      _SnapViewportOffsetPhysics(
+  ScrollPhysics applyTo(ScrollPhysics? ancestor) => _SnapViewportOffsetPhysics(
         parent: buildParent(ancestor),
         snapOffsets: snapOffsets,
         viewport: viewport,
@@ -630,9 +626,7 @@ class _SnapViewportOffsetPhysics extends ScrollPhysics {
     double nearest(double p, double q) =>
         (pixels - p).abs() < (pixels - q).abs() ? p : q;
 
-    return snapOffsets
-        .map((it) => it.toScrollOffset(viewport))
-        .reduce(nearest);
+    return snapOffsets.map((it) => it.toScrollOffset(viewport)).reduce(nearest);
   }
 
   @override
@@ -690,8 +684,7 @@ class ExpandedViewportOffset extends ViewportOffset {
 
   @override
   int compareTo(ViewportOffset other) {
-    if (other is FractionalViewportOffset ||
-        other is ShrunkViewportOffset) {
+    if (other is FractionalViewportOffset || other is ShrunkViewportOffset) {
       return -1;
     }
     assert(other is ExpandedViewportOffset);
@@ -754,8 +747,7 @@ class FractionalViewportOffset extends ViewportOffset {
     if (other is ExpandedViewportOffset) return 1;
     if (other is ShrunkViewportOffset) return fraction == 0.0 ? 0 : 1;
     assert(other is FractionalViewportOffset);
-    return fraction
-        .compareTo((other as FractionalViewportOffset).fraction);
+    return fraction.compareTo((other as FractionalViewportOffset).fraction);
   }
 
   @override

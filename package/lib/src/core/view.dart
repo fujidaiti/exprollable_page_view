@@ -21,8 +21,7 @@ class ExprollablePageView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.scrollBehavior,
     this.padEnds = true,
-    this.onShrunk,
-    this.onExpanded,
+    this.onViewportChanged,
   });
 
   final IndexedWidgetBuilder itemBuilder;
@@ -44,8 +43,7 @@ class ExprollablePageView extends StatefulWidget {
   final Clip clipBehavior;
   final ScrollBehavior? scrollBehavior;
   final bool padEnds;
-  final VoidCallback? onShrunk;
-  final VoidCallback? onExpanded;
+  final void Function(PageViewportMetrics metrics)? onViewportChanged;
 
   @override
   State<ExprollablePageView> createState() => _ExprollablePageViewState();
@@ -90,12 +88,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
 
   void onViewportChanged() {
     allowPaging.value = checkIfPagingIsAllowed();
-    if (widget.onShrunk != null && checkIfShrunk()) {
-      widget.onShrunk?.call();
-    }
-    if (widget.onExpanded != null && checkIfExpanded()) {
-      widget.onExpanded?.call();
-    }
+    widget.onViewportChanged?.call(controller.viewport);
     PageViewportUpdateNotification(
       StaticPageViewportMetrics.from(controller.viewport),
     ).dispatch(context);
@@ -103,14 +96,6 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
 
   bool checkIfPagingIsAllowed() => controller.viewport.fraction
       .almostEqualTo(controller.viewport.minFraction);
-
-  bool checkIfShrunk() =>
-      controller.viewport.value.offset >=
-      ViewportOffset.shrunk.toConcreteValue(controller.viewport.value);
-
-  bool checkIfExpanded() =>
-      controller.viewport.value.offset <=
-      ViewportOffset.expanded.toConcreteValue(controller.viewport.value);
 
   @override
   Widget build(BuildContext context) {
