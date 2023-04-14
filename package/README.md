@@ -84,7 +84,7 @@ Widget build(BuildContext context) {
 }
 ```
 
-The constructor of `ExprollablePageView` has almost the same signature as `PageView.builder`. All parameters except `itemBuilder` are passed to the internal `PageView`. See [PageView's docs](https://api.flutter.dev/flutter/widgets/PageView/PageView.builder.html) for more details on each parameter.
+The constructor of `ExprollablePageView` has almost the same signature as `PageView.builder`. All parameters except `itemBuilder` and `onViewportChanged` are passed to the internal `PageView`. See [PageView's docs](https://api.flutter.dev/flutter/widgets/PageView/PageView.builder.html) for more details on each parameter.
 
 ```dart
   const ExprollablePageView({
@@ -100,6 +100,7 @@ The constructor of `ExprollablePageView` has almost the same signature as `PageV
     Clip clipBehavior = Clip.hardEdge,
     ScrollBehavior? scrollBehavior,
     bool padEnds = true,
+    void Function(PageViewportMetrics metrics)? onViewportChanged,
   });
 ```
 
@@ -246,7 +247,7 @@ controller = ExprollablePageController(
 
 ### observe the state of the viewport?
 
-There are 2 ways to observe changes of the viewport state.
+There are 3 ways to observe changes of the viewport state.
 
 #### 1. Listen `ExprollablePageController.viewport`
 
@@ -255,14 +256,15 @@ There are 2 ways to observe changes of the viewport state.
 ```dart
 controller.viewport.addListener(() {
   final PageViewportMetrics vp = controller.viewport.value;
-  final bool isShrunk = vp.offset >= vp.shrunkOffset;
-  final bool isExpanded = vp.offset <= vp.expandedOffset;
+  final bool isShrunk = vp.isShrunk;
+  final bool isExpanded = vp.isExpanded;
 });
 ```
 
 #### 2. Listen `PageViewportUpdateNotification`
 
-`ExprollablePageView` dispatches `PageViewportUpdateNotification` every time its state changes, and it contains a `PageViewportMetrics`. You can listen the notifications using `NotificationListener` widget. Make sure that the `NotificationListener` is an ancestor of the `ExprollablePageView` in your widget tree.
+`ExprollablePageView` dispatches `PageViewportUpdateNotification` every time its state changes, and it contains a `PageViewportMetrics`. You can listen the notifications using `NotificationListener` widget. Make sure that the `NotificationListener` is an ancestor of the `ExprollablePageView` in your widget tree. This way is useful when you want to do something with the state in an ancestor widget of `ExprollablePageView`.
+
 
 ```dart
 NotificationListener<PageViewportUpdateNotification>(
@@ -270,8 +272,19 @@ NotificationListener<PageViewportUpdateNotification>(
           final PageViewportMetrics vp = notification.metrics;
           return false;
         },
-        child: child,
+        child: ...,
 ```
+
+#### 3. Use `onViewportChanged` callback
+
+The constructor of `ExprollablePageView` accepts a callback that is invoked whenever the viewport state changes.
+
+```dart
+ExprollablePageView(
+  onPageViewChanged: (PageViewportMetrics vp) {...},
+);
+```
+
 
 ### add space between pages?
 
