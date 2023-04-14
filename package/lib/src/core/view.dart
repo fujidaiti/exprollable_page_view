@@ -22,6 +22,7 @@ class ExprollablePageView extends StatefulWidget {
     this.scrollBehavior,
     this.padEnds = true,
     this.onViewportChanged,
+    this.onPageChanged,
   });
 
   final IndexedWidgetBuilder itemBuilder;
@@ -44,6 +45,7 @@ class ExprollablePageView extends StatefulWidget {
   final ScrollBehavior? scrollBehavior;
   final bool padEnds;
   final void Function(PageViewportMetrics metrics)? onViewportChanged;
+  final void Function(int page)? onPageChanged;
 
   @override
   State<ExprollablePageView> createState() => _ExprollablePageViewState();
@@ -76,14 +78,18 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
   }
 
   void detach(ExprollablePageController controller) {
-    controller.viewport.removeListener(onViewportChanged);
+    controller
+      ..viewport.removeListener(onViewportChanged)
+      ..currentPage.removeListener(onPageChanged);
     if (controller is _DefaultPageController) {
       controller.dispose();
     }
   }
 
   void attach(ExprollablePageController controller) {
-    this.controller = controller..viewport.addListener(onViewportChanged);
+    this.controller = controller
+      ..viewport.addListener(onViewportChanged)
+      ..currentPage.addListener(onPageChanged);
   }
 
   void onViewportChanged() {
@@ -92,6 +98,10 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
     PageViewportUpdateNotification(
       StaticPageViewportMetrics.from(controller.viewport),
     ).dispatch(context);
+  }
+
+  void onPageChanged() {
+    widget.onPageChanged?.call(controller.currentPage.value);
   }
 
   bool checkIfPagingIsAllowed() => controller.viewport.fraction
