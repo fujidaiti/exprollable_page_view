@@ -32,6 +32,7 @@ Here is an example of what you can do with this widget: ([Youtube](https://youtu
       - [3. Use `onViewportChanged` callback](#3-use-onviewportchanged-callback)
     - [add space between pages?](#add-space-between-pages)
     - [prevent my AppBar going off the screen when `overshootEffect` is true?](#prevent-my-appbar-going-off-the-screen-when-overshooteffect-is-true)
+    - [animate the viewport state?](#animate-the-viewport-state)
   - [Questions](#questions)
   - [Contributing](#contributing)
 
@@ -329,6 +330,17 @@ Container(
 );
 ```
 
+### animate the viewport state?
+
+Use `ExprollablePageController.animateViewportOffsetTo`.
+
+```dart
+controller.animateViewportOffsetTo(
+  ViewportOffset.shrunk,
+  curve: Curves.easeInOutSine,
+  duration: Duration(seconds: 1),
+);
+```
 
 
 ## Questions
