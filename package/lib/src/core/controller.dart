@@ -7,6 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
+/// A inherited widget used in [ExprollablePageView] to provides
+/// its [ExprollablePageController] to its descendants.
+/// [ExprollablePageController.of] is an convenience method that obtains
+/// the controller sotred in this inherited widget.
 class InheritedExprollablePageController extends InheritedWidget {
   const InheritedExprollablePageController({
     super.key,
@@ -311,6 +315,7 @@ class PageViewportUpdateNotification extends Notification {
   final PageViewportMetrics metrics;
 }
 
+/// An object that represents the state of the viewport.
 class PageViewport extends ChangeNotifier
     with ViewportMetrics, PageViewportMetrics
     implements ValueListenable<PageViewportMetrics> {
@@ -648,16 +653,36 @@ class _SnapViewportOffsetPhysics extends ScrollPhysics {
   }
 }
 
+/// An object that represents a viewport offset.
+///
+/// There are 2 pre-defined offsets, [ViewportOffset.expanded] and [ViewportOffset.shrunk],
+/// at which the viewport fraction is 1.0 and the minimum, respectively.
+/// A user defined offset can be created from a fractional value using [ViewportOffset.fractional].
+/// For example, `ViewportOffset.fractional(1.0)` is equivalent to [ViewportOffset.shrunk],
+/// and `ViewportOffset.fractional(0.0)` matches the bottom of the viewport.
+/// [ViewportOffset]s are comarable. The order is:
+/// - `ViewportOffset.expanded < ViewportOffset.shrunk`
+/// -  `ViewportOffset.shrunk == ViewportOffset.fractional(1.0)`
+/// -  `ViewportOffset.fractional(1.0) < ViewportOffset.fractional(0.0)`
 @sealed
 abstract class ViewportOffset implements Comparable<ViewportOffset> {
+  /// The offset at which the viewport is fully expanded 
+  /// (more precisely, when [PageViewport.fraction] is equal to [PageViewport.maxFraction]).
   static const expanded = ExpandedViewportOffset();
+
+  /// The offset at which the viewport is fully shrunk 
+  /// (more precisely, when [PageViewport.fraction] is equal to [PageViewport.minFraction]).
   static const shrunk = ShrunkViewportOffset();
 
+  /// Create an user defined viewport offset from a fractional value.
+  /// [fraction] must be between 0.0 and 1.0.
   const factory ViewportOffset.fractional(double fraction) =
       FractionalViewportOffset;
 
   const ViewportOffset();
 
+  /// Calculate the concrete pixels represented by the [ViewportOffset]
+  /// from the current viewport dimensions.
   double toConcreteValue(PageViewportMetrics metrics);
 
   double toScrollOffset(PageViewportMetrics metrics) {
