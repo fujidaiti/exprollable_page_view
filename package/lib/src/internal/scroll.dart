@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:exprollable_page_view/src/internal/utils.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/rendering.dart';
@@ -156,17 +157,14 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
       ? minScrollExtent - _absorber!.capacity
       : minScrollExtent;
 
-  static double _computeOverscroll(
-          double pixels, double minScrollExtent) =>
+  static double _computeOverscroll(double pixels, double minScrollExtent) =>
       max(0.0, minScrollExtent - pixels);
 
-  static double _computeApparentPixels(
-          double pixels, double minScrollExtent) =>
+  static double _computeApparentPixels(double pixels, double minScrollExtent) =>
       max(minScrollExtent, pixels);
 
   @override
-  bool applyContentDimensions(
-      double minScrollExtent, double maxScrollExtent) {
+  bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
     if (_absorber == null) {
       return super.applyContentDimensions(
         minScrollExtent,
@@ -175,8 +173,7 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
     }
 
     if (hasContentDimensions) {
-      return super
-          .applyContentDimensions(minScrollExtent, maxScrollExtent);
+      return super.applyContentDimensions(minScrollExtent, maxScrollExtent);
     } else {
       // Once the viewport's content extents are established,
       // we can calculate the initial overscroll from current [pixels]
@@ -213,8 +210,7 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
   void absorb(ScrollPosition other) {
     super.absorb(other);
     if (_absorber != null) {
-      if (other is AbsorbScrollPosition &&
-          other._absorber?.pixels != null) {
+      if (other is AbsorbScrollPosition && other._absorber?.pixels != null) {
         _absorber!.absorb(other._absorber!.pixels!);
       } else if (hasPixels && hasContentDimensions) {
         // `super.absorb(other)` may set `super._pixels` to
@@ -251,8 +247,7 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
     updateUserScrollDirection(
         delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
     final actualDelta = physics.applyPhysicsToUserOffset(
-      copyWith(
-          minScrollExtent: impliedMinScrollExtent, pixels: impliedPixels),
+      copyWith(minScrollExtent: impliedMinScrollExtent, pixels: impliedPixels),
       delta,
     );
     setPixels(impliedPixels - actualDelta);
@@ -320,10 +315,8 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
     if (newPixels == impliedPixels) return 0.0;
     final unhandledOverscroll = applyBoundaryConditions(newPixels);
     final newActualPixels = newPixels - unhandledOverscroll;
-    _absorber!
-        .absorb(_computeOverscroll(newActualPixels, minScrollExtent));
-    super.setPixels(
-        _computeApparentPixels(newActualPixels, minScrollExtent));
+    _absorber!.absorb(_computeOverscroll(newActualPixels, minScrollExtent));
+    super.setPixels(_computeApparentPixels(newActualPixels, minScrollExtent));
     if (unhandledOverscroll != 0.0) {
       didOverscrollBy(unhandledOverscroll);
       return unhandledOverscroll;
@@ -345,8 +338,7 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
   @override
   void goBallistic(double velocity) {
     final Simulation? simulation = physics.createBallisticSimulation(
-      copyWith(
-          minScrollExtent: impliedMinScrollExtent, pixels: impliedPixels),
+      copyWith(minScrollExtent: impliedMinScrollExtent, pixels: impliedPixels),
       velocity,
     );
     if (simulation != null) {
@@ -362,6 +354,45 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
       goIdle();
     }
   }
+
+  @override
+  Future<void> animateTo(
+    double to, {
+    required Duration duration,
+    required Curve curve,
+  }) {
+    if (nearEqual(to, impliedPixels, physics.tolerance.distance)) {
+      // Skip the animation, go straight to the position as we are already close.
+      jumpTo(to);
+      return Future<void>.value();
+    }
+
+    final DrivenScrollActivity activity = DrivenScrollActivity(
+      this,
+      from: impliedPixels,
+      to: to,
+      duration: duration,
+      curve: curve,
+      vsync: context.vsync,
+    );
+    beginActivity(activity);
+    return activity.done;
+  }
+
+  @override
+  void jumpTo(double value) {
+    goIdle();
+    if (!impliedPixels.almostEqualTo(value)) {
+      final double oldPixels = pixels;
+      forcePixels(value);
+      didStartScroll();
+      if (!pixels.almostEqualTo(oldPixels)) {
+        didUpdateScrollPositionBy(pixels - oldPixels);
+      }
+      didEndScroll();
+    }
+    goBallistic(0.0);
+  }
 }
 
 class AbsorbScrollController extends ScrollController {
@@ -375,8 +406,7 @@ class AbsorbScrollController extends ScrollController {
   final ScrollAbsorber absorber;
 
   @override
-  AbsorbScrollPosition get position =>
-      super.position as AbsorbScrollPosition;
+  AbsorbScrollPosition get position => super.position as AbsorbScrollPosition;
 
   @override
   ScrollPosition createScrollPosition(
