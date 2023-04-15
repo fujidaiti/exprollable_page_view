@@ -29,6 +29,7 @@ Here is an example of what you can do with this widget: ([Youtube](https://youtu
     - [observe the state of the viewport?](#observe-the-state-of-the-viewport)
       - [1. Listen `ExprollablePageController.viewport`](#1-listen-exprollablepagecontrollerviewport)
       - [2. Listen `PageViewportUpdateNotification`](#2-listen-pageviewportupdatenotification)
+      - [3. Use `onViewportChanged` callback](#3-use-onviewportchanged-callback)
     - [add space between pages?](#add-space-between-pages)
     - [prevent my AppBar going off the screen when `overshootEffect` is true?](#prevent-my-appbar-going-off-the-screen-when-overshooteffect-is-true)
   - [Questions](#questions)
