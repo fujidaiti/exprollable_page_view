@@ -2,15 +2,18 @@ import 'dart:math';
 
 import 'package:exprollable_page_view/src/internal/scroll.dart';
 import 'package:exprollable_page_view/src/internal/utils.dart';
+import 'package:exprollable_page_view/src/core/view.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-/// A inherited widget used in [ExprollablePageView] to provides
+/// An inherited widget used in [ExprollablePageView] to provides
 /// its [ExprollablePageController] to its descendants.
 /// [ExprollablePageController.of] is an convenience method that obtains
 /// the controller sotred in this inherited widget.
+@internal
 class InheritedExprollablePageController extends InheritedWidget {
   const InheritedExprollablePageController({
     super.key,
@@ -18,6 +21,7 @@ class InheritedExprollablePageController extends InheritedWidget {
     required this.controller,
   });
 
+  /// A controller that attached to the ancestor [ExprollablePageView].
   final ExprollablePageController controller;
 
   @override
@@ -25,6 +29,8 @@ class InheritedExprollablePageController extends InheritedWidget {
       !identical(controller, oldWidget.controller);
 }
 
+/// An inherited widget that provides a [ViewportController] to its descendants.
+@internal
 class InheritedViewportController extends InheritedWidget {
   const InheritedViewportController({
     super.key,
@@ -32,6 +38,7 @@ class InheritedViewportController extends InheritedWidget {
     required this.controller,
   });
 
+  /// A provided controller.
   final ViewportController controller;
 
   @override
@@ -39,6 +46,7 @@ class InheritedViewportController extends InheritedWidget {
       !identical(controller, oldWidget.controller);
 }
 
+@internal
 class InheritedPageContentScrollController extends InheritedWidget {
   const InheritedPageContentScrollController({
     super.key,
@@ -75,7 +83,12 @@ class _CurrentPageNotifier extends ValueNotifier<int> {
   }
 }
 
+/// A controller for [ExprollablePageView].
+///
+/// A [ExprollablePageController] lets you manipulate which page is visible in a [ExprollablePageView].
+/// It also can be used to programmatically change the viewport state.
 class ExprollablePageController extends PageController {
+  /// Create a page controller.
   ExprollablePageController({
     super.initialPage,
     super.keepPage,
@@ -109,9 +122,13 @@ class ExprollablePageController extends PageController {
 
   late final _SnapViewportOffsetPhysics _snapPhysics;
 
-  late final _CurrentPageNotifier _currentPage;
+  /// A notifier that stores the index of the current visible page.
+  /// The new index is notified whenever the page that fully occupies the viewport changes.
+  /// [ExprollablePageController.initialPage] is used as an initial value.
   ValueListenable<int> get currentPage => _currentPage;
+  late final _CurrentPageNotifier _currentPage;
 
+  /// An object that stores the viewport state.
   late final PageViewport viewport;
 
   PageContentScrollController get _contentScrollController {
@@ -119,6 +136,9 @@ class ExprollablePageController extends PageController {
     return _contentScrollControllers[currentPage.value]!;
   }
 
+  /// Creates a [ScrollController] associated with this controller
+  /// for a scrollable page in the [ExprollablePageView].
+  @internal
   PageContentScrollController createScrollController(int page) {
     assert(!_contentScrollControllers.containsKey(page));
     final controller = PageContentScrollController._(snapPhysics: _snapPhysics);
@@ -127,6 +147,8 @@ class ExprollablePageController extends PageController {
     return controller;
   }
 
+  /// Dispose the [ScrollController] which is created by [createScrollController] for [page].
+  @internal
   void disposeScrollController(int page) {
     assert(_contentScrollControllers.containsKey(page));
     final controller = _contentScrollControllers.remove(page)!;
@@ -141,6 +163,8 @@ class ExprollablePageController extends PageController {
     _currentPage.dispose();
   }
 
+  /// Animates the controlled [ExprollablePageView] from the current viewport offset
+  /// to the given offset.
   Future<void> animateViewportOffsetTo(
     ViewportOffset offset, {
     required Curve curve,
@@ -153,10 +177,18 @@ class ExprollablePageController extends PageController {
     );
   }
 
+  /// Changes the current viewport offset without animation.
   void jumpViewportOffsetTo(ViewportOffset offset) {
     _contentScrollController.jumpTo(offset.toScrollOffset(viewport));
   }
 
+  /// Obtians a controller from an ancestor [InheritedExprollablePageController]
+  /// if exists, return null otherwise.
+  ///
+  /// The [ExprollablePageView] has an [InheritedExprollablePageController] as its descendant,
+  /// so you can use this method anywhere in the subtree of the page view.
+  /// Note that the instance of the provided controller may changes; if you subscribe it, 
+  /// do not forget to unbscribe the old one in [State.didChangeDependencies].
   static ExprollablePageController? of(BuildContext context) => context
       .dependOnInheritedWidgetOfExactType<InheritedExprollablePageController>()
       ?.controller;
@@ -666,11 +698,11 @@ class _SnapViewportOffsetPhysics extends ScrollPhysics {
 /// -  `ViewportOffset.fractional(1.0) < ViewportOffset.fractional(0.0)`
 @sealed
 abstract class ViewportOffset implements Comparable<ViewportOffset> {
-  /// The offset at which the viewport is fully expanded 
+  /// The offset at which the viewport is fully expanded
   /// (more precisely, when [PageViewport.fraction] is equal to [PageViewport.maxFraction]).
   static const expanded = ExpandedViewportOffset();
 
-  /// The offset at which the viewport is fully shrunk 
+  /// The offset at which the viewport is fully shrunk
   /// (more precisely, when [PageViewport.fraction] is equal to [PageViewport.minFraction]).
   static const shrunk = ShrunkViewportOffset();
 
