@@ -1,9 +1,46 @@
+/// Copied and modified from:
+/// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/widgets/page_view.dart
+/// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/rendering/sliver_fill.dart
+///
+/// Changes done:
+/// - Replace [SliverFillViewport] with [_SliverFillViewport] in [_PageViewState.build]
+/// - In [_RenderSliverFillViewport.performLayout], force the children to always occupy the parent viewport,
+///   regardless of [_RenderSliverFillViewport.itemExtent].
+
+// Copyright 2014 The Flutter Authors. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+//       copyright notice, this list of conditions and the following
+//       disclaimer in the documentation and/or other materials provided
+//       with the distribution.
+//     * Neither the name of Google Inc. nor the names of its
+//       contributors may be used to endorse or promote products derived
+//       from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+// The methods defined in this class are copied and modified from the following file:
+// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/rendering/sliver_fill.dart
 class _RenderSliverFillViewport extends RenderSliverFillViewport {
   _RenderSliverFillViewport({
     required super.childManager,
@@ -55,8 +92,7 @@ class _RenderSliverFillViewport extends RenderSliverFillViewport {
     final int firstIndex =
         getMinChildIndexForScrollOffset(scrollOffset, itemExtent);
     final int? targetLastIndex = targetEndScrollOffset.isFinite
-        ? getMaxChildIndexForScrollOffset(
-            targetEndScrollOffset, itemExtent)
+        ? getMaxChildIndexForScrollOffset(targetEndScrollOffset, itemExtent)
         : null;
 
     if (firstChild != null) {
@@ -90,20 +126,15 @@ class _RenderSliverFillViewport extends RenderSliverFillViewport {
 
     RenderBox? trailingChildWithLayout;
 
-    for (int index = indexOf(firstChild!) - 1;
-        index >= firstIndex;
-        --index) {
-      final RenderBox? child =
-          insertAndLayoutLeadingChild(childConstraints);
+    for (int index = indexOf(firstChild!) - 1; index >= firstIndex; --index) {
+      final RenderBox? child = insertAndLayoutLeadingChild(childConstraints);
       if (child == null) {
-        geometry =
-            SliverGeometry(scrollOffsetCorrection: index * itemExtent);
+        geometry = SliverGeometry(scrollOffsetCorrection: index * itemExtent);
         return;
       }
       final SliverMultiBoxAdaptorParentData childParentData =
           child.parentData! as SliverMultiBoxAdaptorParentData;
-      childParentData.layoutOffset =
-          indexToLayoutOffset(itemExtent, index);
+      childParentData.layoutOffset = indexToLayoutOffset(itemExtent, index);
       assert(childParentData.index == index);
       trailingChildWithLayout ??= child;
     }
@@ -178,11 +209,10 @@ class _RenderSliverFillViewport extends RenderSliverFillViewport {
 
     final double targetEndScrollOffsetForPaint =
         constraints.scrollOffset + constraints.remainingPaintExtent;
-    final int? targetLastIndexForPaint =
-        targetEndScrollOffsetForPaint.isFinite
-            ? getMaxChildIndexForScrollOffset(
-                targetEndScrollOffsetForPaint, itemExtent)
-            : null;
+    final int? targetLastIndexForPaint = targetEndScrollOffsetForPaint.isFinite
+        ? getMaxChildIndexForScrollOffset(
+            targetEndScrollOffsetForPaint, itemExtent)
+        : null;
     geometry = SliverGeometry(
       scrollExtent: estimatedMaxScrollOffset,
       paintExtent: paintExtent,
@@ -200,6 +230,8 @@ class _RenderSliverFillViewport extends RenderSliverFillViewport {
   }
 }
 
+// This class was copied from:
+// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/widgets/sliver_fill.dart
 class _SliverFillViewportRenderObjectWidget
     extends SliverMultiBoxAdaptorWidget {
   const _SliverFillViewportRenderObjectWidget({
@@ -265,8 +297,9 @@ class _SliverFractionalPadding extends SingleChildRenderObjectWidget {
   }
 }
 
-class _RenderSliverFractionalPadding
-    extends RenderSliverEdgeInsetsPadding {
+// This class was copied from:
+// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/widgets/sliver_fill.dart
+class _RenderSliverFractionalPadding extends RenderSliverEdgeInsetsPadding {
   _RenderSliverFractionalPadding({
     double viewportFraction = 0,
   })  : assert(viewportFraction <= 0.5),
@@ -295,8 +328,7 @@ class _RenderSliverFractionalPadding
   }
 
   void _resolve() {
-    if (_resolvedPadding != null &&
-        _lastResolvedConstraints == constraints) {
+    if (_resolvedPadding != null && _lastResolvedConstraints == constraints) {
       return;
     }
     final double paddingValue =
@@ -321,6 +353,8 @@ class _RenderSliverFractionalPadding
   }
 }
 
+/// A page view that forces the pages to occupy the viewport
+/// regardless of [PageController.viewportFraction].
 class AlwaysFillViewportPageView extends PageView {
   AlwaysFillViewportPageView.builder({
     super.key,
@@ -347,6 +381,8 @@ class AlwaysFillViewportPageView extends PageView {
 
 const PageScrollPhysics _kPagePhysics = PageScrollPhysics();
 
+/// This class was copied and modified from:
+/// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/widgets/page_view.dart
 class _PageViewState extends State<PageView> {
   int _lastReportedPage = 0;
 
@@ -380,8 +416,7 @@ class _PageViewState extends State<PageView> {
       widget.pageSnapping
           ? _kPagePhysics.applyTo(widget.physics ??
               widget.scrollBehavior?.getScrollPhysics(context))
-          : widget.physics ??
-              widget.scrollBehavior?.getScrollPhysics(context),
+          : widget.physics ?? widget.scrollBehavior?.getScrollPhysics(context),
     );
 
     return NotificationListener<ScrollNotification>(
@@ -429,10 +464,10 @@ class _PageViewState extends State<PageView> {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder description) {
     super.debugFillProperties(description);
+    description
+        .add(EnumProperty<Axis>('scrollDirection', widget.scrollDirection));
     description.add(
-        EnumProperty<Axis>('scrollDirection', widget.scrollDirection));
-    description.add(FlagProperty('reverse',
-        value: widget.reverse, ifTrue: 'reversed'));
+        FlagProperty('reverse', value: widget.reverse, ifTrue: 'reversed'));
     description.add(DiagnosticsProperty<PageController>(
         'controller', widget.controller,
         showName: false));
@@ -447,6 +482,8 @@ class _PageViewState extends State<PageView> {
   }
 }
 
+/// This class was copied from:
+/// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/widgets/page_view.dart
 class _ForceImplicitScrollPhysics extends ScrollPhysics {
   const _ForceImplicitScrollPhysics({
     required this.allowImplicitScrolling,
