@@ -5,14 +5,23 @@ import 'package:exprollable_page_view/src/core/view.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
 
+/// Inserts appropriate padding into the child widget according to the current viewpor offset.
 class AdaptivePagePadding extends StatefulWidget {
+  /// Creates a widget that inserts appropriate padding
+  /// into the top of the child widget according to the current viewpor offset.
+  /// It also adds extra padding if [useSafeArea] is enabled
+  /// to prevents the child from being obscured by the system UI such as a status bar.
   const AdaptivePagePadding({
     super.key,
     required this.child,
     this.useSafeArea = true,
   });
 
+  /// The child widget which [AdaptivePagePadding] will add padding to.
   final Widget child;
+
+  /// Indicates whether the widget should add extra padding
+  /// to prevent the child from being obscured by the system UI.
   final bool useSafeArea;
 
   @override

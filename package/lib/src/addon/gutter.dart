@@ -3,14 +3,19 @@ import 'package:exprollable_page_view/src/core/view.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
 
+/// Insert spaces at both sides of the wrapped page.
 class PageGutter extends StatefulWidget {
+  /// Creates a widget that inserts spaces of [gutterWidth] at both sides of [child].
   const PageGutter({
     super.key,
     required this.child,
     required this.gutterWidth,
   }) : assert(gutterWidth >= 0.0);
 
+  /// A page to be wrapped.
   final Widget child;
+
+  /// The width in pixels of the gutter to be inserted.
   final double gutterWidth;
 
   @override
@@ -71,8 +76,7 @@ class _PageGutterState extends State<PageGutter> {
   void correctState() => deltaX = computeDeltaX();
 
   double computeDeltaX() {
-    if (controller.hasClients &&
-        controller.position.hasContentDimensions) {
+    if (controller.hasClients && controller.position.hasContentDimensions) {
       final realPage = controller.page!;
       final fraction = (page - realPage).clamp(-1.0, 1.0);
       return widget.gutterWidth * fraction;
