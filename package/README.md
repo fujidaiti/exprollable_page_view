@@ -184,7 +184,7 @@ Widget build(BuildContext context) {
 
 ### ModalExprollable
 
-Use `ModalExprollable` to create modal dialog style PageViews. This widget adds a traslucent background and *swipe down to dismiss* action to your `ExprollablePageView`. You can use `showModalExprollable` a convenience function that wraps your `ExprollablePageView` with `ModalExprollable` and display it as a dialog. If you want to customize reveal/dismiss behavior of the dialog, create your own `PageRoute` and use `ModalExprollable` in it.
+Use `ModalExprollable` to create modal dialog style PageViews. This widget adds a translucent background and *swipe down to dismiss* action to your `ExprollablePageView`. You can use `showModalExprollable` a convenience function that wraps your `ExprollablePageView` with `ModalExprollable` and display it as a dialog. If you want to customize reveal/dismiss behavior of the dialog, create your own `PageRoute` and use `ModalExprollable` in it.
 
 ```dart
 showModalExprollable(
