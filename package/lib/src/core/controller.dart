@@ -46,6 +46,7 @@ class InheritedViewportController extends InheritedWidget {
       !identical(controller, oldWidget.controller);
 }
 
+/// An inherited widget that provides a [PageContentScrollController] to its descendants.
 @internal
 class InheritedPageContentScrollController extends InheritedWidget {
   const InheritedPageContentScrollController({
@@ -89,6 +90,11 @@ class _CurrentPageNotifier extends ValueNotifier<int> {
 /// It also can be used to programmatically change the viewport state.
 class ExprollablePageController extends PageController {
   /// Create a page controller.
+  ///
+  /// `snapViewportOffsets` is used to specify the viewport offsets that the active page will snap to. 
+  /// [ViewportOffset.explored] and [ViewportOffset.shrunk] are set to be snaped by default. 
+  /// If you specify additional offsets, you may need to also specify `maxViewportOffset` 
+  /// to be able to drag the page to the additional snap offsets larger than [ViewportOffset.shrunk].
   ExprollablePageController({
     super.initialPage,
     super.keepPage,
@@ -129,6 +135,7 @@ class ExprollablePageController extends PageController {
   late final _CurrentPageNotifier _currentPage;
 
   /// An object that stores the viewport state.
+  /// You can subscribe this object to get notified when the viewport state changes.
   late final PageViewport viewport;
 
   PageContentScrollController get _contentScrollController {
@@ -137,7 +144,11 @@ class ExprollablePageController extends PageController {
   }
 
   /// Creates a [ScrollController] associated with this controller
-  /// for a scrollable page in the [ExprollablePageView].
+  /// for a page in the [ExprollablePageView].
+  ///
+  /// [InheritedPageContentScrollController] is used to provide the created controller
+  /// to the descendant widgets of the [ExprollablePageView] and it can be obtained
+  /// using [PageContentScrollController.of].
   @internal
   PageContentScrollController createScrollController(int page) {
     assert(!_contentScrollControllers.containsKey(page));
@@ -177,7 +188,7 @@ class ExprollablePageController extends PageController {
     );
   }
 
-  /// Changes the current viewport offset without animation.
+  /// instantly changes the current viewport offset without animation.
   void jumpViewportOffsetTo(ViewportOffset offset) {
     _contentScrollController.jumpTo(offset.toScrollOffset(viewport));
   }
@@ -187,19 +198,29 @@ class ExprollablePageController extends PageController {
   ///
   /// The [ExprollablePageView] has an [InheritedExprollablePageController] as its descendant,
   /// so you can use this method anywhere in the subtree of the page view.
-  /// Note that the instance of the provided controller may changes; if you subscribe it, 
+  /// Note that the instance of the provided controller may changes; if you subscribe it,
   /// do not forget to unbscribe the old one in [State.didChangeDependencies].
   static ExprollablePageController? of(BuildContext context) => context
       .dependOnInheritedWidgetOfExactType<InheritedExprollablePageController>()
       ?.controller;
 }
 
+/// A description of the viewport mesurements.
 @immutable
 class ViewportDimensions {
+  /// The width dimension in pixels.
   final double width;
+
+  // The height dimension in pixels.
   final double height;
+
+  /// The padding set aorund the viewport.
+  ///
+  /// This does not include dynamically added padding
+  /// (e.g., software keyboard padding shown on the screen).
   final EdgeInsets padding;
 
+  /// A description of the viewport mesurements.
   const ViewportDimensions({
     required this.width,
     required this.height,
@@ -219,37 +240,111 @@ class ViewportDimensions {
   int get hashCode => Object.hash(runtimeType, width, height, padding);
 }
 
+/// A description of the viewport state.
+///
+/// The state of the viewport is described by the 2 mesurements: fraction and offset.
+/// A fraction indicates how much space each page should occupy in the viewport,
+/// and it must be between 0.0 and 1.0. An offset is the distance from the top of the viewport
+/// to the top of a page.
+///
+/// ![viewport-fraction-offset](https://user-images.githubusercontent.com/68946713/231830114-f4d9bec4-cb85-41f8-a9fd-7b3f21ff336a.png)
+///
 mixin ViewportMetrics {
+  /// A static description of the viewport mesurements.
+  /// Available only if [hasDimensions] is true.
   ViewportDimensions get dimensions;
+
+  /// Indicates if [dimensions] property is available.
   bool get hasDimensions;
+
+  /// Indicates how much space each page should occupy in the viewport.
+  /// [fraction] is between [minFraction] and [maxFraction] including both edges.
   double get fraction;
+
+  /// The lower bound of [fraction].
   double get minFraction;
+
+  /// The upper bound of [fraction].
   double get maxFraction;
+
+  /// The distance from the top of the viewport to the top of the current page.
+  ///
+  /// [offset] is always greater than or equals to [minOffset], but might exceeds [maxOffset].
+  /// For eample, if the scrollable widget in the current page uses [BouncingScrollPhysics]
+  /// as its scroll physics and a user tries to overscroll the page,
+  /// [offset] will exceeds [maxOffset] according to the physics.
   double get offset;
+
+  /// The lower bound of the offset.
   double get minOffset;
+
+  /// The upper bound of the offset. The actual [offset] might exceeds this value.
   double get maxOffset;
 
+  /// Calculate the difference between [minOffset] and [maxOffset].
   double get deltaOffset {
     assert(minOffset <= maxOffset);
     return maxOffset - minOffset;
   }
 
+  /// Calculate the difference between [minFraction] and [maxOffset].
   double get deltaFraction {
     assert(minFraction <= maxFraction);
     return maxFraction - minFraction;
   }
 }
 
+/// A description of the state of the **conceptual** viewport.
 mixin PageViewportMetrics on ViewportMetrics {
+  /// Inidicates if overshoot effect is enabled. If [overshootEffect] is enabled,
+  /// the upper segment of the active page will slightly exceed the top of the viewport when it goes fullscreen.
+  /// To be precise, this means that the viewport offset will take a negative value when the viewport fraction is 1.0.
+  /// This trick creates a dynamic visual effect when the page goes fullscreen.
+  /// The figures below are a demonstration of how the overshoot effect affects (disabled in the left, enabled in the right).
+  ///
+  /// ![overshoot-disabled](https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif) ![overshoot-enabled](https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif)
+  ///
+  /// Overshoot effect will works correctly only if:
+  ///
+  /// - `MediaQuery.padding.bottom` > 0
+  /// - Ther lower segment of `ExprollablePageView` is behind a widget such as `NavigationBar`, `BottomAppBar`
+  ///
+  /// Perhaps the most common use is to wrap an `ExprollablePageView` with a `Scaffold`. In that case, do not forget to enable `Scaffold.extentBody` and then everything should be fine.
+  ///
+  /// ```dart
+  /// controller = ExprollablePageController(overshootEffect: true);
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return Scaffold(
+  ///     extendBody: true,
+  ///     bottomNavigationBar: BottomNavigationBar(...),
+  ///     body: ExprollablePageView(
+  ///       controller: controller,
+  ///       itemBuilder: (context, page) { ... },
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  ///
   bool get overshootEffect;
+
+  /// The lower bound of the offset at which the viewport is fully shrunk.
   double get shrunkOffset;
+
+  /// The upper bound of the offset at which the viewport is fully expanded.
   double get expandedOffset;
+
+  /// Indicates if the viewport is fully shrunk.
   bool get isShrunk => offset >= shrunkOffset;
+
+  // Indicates if the viewport is fully expanded.
   bool get isExpanded => offset <= expandedOffset;
 }
 
+/// A snapshot of the state of the conceptual viewport.
 @immutable
 class StaticPageViewportMetrics with ViewportMetrics, PageViewportMetrics {
+  /// Create a snapshot of the viewport state.
   const StaticPageViewportMetrics({
     required this.fraction,
     required this.minFraction,
@@ -263,6 +358,7 @@ class StaticPageViewportMetrics with ViewportMetrics, PageViewportMetrics {
     required this.overshootEffect,
   });
 
+  /// Create a [StaticPageViewportMetrics] copying another [PageViewportMetrics].
   factory StaticPageViewportMetrics.from(
     PageViewportMetrics metrics,
   ) =>
@@ -342,15 +438,28 @@ class StaticPageViewportMetrics with ViewportMetrics, PageViewportMetrics {
       );
 }
 
+/// A notification that bubbles up the widget tree from a [ExprollablePageView] whenever the viewport state changes.
+/// Listening for this notification is equivalent to observe [ExprollablePageController.viewport].
 class PageViewportUpdateNotification extends Notification {
   const PageViewportUpdateNotification(this.metrics);
   final PageViewportMetrics metrics;
 }
 
-/// An object that represents the state of the viewport.
+/// An object that represents the state of the **conceptual** viewport.
+///
+/// "Conceptual" means that the actual measurements for each page is calculated according to the state of this object,
+/// and individually managed by [ViewportController]s attached to the pages.
+/// This is because the visual position of each page may differ, for example,
+/// the default behavior of [PageViewport] is for the offset of the active page to be zero
+/// (or negative if overshoot effect is enabled) when it is fully expanded,
+/// but the offset for the inactive page is positive even if the active page is fully expanded.
+///
+/// This object subscribes to the given [ScrollAbsorber] to calculates the [offset] and [fraction]
+/// depending on [ScrollAbsorber.pixels], and if there are any changes, notifies its listeners.
 class PageViewport extends ChangeNotifier
     with ViewportMetrics, PageViewportMetrics
     implements ValueListenable<PageViewportMetrics> {
+  /// Creates an object that represents the state of the **conceptual** viewport.
   PageViewport({
     required this.minFraction,
     required this.overshootEffect,
@@ -426,6 +535,10 @@ class PageViewport extends ChangeNotifier
     return initialOffset - minOffset;
   }
 
+  /// Correct the state of this object for the given [dimensions].
+  /// This method should be called whenever the dimensions of the viewport changes in [ExprollablePageView.build].
+  /// Therefore this method does not notify its listeners even if the state changes after recalculation.
+  @internal
   void correctForNewDimensions(ViewportDimensions dimensions) {
     _dimensions = dimensions;
     _absorber.correct((it) {
@@ -479,6 +592,9 @@ class PageViewport extends ChangeNotifier
   }
 }
 
+/// Stores the actual metrics of the viewport for a specific [page].
+/// Some of the metrics may be different from those of the conceptulal viewport
+/// depending on whether the page is active or not.
 class ViewportController extends ChangeNotifier
     with ViewportMetrics
     implements ValueListenable<ViewportMetrics> {
@@ -499,12 +615,15 @@ class ViewportController extends ChangeNotifier
       ..viewport.removeListener(_invalidateState);
   }
 
+  /// The page corresponding to the viewport that this object represents.
   final int page;
+
   final ExprollablePageController _pageController;
 
   late Offset _translation = _computeTranslation();
   late double _fraction = _computeFraction();
 
+  /// How many pixels the page should translate from the actual position in the page view.
   Offset get translation => _translation;
 
   @override
@@ -587,11 +706,18 @@ class ViewportController extends ChangeNotifier
     }
   }
 
+  /// Obtains the [ViewportController] of a page that is the nearest ancestor from [context].
   static ViewportController? of(BuildContext context) => context
       .dependOnInheritedWidgetOfExactType<InheritedViewportController>()
       ?.controller;
 }
 
+/// A [ScrollController] that must be attached to a [Scrollable] widget in each page.
+///
+/// Since [PageViewport] subscribes to [PageContentScrollController.absorber]
+/// to calculate the viewport state according to the scroll position,
+/// it is important that the [PageContentScrollController] obtained from
+/// [PageContentScrollController.of] is attached to a [Scrollable] widget in each page.
 class PageContentScrollController extends AbsorbScrollController {
   PageContentScrollController._(
       {required _SnapViewportOffsetPhysics? snapPhysics})
@@ -618,6 +744,7 @@ class PageContentScrollController extends AbsorbScrollController {
         oldPosition,
       );
 
+  /// Obtains the [PageContentScrollController] for a page that is the nearest ancestor from [context].
   static PageContentScrollController? of(BuildContext context) => context
       .dependOnInheritedWidgetOfExactType<
           InheritedPageContentScrollController>()
@@ -696,6 +823,8 @@ class _SnapViewportOffsetPhysics extends ScrollPhysics {
 /// - `ViewportOffset.expanded < ViewportOffset.shrunk`
 /// -  `ViewportOffset.shrunk == ViewportOffset.fractional(1.0)`
 /// -  `ViewportOffset.fractional(1.0) < ViewportOffset.fractional(0.0)`
+///
+/// ![viewport-offsets](https://user-images.githubusercontent.com/68946713/231827251-fed9575c-980a-40b8-b01a-da984d58f3ec.png)
 @sealed
 abstract class ViewportOffset implements Comparable<ViewportOffset> {
   /// The offset at which the viewport is fully expanded
@@ -713,10 +842,11 @@ abstract class ViewportOffset implements Comparable<ViewportOffset> {
 
   const ViewportOffset();
 
-  /// Calculate the concrete pixels represented by the [ViewportOffset]
+  /// Calculate the concrete pixels represented by this object
   /// from the current viewport dimensions.
   double toConcreteValue(PageViewportMetrics metrics);
 
+  /// Convert the offset to a scroll offset for [ScrollPosition].
   double toScrollOffset(PageViewportMetrics metrics) {
     final offset = toConcreteValue(metrics);
     assert(offset >= metrics.minOffset);
@@ -729,6 +859,7 @@ abstract class ViewportOffset implements Comparable<ViewportOffset> {
   bool operator <=(ViewportOffset other) => this < other || this == other;
 }
 
+/// The upper bound of the offset at which the viewport is fully expanded.
 class ExpandedViewportOffset extends ViewportOffset {
   const ExpandedViewportOffset();
 
@@ -755,6 +886,7 @@ class ExpandedViewportOffset extends ViewportOffset {
   int get hashCode => runtimeType.hashCode;
 }
 
+/// The lower bound of the offset at which the viewport is fully shrunk.
 class ShrunkViewportOffset extends ViewportOffset {
   const ShrunkViewportOffset();
 
@@ -784,10 +916,17 @@ class ShrunkViewportOffset extends ViewportOffset {
   int get hashCode => runtimeType.hashCode;
 }
 
+/// A viewport offset that is defined by a fractional value.
+///
+/// `fraction == 1.0` is equivalent to [ViewportOffset.shrunk],
+/// and `fraction == 0.0` corresponds to the bottom of the viewport excluding the padding.
 class FractionalViewportOffset extends ViewportOffset {
+  /// Creates a viewport offset from a fractional value.
+  /// [fraction] must be between 0.0 and 1.0.
   const FractionalViewportOffset(this.fraction)
       : assert(0.0 <= fraction && fraction <= 1.0);
 
+  /// The fractional value of the offset.
   final double fraction;
 
   @override
