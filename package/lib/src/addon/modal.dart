@@ -43,7 +43,7 @@ void _defaultDismissBehavior(BuildContext context) =>
     Navigator.of(context).pop();
 
 /// A widget that makes a [ExprollablePageView] modal dialog style.
-/// 
+///
 /// This widget adds a translucent background (barrier) and
 /// *swipe down to dismiss* action to the child page view.
 /// Use [showModalExprollable] as a convenience method

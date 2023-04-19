@@ -51,7 +51,7 @@ class ExprollablePageView extends StatefulWidget {
   /// See [PageView.dragStartBehavior] for more details.
   final DragStartBehavior dragStartBehavior;
 
-  /// Controls whether the widget's pages will respond to [RenderObject.showOnScreen], 
+  /// Controls whether the widget's pages will respond to [RenderObject.showOnScreen],
   /// which will allow for implicit accessibility scrolling.
   /// See [PageView.allowImplicitScrolling] for more detials.
   final bool allowImplicitScrolling;
