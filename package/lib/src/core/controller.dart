@@ -91,9 +91,9 @@ class _CurrentPageNotifier extends ValueNotifier<int> {
 class ExprollablePageController extends PageController {
   /// Create a page controller.
   ///
-  /// `snapViewportOffsets` is used to specify the viewport offsets that the active page will snap to. 
-  /// [ViewportOffset.explored] and [ViewportOffset.shrunk] are set to be snaped by default. 
-  /// If you specify additional offsets, you may need to also specify `maxViewportOffset` 
+  /// `snapViewportOffsets` is used to specify the viewport offsets that the active page will snap to.
+  /// [ViewportOffset.explored] and [ViewportOffset.shrunk] are set to be snaped by default.
+  /// If you specify additional offsets, you may need to also specify `maxViewportOffset`
   /// to be able to drag the page to the additional snap offsets larger than [ViewportOffset.shrunk].
   ExprollablePageController({
     super.initialPage,
