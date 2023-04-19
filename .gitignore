@@ -9,5 +9,5 @@
 .history
 .svn/
 migrate_working_dir/
-pubspeck.lock
+pubspec.lock
 
