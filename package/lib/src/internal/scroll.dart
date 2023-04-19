@@ -137,25 +137,14 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
     super.keepScrollOffset,
   });
 
-  ScrollAbsorber? _absorber;
-
-  void attach(ScrollAbsorber absorber) {
-    if (identical(_absorber, absorber)) return;
-    _absorber = absorber;
-    if (hasPixels) correctPixels(pixels);
-  }
-
-  void detach(ScrollAbsorber absorber) {
-    if (!identical(_absorber, absorber)) return;
-    _absorber = null;
-  }
+  // May be initialized in [correctPixels] since it will be called
+  // in the super constructor if [initialPixels] is not null.
+  final ScrollAbsorber absorber = ScrollAbsorber();
 
   double get impliedPixels =>
-      _absorber?.pixels != null ? pixels - _absorber!.pixels! : pixels;
+      absorber.pixels != null ? pixels - absorber.pixels! : pixels;
 
-  double get impliedMinScrollExtent => _absorber != null
-      ? minScrollExtent - _absorber!.capacity
-      : minScrollExtent;
+  double get impliedMinScrollExtent => minScrollExtent - absorber.capacity;
 
   static double _computeOverscroll(double pixels, double minScrollExtent) =>
       max(0.0, minScrollExtent - pixels);
@@ -165,13 +154,6 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
-    if (_absorber == null) {
-      return super.applyContentDimensions(
-        minScrollExtent,
-        maxScrollExtent,
-      );
-    }
-
     if (hasContentDimensions) {
       return super.applyContentDimensions(minScrollExtent, maxScrollExtent);
     } else {
@@ -179,7 +161,7 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
       // we can calculate the initial overscroll from current [pixels]
       // which is equal to [initialPixels] or [oldPosition.pixels] passed in the constructor.
       // Then, initialize [OverscrollAbsorber] with the calculated overscroll.
-      _absorber!.correct((it) {
+      absorber.correct((it) {
         it.absorb(_computeOverscroll(pixels, minScrollExtent));
       });
       final oldPixels = pixels;
@@ -209,14 +191,17 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
   @override
   void absorb(ScrollPosition other) {
     super.absorb(other);
-    if (_absorber != null) {
-      if (other is AbsorbScrollPosition && other._absorber?.pixels != null) {
-        _absorber!.absorb(other._absorber!.pixels!);
-      } else if (hasPixels && hasContentDimensions) {
-        // `super.absorb(other)` may set `super._pixels` to
-        // an invalid value, which needs to be corrected.
-        correctPixels(pixels);
-      }
+    // if (other is AbsorbScrollPosition && other.absorber.pixels != null) {
+    //   absorber.absorb(other.absorber.pixels!);
+    // } else if (hasPixels && hasContentDimensions) {
+    //   // `super.absorb(other)` may set `super._pixels` to an invalid value,
+    //   // which needs to be corrected.
+    //   correctPixels(pixels);
+    // }
+    if (other.hasPixels && other is AbsorbScrollPosition) {
+      // `super.absorb(other)` may set `super._pixels` to an invalid value,
+      // which needs to be corrected.
+      correctPixels(other.impliedPixels);
     }
   }
 
@@ -255,13 +240,9 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   void correctPixels(double value) {
-    if (_absorber == null) {
-      super.correctPixels(value);
-      return;
-    }
-
+    if (hasPixels && value == impliedPixels) return;
     if (hasContentDimensions) {
-      _absorber!.correct((it) {
+      absorber.correct((it) {
         it.absorb(_computeOverscroll(value, minScrollExtent));
       });
       super.correctPixels(_computeApparentPixels(value, minScrollExtent));
@@ -276,14 +257,9 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   void forcePixels(double value) {
-    if (_absorber == null) {
-      super.forcePixels(value);
-      return;
-    }
-
     assert(hasPixels);
     _impliedVelocity = value - impliedPixels;
-    _absorber!.absorb(_computeOverscroll(value, minScrollExtent));
+    absorber.absorb(_computeOverscroll(value, minScrollExtent));
     super.correctPixels(_computeApparentPixels(value, minScrollExtent));
     notifyListeners();
     SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
@@ -308,14 +284,10 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   double setPixels(double newPixels) {
-    if (_absorber == null) {
-      return super.setPixels(newPixels);
-    }
-
     if (newPixels == impliedPixels) return 0.0;
     final unhandledOverscroll = applyBoundaryConditions(newPixels);
     final newActualPixels = newPixels - unhandledOverscroll;
-    _absorber!.absorb(_computeOverscroll(newActualPixels, minScrollExtent));
+    absorber.absorb(_computeOverscroll(newActualPixels, minScrollExtent));
     super.setPixels(_computeApparentPixels(newActualPixels, minScrollExtent));
     if (unhandledOverscroll != 0.0) {
       didOverscrollBy(unhandledOverscroll);
@@ -382,16 +354,22 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
   @override
   void jumpTo(double value) {
     goIdle();
-    if (!impliedPixels.almostEqualTo(value)) {
+    if (impliedPixels.almostEqualTo(value)) {
       final double oldPixels = pixels;
       forcePixels(value);
       didStartScroll();
-      if (!pixels.almostEqualTo(oldPixels)) {
+      if (pixels.almostEqualTo(oldPixels)) {
         didUpdateScrollPositionBy(pixels - oldPixels);
       }
       didEndScroll();
     }
     goBallistic(0.0);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    absorber.dispose();
   }
 }
 
@@ -401,9 +379,9 @@ class AbsorbScrollController extends ScrollController {
     super.initialScrollOffset,
     super.keepScrollOffset,
     double absorberCapacity = 0.0,
-  }) : absorber = ScrollAbsorber(capacity: absorberCapacity);
+  }) : absorber = ScrollAbsorberGroup(capacity: absorberCapacity);
 
-  final ScrollAbsorber absorber;
+  final ScrollAbsorberGroup absorber;
 
   @override
   AbsorbScrollPosition get position => super.position as AbsorbScrollPosition;
@@ -428,23 +406,19 @@ class AbsorbScrollController extends ScrollController {
   void attach(ScrollPosition position) {
     super.attach(position);
     assert(position is AbsorbScrollPosition);
-    (position as AbsorbScrollPosition).attach(absorber);
+    absorber.attach((position as AbsorbScrollPosition).absorber);
   }
 
   @override
   void detach(ScrollPosition position) {
     super.detach(position);
     assert(position is AbsorbScrollPosition);
-    (position as AbsorbScrollPosition).detach(absorber);
+    absorber.detach((position as AbsorbScrollPosition).absorber);
   }
 
   @override
   void dispose() {
     super.dispose();
-    assert(positions.length <= 1);
-    if (hasClients) {
-      position.detach(absorber);
-    }
     absorber.dispose();
   }
 }
