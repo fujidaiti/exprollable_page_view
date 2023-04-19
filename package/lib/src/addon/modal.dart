@@ -4,7 +4,7 @@ import 'package:exprollable_page_view/src/core/controller.dart';
 import 'package:exprollable_page_view/src/core/view.dart';
 import 'package:flutter/material.dart';
 
-/// Show a [ExprollablePageView] as an modal dialog.
+/// Show a [ExprollablePageView] as a modal dialog.
 Future<T?> showModalExprollable<T>(
   BuildContext context, {
   required WidgetBuilder builder,
@@ -43,11 +43,11 @@ void _defaultDismissBehavior(BuildContext context) =>
     Navigator.of(context).pop();
 
 /// A widget that makes a [ExprollablePageView] modal dialog style.
-/// 
+///
 /// This widget adds a translucent background (barrier) and
 /// *swipe down to dismiss* action to the child page view.
 /// Use [showModalExprollable] as a convenience method
-/// to show the [ExprollablePageView] as an dialog,
+/// to show the [ExprollablePageView] as a dialog,
 /// which wraps the page view with [ModalExprollable].
 /// If you want to customize reveal/dismiss behavior of the dialog,
 /// create your own [PageRoute] and use [ModalExprollable] in it.

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0-beta.6 19-04-2023
+
+- Fix #17
+
 ## 1.0.0-beta.5 18-04-2023
 
 - Add doc comments for public APIs

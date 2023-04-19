@@ -11,7 +11,7 @@ import 'package:meta/meta.dart';
 
 /// An inherited widget used in [ExprollablePageView] to provides
 /// its [ExprollablePageController] to its descendants.
-/// [ExprollablePageController.of] is an convenience method that obtains
+/// [ExprollablePageController.of] is a convenience method that obtains
 /// the controller sotred in this inherited widget.
 @internal
 class InheritedExprollablePageController extends InheritedWidget {
