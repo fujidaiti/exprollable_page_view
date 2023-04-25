@@ -47,7 +47,7 @@ cd example
 flutter pub get
 flutter run
 ```
-There is another example that demonstrates how `ExprollablePageView` is able to work with Google Maps. See [maps_example/README](https://github.com/fujidaiti/exprollable_page_view/blob/master/maps_example/README.md) for more details.
+There is another example, which demonstrates how `ExprollablePageView` is able to work with Google Maps. See [maps_example/README](https://github.com/fujidaiti/exprollable_page_view/blob/master/maps_example/README.md) for more details.
 
 ## Install
 
