@@ -6,9 +6,9 @@
 
 Yet another PageView widget that expands its viewport as it scrolls. **Exprollable** is a coined word combining the words expandable and scrollable. This project is an attemt to clone a modal sheet UI used in [Apple Books](https://www.apple.com/jp/apple-books/) app on iOS.
 
-Here is an example of what you can do with this widget: ([Youtube](https://youtube.com/shorts/L5xxO24UEzc?feature=share))
+Here is an example of what you can do with this widget:
 
-![demo](https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif)
+![demo](https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif) ![demo2](https://user-images.githubusercontent.com/68946713/234313845-caa8dd75-c9e2-4fd9-b177-f4a6795c4802.gif)
 
 ## Index
 
@@ -47,6 +47,8 @@ cd example
 flutter pub get
 flutter run
 ```
+
+There is another example that integrates Google Maps with `ExprollablePageView`. See [maps_example/README](https://github.com/fujidaiti/exprollable_page_view/blob/master/maps_example/README.md) for more details.
 
 ## Install
 
