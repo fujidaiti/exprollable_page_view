@@ -123,6 +123,41 @@ class ExprollablePageController extends PageController {
     _currentPage = _CurrentPageNotifier(controller: this);
   }
 
+  /// Crate a page controller with additional snap viewport offsets.
+  ///
+  /// [additionalSnapOffsets] must not be empty. The viewport will snap to 
+  /// the offsets given by [additionalSnapOffsets] in addition to 
+  /// [ViewportOffset.expanded] and [ViewportOffset.shrunk].
+  /// 
+  /// If [initialViewportOffset] or [maxViewportOffset] is not specified,
+  /// the max offset in [additionalSnapOffsets] is used.
+  factory ExprollablePageController.withAdditionalSnapOffsets(
+    List<ViewportOffset> additionalSnapOffsets, {
+    int initialPage = 0,
+    bool keepPage = true,
+    double minViewportFraction = 0.9,
+    bool overshootEffect = false,
+    ViewportOffset? initialViewportOffset,
+    ViewportOffset? maxViewportOffset,
+  }) {
+    assert(additionalSnapOffsets.isNotEmpty);
+    final snapViewportOffsets = {
+      ViewportOffset.expanded,
+      ViewportOffset.shrunk,
+      ...additionalSnapOffsets,
+    }.toList()
+      ..sort();
+    return ExprollablePageController(
+      initialPage: initialPage,
+      keepPage: keepPage,
+      minViewportFraction: minViewportFraction,
+      overshootEffect: overshootEffect,
+      initialViewportOffset: initialViewportOffset ?? snapViewportOffsets.last,
+      maxViewportOffset: maxViewportOffset ?? snapViewportOffsets.last,
+      snapViewportOffsets: snapViewportOffsets,
+    );
+  }
+
   final _absorberGroup = ScrollAbsorberGroup();
   final Map<int, PageContentScrollController> _contentScrollControllers = {};
 

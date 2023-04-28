@@ -10,22 +10,14 @@ class CustomSnapOffsetsExample extends StatefulWidget {
       _CustomSnapOffsetsExampleState();
 }
 
-class _CustomSnapOffsetsExampleState
-    extends State<CustomSnapOffsetsExample> {
+class _CustomSnapOffsetsExampleState extends State<CustomSnapOffsetsExample> {
   late final ExprollablePageController controller;
 
   @override
   void initState() {
     super.initState();
-    const peekOffset = ViewportOffset.fractional(0.5);
-    controller = ExprollablePageController(
-      initialViewportOffset: peekOffset,
-      maxViewportOffset: peekOffset,
-      snapViewportOffsets: [
-        ViewportOffset.expanded,
-        ViewportOffset.shrunk,
-        peekOffset,
-      ],
+    controller = ExprollablePageController.withAdditionalSnapOffsets(
+      const [ViewportOffset.fractional(0.5)],
     );
   }
 
