@@ -16,7 +16,7 @@ Future<T?> showModalExprollable<T>(
   Color initialBarrierColor = Colors.black54,
   void Function(BuildContext) dismissBehavior = _defaultDismissBehavior,
   bool barrierDismissible = true,
-  ViewportOffset dismissThresholdOffset = const ViewportOffset.fractional(0.18),
+  ViewportOffset dismissThresholdOffset = const ViewportOffset.fractional(0.1),
 }) =>
     showDialog<T>(
       context: context,
@@ -61,7 +61,7 @@ class ModalExprollable extends StatefulWidget {
     this.initialBarrierColor = Colors.black54,
     this.dismissBehavior = _defaultDismissBehavior,
     this.barrierDismissible = true,
-    this.dismissThresholdOffset = const ViewportOffset.fractional(0.18),
+    this.dismissThresholdOffset = const ViewportOffset.fractional(0.1),
   }) : assert(dismissThresholdOffset > ViewportOffset.shrunk);
 
   /// Called when the dialog should be dismissed.
