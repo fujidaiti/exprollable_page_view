@@ -1,6 +1,6 @@
 [English](https://github.com/fujidaiti/exprollable_page_view/blob/master/package/README.md)|[日本語](https://github.com/fujidaiti/exprollable_page_view/blob/master/package/res/README.jp.md)
 
-[![Pub](https://img.shields.io/pub/v/exprollable_page_view.svg?logo=flutter&color=blue&style=flat-square)](https://pub.dev/packages/exprollable_page_view) [![Docs](https://img.shields.io/badge/-API%20Reference-orange?style=flat-square)](https://pub.dev/documentation/exprollable_page_view/latest/)
+[![Pub](https://img.shields.io/pub/v/exprollable_page_view.svg?logo=flutter&color=blue)](https://pub.dev/packages/exprollable_page_view) [![Pub Popularity](https://img.shields.io/pub/popularity/exprollable_page_view)](https://pub.dev/packages/exprollable_page_view) [![Docs](https://img.shields.io/badge/-API%20Reference-orange)](https://pub.dev/documentation/exprollable_page_view/latest/)
 
 # ExprollablePageView
 
