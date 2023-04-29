@@ -36,8 +36,7 @@ class _ExampleListViewState extends State<ExampleListView> {
         itemCount: 50,
         itemBuilder: (_, index) {
           return ListTile(
-            onTap: () =>
-                debugPrint("onTap(index=$index, page=${widget.page})"),
+            onTap: () => debugPrint("onTap(index=$index, page=${widget.page})"),
             title: Text("Item#$index"),
             subtitle: Text("Page#${widget.page}"),
           );

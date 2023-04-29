@@ -1,6 +1,6 @@
 [English](https://github.com/fujidaiti/exprollable_page_view/blob/master/package/README.md)|[日本語](https://github.com/fujidaiti/exprollable_page_view/blob/master/package/res/README.jp.md)
 
-[![Pub](https://img.shields.io/pub/v/exprollable_page_view.svg?logo=flutter&color=blue&style=flat-square)](https://pub.dev/packages/exprollable_page_view) [![Docs](https://img.shields.io/badge/-API%20Reference-orange?style=flat-square)](https://pub.dev/documentation/exprollable_page_view/latest/)
+[![Pub](https://img.shields.io/pub/v/exprollable_page_view.svg?logo=flutter&color=blue)](https://pub.dev/packages/exprollable_page_view) [![Pub Popularity](https://img.shields.io/pub/popularity/exprollable_page_view)](https://pub.dev/packages/exprollable_page_view) [![Docs](https://img.shields.io/badge/-API%20Reference-orange)](https://pub.dev/documentation/exprollable_page_view/latest/)
 
 # ExprollablePageView
 
@@ -8,7 +8,7 @@ Yet another PageView widget that expands its viewport as it scrolls. **Exprollab
 
 Here is an example of what you can do with this widget:
 
-![demo](https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif) ![demo2](https://user-images.githubusercontent.com/68946713/234313845-caa8dd75-c9e2-4fd9-b177-f4a6795c4802.gif)
+<img width="320" src="https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif"> <img width="320" src="https://user-images.githubusercontent.com/68946713/234313845-caa8dd75-c9e2-4fd9-b177-f4a6795c4802.gif">
 
 ## Index
 
@@ -257,6 +257,12 @@ controller = ExprollablePageController(
     peekOffset,
   ],
 );
+```
+
+You can also use `ExprollablePageController.withAdditionalSnapOffsets` as a shorthand. The following snippet is equevalent to the above:
+
+```dart
+controller = ExprollablePageController.withAdditionalSnapOffsets([peekOffset]);
 ```
 
 ### observe the state of the viewport?

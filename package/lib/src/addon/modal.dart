@@ -4,7 +4,7 @@ import 'package:exprollable_page_view/src/core/controller.dart';
 import 'package:exprollable_page_view/src/core/view.dart';
 import 'package:flutter/material.dart';
 
-/// Show a [ExprollablePageView] as a modal dialog.
+/// Show an [ExprollablePageView] as a modal dialog.
 Future<T?> showModalExprollable<T>(
   BuildContext context, {
   required WidgetBuilder builder,
@@ -16,7 +16,7 @@ Future<T?> showModalExprollable<T>(
   Color initialBarrierColor = Colors.black54,
   void Function(BuildContext) dismissBehavior = _defaultDismissBehavior,
   bool barrierDismissible = true,
-  ViewportOffset dismissThresholdOffset = const ViewportOffset.fractional(0.18),
+  ViewportOffset dismissThresholdOffset = const ViewportOffset.fractional(0.1),
 }) =>
     showDialog<T>(
       context: context,
@@ -42,7 +42,7 @@ Future<T?> showModalExprollable<T>(
 void _defaultDismissBehavior(BuildContext context) =>
     Navigator.of(context).pop();
 
-/// A widget that makes a [ExprollablePageView] modal dialog style.
+/// A widget that makes a modal dialog style [ExprollablePageView].
 ///
 /// This widget adds a translucent background (barrier) and
 /// *swipe down to dismiss* action to the child page view.
@@ -61,7 +61,7 @@ class ModalExprollable extends StatefulWidget {
     this.initialBarrierColor = Colors.black54,
     this.dismissBehavior = _defaultDismissBehavior,
     this.barrierDismissible = true,
-    this.dismissThresholdOffset = const ViewportOffset.fractional(0.18),
+    this.dismissThresholdOffset = const ViewportOffset.fractional(0.1),
   }) : assert(dismissThresholdOffset > ViewportOffset.shrunk);
 
   /// Called when the dialog should be dismissed.
@@ -170,11 +170,128 @@ class _ModalExprollableState extends State<ModalExprollable> {
       ),
     );
 
-    return Stack(
-      children: [
-        Positioned.fill(child: barrier),
-        Positioned.fill(child: pageView),
-      ],
+    return ScrollConfiguration(
+      behavior: const _ModalExprollableScrollBehavior(),
+      child: Stack(
+        children: [
+          Positioned.fill(child: barrier),
+          Positioned.fill(child: pageView),
+        ],
+      ),
     );
+  }
+}
+
+/// Scroll physics commonly used for descendant scrollables of [ModalExprollable].
+///
+/// This physics always lets the user overscroll making *dra down to dismiss* action
+/// is available on every platform. [ModalExprollable] provides this as the default physics
+/// for its descendants via [ScrollConfiguration].
+/// If you explicitly specify a physics for a descendant scrollable,
+/// consider to wrap that physics with this.
+///
+/// ```dart
+/// final physics = const ModalExprollableScrollPhysics(
+///   parnet: ClampScrollPhysics(),
+/// );
+/// ```
+class ModalExprollableScrollPhysics extends ScrollPhysics {
+  /// Creates a scrolling physics that always lets the user overscroll.
+  ///
+  /// This will delegate its logic to [BouncingScrollPhysics] if the user overscrolls,
+  /// so that the *drag down to dismiss* action is available on every platform.
+  /// Otherwise, it delegates to the given [parent].
+  const ModalExprollableScrollPhysics({
+    ScrollPhysics? parent,
+  }) : super(parent: parent);
+
+  @override
+  ModalExprollableScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return ModalExprollableScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  bool get allowImplicitScrolling =>
+      parent?.allowImplicitScrolling ?? super.allowImplicitScrolling;
+
+  @override
+  double adjustPositionForNewDimensions({
+    required ScrollMetrics oldPosition,
+    required ScrollMetrics newPosition,
+    required bool isScrolling,
+    required double velocity,
+  }) {
+    if (parent == null ||
+        _outOfRange(oldPosition) ||
+        _outOfRange(newPosition)) {
+      return const BouncingScrollPhysics().adjustPositionForNewDimensions(
+        oldPosition: oldPosition,
+        newPosition: newPosition,
+        isScrolling: isScrolling,
+        velocity: velocity,
+      );
+    } else {
+      return parent!.adjustPositionForNewDimensions(
+        oldPosition: oldPosition,
+        newPosition: newPosition,
+        isScrolling: isScrolling,
+        velocity: velocity,
+      );
+    }
+  }
+
+  @override
+  Simulation? createBallisticSimulation(
+    ScrollMetrics position,
+    double velocity,
+  ) {
+    return velocity < 0
+        ? const BouncingScrollPhysics()
+            .createBallisticSimulation(position, velocity)
+        : super.createBallisticSimulation(position, velocity);
+  }
+
+  @override
+  double applyBoundaryConditions(ScrollMetrics position, double value) {
+    if (parent == null ||
+        _outOfRange(position) ||
+        _outOfRange(position.copyWith(pixels: value))) {
+      return const BouncingScrollPhysics()
+          .applyBoundaryConditions(position, value);
+    } else {
+      return parent!.applyBoundaryConditions(position, value);
+    }
+  }
+
+  @override
+  double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
+    if (parent == null ||
+        _outOfRange(position) ||
+        _outOfRange(position.copyWith(
+          pixels: position.pixels + offset,
+        ))) {
+      return const BouncingScrollPhysics()
+          .applyPhysicsToUserOffset(position, offset);
+    } else {
+      return parent!.applyPhysicsToUserOffset(position, offset);
+    }
+  }
+
+  bool _outOfRange(ScrollMetrics position) {
+    return position.hasPixels &&
+        position.hasContentDimensions &&
+        position.pixels < position.minScrollExtent;
+  }
+}
+
+class _ModalExprollableScrollBehavior extends ScrollBehavior {
+  const _ModalExprollableScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    final defaultPhysics = super.getScrollPhysics(context);
+    return defaultPhysics is BouncingScrollPhysics
+        ? defaultPhysics
+        : ModalExprollableScrollPhysics(parent: defaultPhysics);
   }
 }
