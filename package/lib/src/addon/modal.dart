@@ -170,11 +170,110 @@ class _ModalExprollableState extends State<ModalExprollable> {
       ),
     );
 
-    return Stack(
-      children: [
-        Positioned.fill(child: barrier),
-        Positioned.fill(child: pageView),
-      ],
+    return ScrollConfiguration(
+      behavior: const _ModalExprollableScrollBehavior(),
+      child: Stack(
+        children: [
+          Positioned.fill(child: barrier),
+          Positioned.fill(child: pageView),
+        ],
+      ),
     );
+  }
+}
+
+class ModalExprollableScrollPhysics extends ScrollPhysics {
+  const ModalExprollableScrollPhysics({
+    ScrollPhysics? parent,
+  }) : super(parent: parent);
+
+  @override
+  ModalExprollableScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return ModalExprollableScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  bool get allowImplicitScrolling =>
+      parent?.allowImplicitScrolling ?? super.allowImplicitScrolling;
+
+  @override
+  double adjustPositionForNewDimensions({
+    required ScrollMetrics oldPosition,
+    required ScrollMetrics newPosition,
+    required bool isScrolling,
+    required double velocity,
+  }) {
+    if (parent == null ||
+        _outOfRange(oldPosition) ||
+        _outOfRange(newPosition)) {
+      return const BouncingScrollPhysics().adjustPositionForNewDimensions(
+        oldPosition: oldPosition,
+        newPosition: newPosition,
+        isScrolling: isScrolling,
+        velocity: velocity,
+      );
+    } else {
+      return parent!.adjustPositionForNewDimensions(
+        oldPosition: oldPosition,
+        newPosition: newPosition,
+        isScrolling: isScrolling,
+        velocity: velocity,
+      );
+    }
+  }
+
+  @override
+  Simulation? createBallisticSimulation(
+    ScrollMetrics position,
+    double velocity,
+  ) {
+    return velocity < 0
+        ? const BouncingScrollPhysics()
+            .createBallisticSimulation(position, velocity)
+        : super.createBallisticSimulation(position, velocity);
+  }
+
+  @override
+  double applyBoundaryConditions(ScrollMetrics position, double value) {
+    if (parent == null ||
+        _outOfRange(position) ||
+        _outOfRange(position.copyWith(pixels: value))) {
+      return const BouncingScrollPhysics()
+          .applyBoundaryConditions(position, value);
+    } else {
+      return parent!.applyBoundaryConditions(position, value);
+    }
+  }
+
+  @override
+  double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
+    if (parent == null ||
+        _outOfRange(position) ||
+        _outOfRange(position.copyWith(
+          pixels: position.pixels + offset,
+        ))) {
+      return const BouncingScrollPhysics()
+          .applyPhysicsToUserOffset(position, offset);
+    } else {
+      return parent!.applyPhysicsToUserOffset(position, offset);
+    }
+  }
+
+  bool _outOfRange(ScrollMetrics position) {
+    return position.hasPixels &&
+        position.hasContentDimensions &&
+        position.pixels < position.minScrollExtent;
+  }
+}
+
+class _ModalExprollableScrollBehavior extends ScrollBehavior {
+  const _ModalExprollableScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    final defaultPhysics = super.getScrollPhysics(context);
+    return defaultPhysics is BouncingScrollPhysics
+        ? defaultPhysics
+        : ModalExprollableScrollPhysics(parent: defaultPhysics);
   }
 }
