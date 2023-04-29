@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-beta.7 30-04-2023
+
+- Fix #20
+- Add a convenience constructor `ExprollablePageController.withAdditionalSnapOffsets` (proposed in #21)
+- Improve the documents
+
 ## 1.0.0-beta.6 19-04-2023
 
 - Fix #17
