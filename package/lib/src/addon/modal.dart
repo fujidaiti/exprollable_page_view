@@ -4,7 +4,7 @@ import 'package:exprollable_page_view/src/core/controller.dart';
 import 'package:exprollable_page_view/src/core/view.dart';
 import 'package:flutter/material.dart';
 
-/// Show a [ExprollablePageView] as a modal dialog.
+/// Show an [ExprollablePageView] as a modal dialog.
 Future<T?> showModalExprollable<T>(
   BuildContext context, {
   required WidgetBuilder builder,
@@ -42,7 +42,7 @@ Future<T?> showModalExprollable<T>(
 void _defaultDismissBehavior(BuildContext context) =>
     Navigator.of(context).pop();
 
-/// A widget that makes a [ExprollablePageView] modal dialog style.
+/// A widget that makes a modal dialog style [ExprollablePageView].
 ///
 /// This widget adds a translucent background (barrier) and
 /// *swipe down to dismiss* action to the child page view.
@@ -182,7 +182,25 @@ class _ModalExprollableState extends State<ModalExprollable> {
   }
 }
 
+/// Scroll physics commonly used for descendant scrollables of [ModalExprollable].
+///
+/// This physics always lets the user overscroll making *dra down to dismiss* action
+/// is available on every platform. [ModalExprollable] provides this as the default physics
+/// for its descendants via [ScrollConfiguration].
+/// If you explicitly specify a physics for a descendant scrollable,
+/// consider to wrap that physics with this.
+///
+/// ```dart
+/// final physics = const ModalExprollableScrollPhysics(
+///   parnet: ClampScrollPhysics(),
+/// );
+/// ```
 class ModalExprollableScrollPhysics extends ScrollPhysics {
+  /// Creates a scrolling physics that always lets the user overscroll.
+  ///
+  /// This will delegate its logic to [BouncingScrollPhysics] if the user overscrolls,
+  /// so that the *drag down to dismiss* action is available on every platform.
+  /// Otherwise, it delegates to the given [parent].
   const ModalExprollableScrollPhysics({
     ScrollPhysics? parent,
   }) : super(parent: parent);
