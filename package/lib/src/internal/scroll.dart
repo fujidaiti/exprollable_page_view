@@ -191,13 +191,6 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
   @override
   void absorb(ScrollPosition other) {
     super.absorb(other);
-    // if (other is AbsorbScrollPosition && other.absorber.pixels != null) {
-    //   absorber.absorb(other.absorber.pixels!);
-    // } else if (hasPixels && hasContentDimensions) {
-    //   // `super.absorb(other)` may set `super._pixels` to an invalid value,
-    //   // which needs to be corrected.
-    //   correctPixels(pixels);
-    // }
     if (other.hasPixels && other is AbsorbScrollPosition) {
       // `super.absorb(other)` may set `super._pixels` to an invalid value,
       // which needs to be corrected.
