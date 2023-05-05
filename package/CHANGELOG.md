@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.0-beta.8 05-05-2023
+
+- Fix #25, #26
+- Improve the documents
+
 ## 1.0.0-beta.7 30-04-2023
 
 - Fix #20
