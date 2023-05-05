@@ -6,6 +6,7 @@ import 'package:exprollable_page_view/src/core/view.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
@@ -125,10 +126,10 @@ class ExprollablePageController extends PageController {
 
   /// Crate a page controller with additional snap viewport offsets.
   ///
-  /// [additionalSnapOffsets] must not be empty. The viewport will snap to 
-  /// the offsets given by [additionalSnapOffsets] in addition to 
+  /// [additionalSnapOffsets] must not be empty. The viewport will snap to
+  /// the offsets given by [additionalSnapOffsets] in addition to
   /// [ViewportOffset.expanded] and [ViewportOffset.shrunk].
-  /// 
+  ///
   /// If [initialViewportOffset] or [maxViewportOffset] is not specified,
   /// the max offset in [additionalSnapOffsets] is used.
   factory ExprollablePageController.withAdditionalSnapOffsets(
@@ -370,10 +371,14 @@ mixin PageViewportMetrics on ViewportMetrics {
   double get expandedOffset;
 
   /// Indicates if the viewport is fully shrunk.
-  bool get isShrunk => offset >= shrunkOffset;
+  bool get isShrunk =>
+      nearEqual(offset, shrunkOffset, Tolerance.defaultTolerance.distance) ||
+      offset > shrunkOffset;
 
   // Indicates if the viewport is fully expanded.
-  bool get isExpanded => offset <= expandedOffset;
+  bool get isExpanded =>
+      nearEqual(offset, expandedOffset, Tolerance.defaultTolerance.distance) ||
+      offset < expandedOffset;
 }
 
 /// A snapshot of the state of the conceptual viewport.
