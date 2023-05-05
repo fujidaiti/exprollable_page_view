@@ -182,10 +182,10 @@ class _ModalExprollableState extends State<ModalExprollable> {
   }
 }
 
-/// Scroll physics commonly used for descendant scrollables of [ModalExprollable].
+/// Scroll physics normally used for descendant scrollables of [ModalExprollable].
 ///
-/// This physics always lets the user overscroll making *dra down to dismiss* action
-/// is available on every platform. [ModalExprollable] provides this as the default physics
+/// This physics always lets the user overscroll making *drag down to dismiss* action
+/// available on every platform. [ModalExprollable] provides this as the default physics
 /// for its descendants via [ScrollConfiguration].
 /// If you explicitly specify a physics for a descendant scrollable,
 /// consider to wrap that physics with this.
@@ -196,11 +196,11 @@ class _ModalExprollableState extends State<ModalExprollable> {
 /// );
 /// ```
 class ModalExprollableScrollPhysics extends ScrollPhysics {
-  /// Creates a scrolling physics that always lets the user overscroll.
+  /// Creates a scroll physics that always lets the user overscroll.
   ///
-  /// This will delegate its logic to [BouncingScrollPhysics] if the user overscrolls,
-  /// so that the *drag down to dismiss* action is available on every platform.
-  /// Otherwise, it delegates to the given [parent].
+  /// This physics will delegate its logic to a [BouncingScrollPhysics]
+  /// while the user is overscrolling, so that the *drag down to dismiss* action is available
+  /// on every platform. Otherwise, it delegates to the given [parent].
   const ModalExprollableScrollPhysics({
     ScrollPhysics? parent,
   }) : super(parent: parent);
