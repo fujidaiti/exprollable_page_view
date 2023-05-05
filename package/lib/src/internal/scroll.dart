@@ -354,7 +354,7 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
   @override
   void jumpTo(double value) {
     goIdle();
-    if (impliedPixels.almostEqualTo(value)) {
+    if (!impliedPixels.almostEqualTo(value)) {
       final double oldPixels = pixels;
       forcePixels(value);
       didStartScroll();
