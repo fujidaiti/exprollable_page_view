@@ -372,13 +372,11 @@ mixin PageViewportMetrics on ViewportMetrics {
 
   /// Indicates if the viewport is fully shrunk.
   bool get isShrunk =>
-      nearEqual(offset, shrunkOffset, Tolerance.defaultTolerance.distance) ||
-      offset > shrunkOffset;
+      offset.almostEqualTo(shrunkOffset) || offset > shrunkOffset;
 
   // Indicates if the viewport is fully expanded.
   bool get isExpanded =>
-      nearEqual(offset, expandedOffset, Tolerance.defaultTolerance.distance) ||
-      offset < expandedOffset;
+      offset.almostEqualTo(expandedOffset) || offset < expandedOffset;
 }
 
 /// A snapshot of the state of the conceptual viewport.

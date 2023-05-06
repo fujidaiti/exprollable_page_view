@@ -1,6 +1,6 @@
 import 'package:exprollable_page_view/src/core/controller.dart';
 import 'package:exprollable_page_view/src/core/view.dart';
-import 'package:flutter/physics.dart';
+import 'package:exprollable_page_view/src/internal/utils.dart';
 import 'package:flutter/widgets.dart';
 
 /// Insert spaces at both sides of the wrapped page.
@@ -64,11 +64,7 @@ class _PageGutterState extends State<PageGutter> {
   void invalidateState() {
     final oldDeltaX = deltaX;
     correctState();
-    if (!nearEqual(
-      oldDeltaX,
-      deltaX,
-      Tolerance.defaultTolerance.distance,
-    )) {
+    if (!oldDeltaX.almostEqualTo(deltaX)) {
       setState(() {});
     }
   }

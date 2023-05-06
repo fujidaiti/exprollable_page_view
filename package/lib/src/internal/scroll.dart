@@ -1,10 +1,9 @@
 import 'dart:math';
 
 import 'package:exprollable_page_view/src/internal/utils.dart';
-import 'package:flutter/physics.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 
 class ScrollAbsorber extends ChangeNotifier {
   double _capacity;
@@ -39,16 +38,10 @@ class ScrollAbsorber extends ChangeNotifier {
     final oldOverflow = _overflow;
     _absorbedPixels = min(pixels, capacity);
     _overflow = max(0.0, pixels - capacity);
-    if (!nearEqual(
-          absorbedPixels,
-          oldAbsorbedPixels,
-          Tolerance.defaultTolerance.distance,
-        ) ||
-        !nearEqual(
-          overflow,
-          oldOverflow,
-          Tolerance.defaultTolerance.distance,
-        )) {
+    assert(absorbedPixels != null);
+    assert(overflow != null);
+    if (oldAbsorbedPixels?.almostEqualTo(absorbedPixels!) != true ||
+        oldOverflow?.almostEqualTo(overflow!) != true) {
       notifyListeners();
     }
   }
@@ -326,7 +319,7 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
     required Duration duration,
     required Curve curve,
   }) {
-    if (nearEqual(to, impliedPixels, physics.tolerance.distance)) {
+    if (impliedPixels.almostEqualTo(to)) {
       // Skip the animation, go straight to the position as we are already close.
       jumpTo(to);
       return Future<void>.value();

@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:exprollable_page_view/src/core/controller.dart';
 import 'package:exprollable_page_view/src/core/view.dart';
-import 'package:flutter/physics.dart';
+import 'package:exprollable_page_view/src/internal/utils.dart';
 import 'package:flutter/widgets.dart';
 
 /// Inserts appropriate padding into the child widget according to the current viewpor offset.
@@ -63,11 +63,8 @@ class _AdaptivePagePaddingState extends State<AdaptivePagePadding> {
   void invalidateState() {
     final oldPadding = padding;
     correctState();
-    if (!nearEqual(
-      oldPadding,
-      padding,
-      Tolerance.defaultTolerance.distance,
-    )) {
+    assert(padding != null);
+    if (oldPadding?.almostEqualTo(padding!) != true) {
       setState(() {});
     }
   }
