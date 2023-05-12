@@ -6,7 +6,6 @@ import 'package:exprollable_page_view/src/core/view.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
@@ -838,14 +837,14 @@ class _SnapViewportOffsetPhysics extends ScrollPhysics {
     if (snapTo == null) {
       return super.createBallisticSimulation(position, velocity);
     }
-    return (position.pixels - snapTo).abs() < tolerance.distance
+    return position.pixels.almostEqualTo(snapTo)
         ? null
         : ScrollSpringSimulation(
             spring,
             position.pixels,
             snapTo,
             velocity,
-            tolerance: tolerance,
+            tolerance: Tolerance.defaultTolerance,
           );
   }
 }
