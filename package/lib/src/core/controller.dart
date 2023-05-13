@@ -95,6 +95,9 @@ class ExprollablePageController extends PageController {
   /// [ViewportOffset.explored] and [ViewportOffset.shrunk] are set to be snaped by default.
   /// If you specify additional offsets, you may need to also specify `maxViewportOffset`
   /// to be able to drag the page to the additional snap offsets larger than [ViewportOffset.shrunk].
+  ///
+  /// Specifying `viewportFractionBehavior` allows you to control how the viewport fraction changes
+  /// along with vertical scrolling. [DefaultViewportFractionBehavior] is used by default.
   ExprollablePageController({
     super.initialPage,
     super.keepPage,
@@ -106,12 +109,15 @@ class ExprollablePageController extends PageController {
       ViewportOffset.expanded,
       ViewportOffset.shrunk,
     ],
+    ViewportFractionBehavior viewportFractionBehavior =
+        const DefaultViewportFractionBehavior(),
   })  : assert(0 <= minViewportFraction && minViewportFraction <= 1.0),
         super(viewportFraction: minViewportFraction) {
     final snapOffsets = [...snapViewportOffsets]..sort();
     viewport = PageViewport(
       minFraction: viewportFraction,
       absorber: _absorberGroup,
+      fractionBehavior: viewportFractionBehavior,
       overshootEffect: overshootEffect,
       initialOffset: initialViewportOffset,
       maxOffset: maxViewportOffset,
@@ -482,6 +488,40 @@ class PageViewportUpdateNotification extends Notification {
   final PageViewportMetrics metrics;
 }
 
+/// Describes how the viewport fraction changes when the page is scrolled vertically .
+///
+/// Use the convenient [DefaultViewportFractionBehavior], which implements the default behavior,
+/// or extend this class and override [preferredFraction] to create a custom behavior.
+abstract class ViewportFractionBehavior {
+  /// Calculate the viewport fraction according to the state of the current viewport and the new offset.
+  /// 
+  /// This method is called by [PageViewport] whenevery the fraction should be updated.
+  double preferredFraction(PageViewportMetrics viewport, double newOffset);
+}
+
+/// The default implementation of [ViewportFractionBehavior].
+class DefaultViewportFractionBehavior implements ViewportFractionBehavior {
+  /// Create the default implementation of [ViewportFractionBehavior].
+  /// 
+  /// The viewport fraction changes along the [curve] from 0 to 1,
+  /// where the viewport offset is equal to [PageViewportMetrics.shrunkOffset] 
+  /// and [PageViewportMetrics.expandedOffset], respectively.
+  const DefaultViewportFractionBehavior({this.curve = Curves.easeIn});
+
+  /// The curve of the viewport fraction.
+  final Curve curve;
+
+  @override
+  double preferredFraction(PageViewportMetrics viewport, double newOffset) {
+    assert(viewport.hasDimensions);
+    final pixels = newOffset - viewport.expandedOffset;
+    final delta = viewport.shrunkOffset - viewport.expandedOffset;
+    assert(delta > 0.0);
+    final t = 1.0 - (pixels / delta).clamp(0.0, 1.0);
+    return curve.transform(t) * viewport.deltaFraction + viewport.minFraction;
+  }
+}
+
 /// An object that represents the state of the **conceptual** viewport.
 ///
 /// "Conceptual" means that the actual measurements for each page is calculated according to the state of this object,
@@ -500,6 +540,7 @@ class PageViewport extends ChangeNotifier
   PageViewport({
     required this.minFraction,
     required this.overshootEffect,
+    required this.fractionBehavior,
     required ScrollAbsorber absorber,
     required ViewportOffset initialOffset,
     required ViewportOffset maxOffset,
@@ -509,6 +550,9 @@ class PageViewport extends ChangeNotifier
         _initialOffset = initialOffset {
     _absorber.addListener(_invalidateState);
   }
+
+  /// Describes how the [fraction] changes along with vertical scrolling.
+  final ViewportFractionBehavior fractionBehavior;
 
   final ViewportOffset _maxOffset;
   final ViewportOffset _initialOffset;
@@ -609,23 +653,15 @@ class PageViewport extends ChangeNotifier
   }
 
   double _computeFraction() {
-    assert(_absorber.pixels != null);
     assert(hasDimensions);
-
-    final a = _absorber;
     final dim = dimensions;
-
-    final offset = max(0.0, _computeOffset());
+    final offset = _computeOffset();
+    final pixels = max(0.0, offset);
     final lowerBoundFraction = overshootEffect
-        ? (dim.height - dim.padding.bottom - offset) / dim.height
-        : (dim.height - offset) / dim.height;
-
-    final delta = shrunkOffset - expandedOffset;
-    assert(delta > 0.0);
-    final t = 1.0 - (a.absorbedPixels! / delta).clamp(0.0, 1.0);
-    const curve = Curves.easeIn;
-    final fraction = curve.transform(t) * deltaFraction + minFraction;
-    return max(lowerBoundFraction, fraction);
+        ? (dim.height - dim.padding.bottom - pixels) / dim.height
+        : (dim.height - pixels) / dim.height;
+    final preferredFraction = fractionBehavior.preferredFraction(this, offset);
+    return max(lowerBoundFraction, preferredFraction);
   }
 }
 
