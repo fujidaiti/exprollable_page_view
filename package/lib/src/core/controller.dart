@@ -490,22 +490,23 @@ class PageViewportUpdateNotification extends Notification {
 
 /// Describes how the viewport fraction changes when the page is scrolled vertically .
 ///
-/// Use the convenient [DefaultViewportFractionBehavior], which implements the default behavior,
+/// Use the convenient [DefaultViewportFractionBehavior] which implements the default behavior,
 /// or extend this class and override [preferredFraction] to create a custom behavior.
 abstract class ViewportFractionBehavior {
   /// Calculate the viewport fraction according to the state of the current viewport and the new offset.
-  /// 
-  /// This method is called by [PageViewport] whenevery the fraction should be updated.
+  ///
+  /// This method is called by [PageViewport] whenever the fraction should be updated.
+  /// The calculated fraction must be 0 when [PageViewportMetrics.offset] is greater than or equal to [PageViewportMetrics.shrunkOffset],
+  /// and must be 1 when [PageViewportMetrics.offset] is less than or equal to [PageViewportMetrics.expandedOffset].
+  /// There's no restriction in the other cases, but it will usually took a value between 0 and 1.
   double preferredFraction(PageViewportMetrics viewport, double newOffset);
 }
 
 /// The default implementation of [ViewportFractionBehavior].
 class DefaultViewportFractionBehavior implements ViewportFractionBehavior {
   /// Create the default implementation of [ViewportFractionBehavior].
-  /// 
-  /// The viewport fraction changes along the [curve] from 0 to 1,
-  /// where the viewport offset is equal to [PageViewportMetrics.shrunkOffset] 
-  /// and [PageViewportMetrics.expandedOffset], respectively.
+  ///
+  /// The calculated viewport fractions take values between 0 and 1 along the [curve].
   const DefaultViewportFractionBehavior({this.curve = Curves.easeIn});
 
   /// The curve of the viewport fraction.
