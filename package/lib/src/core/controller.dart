@@ -496,9 +496,11 @@ abstract class ViewportFractionBehavior {
   /// Calculate the viewport fraction according to the state of the current viewport and the new offset.
   ///
   /// This method is called by [PageViewport] whenever the fraction should be updated.
-  /// The calculated fraction must be 0 when [PageViewportMetrics.offset] is greater than or equal to [PageViewportMetrics.shrunkOffset],
-  /// and must be 1 when [PageViewportMetrics.offset] is less than or equal to [PageViewportMetrics.expandedOffset].
-  /// There's no restriction in the other cases, but it will usually took a value between 0 and 1.
+  /// The calculated fraction must be [PageViewportMetrics.minFraction]
+  /// when [PageViewportMetrics.offset] is greater than or equal to [PageViewportMetrics.shrunkOffset],
+  /// and must be [PageViewportMetrics.maxFraction] when [PageViewportMetrics.offset] is less than or equal to [PageViewportMetrics.expandedOffset].
+  /// There's no restriction in the other cases, but it will usually took a value
+  /// between [PageViewportMetrics.minFraction] and [PageViewportMetrics.maxFraction].
   double preferredFraction(PageViewportMetrics viewport, double newOffset);
 }
 
