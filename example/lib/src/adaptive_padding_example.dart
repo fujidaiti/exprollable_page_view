@@ -6,8 +6,7 @@ class AdaptivePaddingExample extends StatefulWidget {
   const AdaptivePaddingExample({super.key});
 
   @override
-  State<AdaptivePaddingExample> createState() =>
-      _AdaptivePaddingExampleState();
+  State<AdaptivePaddingExample> createState() => _AdaptivePaddingExampleState();
 }
 
 class _AdaptivePaddingExampleState extends State<AdaptivePaddingExample> {
@@ -16,7 +15,11 @@ class _AdaptivePaddingExampleState extends State<AdaptivePaddingExample> {
   @override
   void initState() {
     super.initState();
-    controller = ExprollablePageController(overshootEffect: true);
+    controller = ExprollablePageController(
+      viewportConfiguration: ViewportConfiguration(
+        overshootEffect: true,
+      ),
+    );
   }
 
   @override
