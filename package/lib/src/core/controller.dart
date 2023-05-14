@@ -131,74 +131,21 @@ class ExprollablePageController extends PageController {
   ExprollablePageController({
     super.initialPage,
     super.keepPage,
-    double minViewportFraction = 0.9,
-    bool overshootEffect = false,
-    ViewportOffset shrunkViewportOffset = ViewportOffset.shrunk,
-    ViewportOffset? expandedViewportOffset,
-    ViewportOffset? minViewportOffset,
-    ViewportOffset? maxViewportOffset,
-    ViewportOffset? initialViewportOffset,
-    List<ViewportOffset>? snapViewportOffsets,
+    ViewportConfiguration viewportConfiguration =
+        ViewportConfiguration.defaultConfiguration,
     ViewportFractionBehavior viewportFractionBehavior =
         const DefaultViewportFractionBehavior(),
-  })  : assert(0 <= minViewportFraction && minViewportFraction <= 1.0),
-        super(viewportFraction: minViewportFraction) {
-    final expandedOffset = expandedViewportOffset ??
-        (overshootEffect ? ViewportOffset.overshoot : ViewportOffset.expanded);
+  }) : super(viewportFraction: viewportConfiguration.minFraction) {
     viewport = PageViewport(
-      minFraction: viewportFraction,
       absorber: _absorberGroup,
       fractionBehavior: viewportFractionBehavior,
-      initialOffset: initialViewportOffset ?? shrunkViewportOffset,
-      minOffset: minViewportOffset ?? expandedOffset,
-      maxOffset: maxViewportOffset ?? shrunkViewportOffset,
-      expandedOffset: expandedOffset,
-      shrunkOffset: shrunkViewportOffset,
+      configuration: viewportConfiguration,
     );
     _snapPhysics = _SnapViewportOffsetPhysics(
-      snapOffsets: snapViewportOffsets ??
-          [
-            expandedOffset,
-            shrunkViewportOffset,
-          ],
+      snapOffsets: viewportConfiguration.snapOffsets,
       viewport: viewport,
     );
     _currentPage = _CurrentPageNotifier(controller: this);
-  }
-
-  /// Crate a page controller with additional snap viewport offsets.
-  ///
-  /// [additionalSnapOffsets] must not be empty. The viewport will snap to
-  /// the offsets given by [additionalSnapOffsets] in addition to
-  /// [ViewportOffset.expanded] and [ViewportOffset.shrunk].
-  ///
-  /// If [initialViewportOffset] or [maxViewportOffset] is not specified,
-  /// the max offset in [additionalSnapOffsets] is used.
-  factory ExprollablePageController.withAdditionalSnapOffsets(
-    List<ViewportOffset> additionalSnapOffsets, {
-    int initialPage = 0,
-    bool keepPage = true,
-    double minViewportFraction = 0.9,
-    bool overshootEffect = false,
-    ViewportOffset? initialViewportOffset,
-    ViewportOffset? maxViewportOffset,
-  }) {
-    assert(additionalSnapOffsets.isNotEmpty);
-    final snapViewportOffsets = [
-      if (overshootEffect) ViewportOffset.overshoot,
-      if (!overshootEffect) ViewportOffset.expanded,
-      ViewportOffset.shrunk,
-      ...additionalSnapOffsets,
-    ];
-    return ExprollablePageController(
-      initialPage: initialPage,
-      keepPage: keepPage,
-      minViewportFraction: minViewportFraction,
-      overshootEffect: overshootEffect,
-      initialViewportOffset: initialViewportOffset ?? snapViewportOffsets.last,
-      maxViewportOffset: maxViewportOffset ?? snapViewportOffsets.last,
-      snapViewportOffsets: snapViewportOffsets,
-    );
   }
 
   final _absorberGroup = ScrollAbsorberGroup();
@@ -526,6 +473,72 @@ class DefaultViewportFractionBehavior implements ViewportFractionBehavior {
   }
 }
 
+class ViewportConfiguration {
+  static const defaultConfiguration = ViewportConfiguration.raw(
+    minFraction: 0.9,
+    maxFraction: 1.0,
+    minOffset: ViewportOffset.expanded,
+    maxOffset: ViewportOffset.shrunk,
+    shrunkOffset: ViewportOffset.shrunk,
+    expandedOffset: ViewportOffset.expanded,
+    initialOffset: ViewportOffset.shrunk,
+    snapOffsets: [ViewportOffset.expanded, ViewportOffset.shrunk],
+  );
+
+  const ViewportConfiguration.raw({
+    required this.minFraction,
+    required this.maxFraction,
+    required this.minOffset,
+    required this.maxOffset,
+    required this.shrunkOffset,
+    required this.expandedOffset,
+    required this.initialOffset,
+    required this.snapOffsets,
+  });
+
+  /// [extraSnapOffsets] must not be empty. The viewport will snap to
+  /// the offsets given by [extraSnapOffsets] in addition to
+  /// [ViewportOffset.expanded] and [ViewportOffset.shrunk].
+  ///
+  /// If [initialOffset] is not specified, the max offset in [extraSnapOffsets] is used.
+  factory ViewportConfiguration({
+    bool overshootEffect = false,
+    double minFraction = 0.9,
+    double maxFraction = 1.0,
+    ViewportOffset shrunkOffset = ViewportOffset.shrunk,
+    ViewportOffset? maxOffset,
+    ViewportOffset? initialOffset,
+    List<ViewportOffset> extraSnapOffsets = const [],
+  }) {
+    final expandedOffset =
+        overshootEffect ? ViewportOffset.overshoot : ViewportOffset.expanded;
+    final snapOffsets = [
+      expandedOffset,
+      shrunkOffset,
+      ...extraSnapOffsets,
+    ];
+    return ViewportConfiguration.raw(
+      minFraction: minFraction,
+      maxFraction: maxFraction,
+      minOffset: expandedOffset,
+      maxOffset: snapOffsets.last,
+      shrunkOffset: shrunkOffset,
+      expandedOffset: expandedOffset,
+      initialOffset: initialOffset ?? snapOffsets.last,
+      snapOffsets: snapOffsets,
+    );
+  }
+
+  final double minFraction;
+  final double maxFraction;
+  final ViewportOffset minOffset;
+  final ViewportOffset maxOffset;
+  final ViewportOffset shrunkOffset;
+  final ViewportOffset expandedOffset;
+  final ViewportOffset initialOffset;
+  final List<ViewportOffset> snapOffsets;
+}
+
 /// An object that represents the state of the **conceptual** viewport.
 ///
 /// "Conceptual" means that the actual measurements for each page is calculated according to the state of this object,
@@ -542,32 +555,18 @@ class PageViewport extends ChangeNotifier
     implements ValueListenable<PageViewportMetrics> {
   /// Creates an object that represents the state of the **conceptual** viewport.
   PageViewport({
-    required this.minFraction,
     required this.fractionBehavior,
+    required this.configuration,
     required ScrollAbsorber absorber,
-    required ViewportOffset initialOffset,
-    required ViewportOffset minOffset,
-    required ViewportOffset maxOffset,
-    required ViewportOffset expandedOffset,
-    required ViewportOffset shrunkOffset,
-  })  : assert(0.0 <= minFraction && minFraction <= 1.0),
-        _absorber = absorber,
-        _minOffset = minOffset,
-        _maxOffset = maxOffset,
-        _initialOffset = initialOffset,
-        _expandedOffset = expandedOffset,
-        _shrunkOffset = shrunkOffset {
+  }) : _absorber = absorber {
     _absorber.addListener(_invalidateState);
   }
 
   /// Describes how the [fraction] changes along with vertical scrolling.
   final ViewportFractionBehavior fractionBehavior;
 
-  final ViewportOffset _minOffset;
-  final ViewportOffset _maxOffset;
-  final ViewportOffset _initialOffset;
-  final ViewportOffset _expandedOffset;
-  final ViewportOffset _shrunkOffset;
+  final ViewportConfiguration configuration;
+
   final ScrollAbsorber _absorber;
 
   @override
@@ -585,10 +584,10 @@ class PageViewport extends ChangeNotifier
   bool get hasDimensions => _dimensions != null;
 
   @override
-  double get maxOffset => _maxOffset.toConcreteValue(this);
+  double get maxOffset => configuration.maxOffset.toConcreteValue(this);
 
   @override
-  double get minOffset => _minOffset.toConcreteValue(this);
+  double get minOffset => configuration.minOffset.toConcreteValue(this);
 
   double? _offset;
 
@@ -599,10 +598,10 @@ class PageViewport extends ChangeNotifier
   }
 
   @override
-  final double minFraction;
+  double get minFraction => configuration.minFraction;
 
   @override
-  double get maxFraction => 1.0;
+  double get maxFraction => configuration.maxFraction;
 
   double? _fraction;
 
@@ -613,13 +612,14 @@ class PageViewport extends ChangeNotifier
   }
 
   @override
-  double get expandedOffset => _expandedOffset.toConcreteValue(this);
+  double get expandedOffset =>
+      configuration.expandedOffset.toConcreteValue(this);
 
   @override
-  double get shrunkOffset => _shrunkOffset.toConcreteValue(this);
+  double get shrunkOffset => configuration.shrunkOffset.toConcreteValue(this);
 
   double get _initialAbsorberPixels {
-    final initialOffset = _initialOffset.toConcreteValue(this);
+    final initialOffset = configuration.initialOffset.toConcreteValue(this);
     assert(initialOffset >= minOffset);
     return initialOffset - minOffset;
   }
@@ -661,8 +661,17 @@ class PageViewport extends ChangeNotifier
   }
 
   void _correctState() {
-    _fraction = _computeFraction();
-    _offset = _computeOffset();
+    assert(_absorber.pixels != null);
+    assert(hasDimensions);
+    final newOffset = minOffset + _absorber.pixels!;
+    final dim = dimensions;
+    final lowerBoundFraction =
+        (dim.height - dim.padding.bottom - max(0.0, newOffset)) / dim.height;
+    final preferredFraction =
+        fractionBehavior.preferredFraction(this, newOffset);
+
+    _fraction = max(lowerBoundFraction, preferredFraction);
+    _offset = newOffset;
   }
 
   void _invalidateState() {
@@ -673,21 +682,6 @@ class PageViewport extends ChangeNotifier
         !oldOffset.almostEqualTo(offset)) {
       notifyListeners();
     }
-  }
-
-  double _computeOffset() {
-    assert(_absorber.pixels != null);
-    return minOffset + _absorber.pixels!;
-  }
-
-  double _computeFraction() {
-    assert(hasDimensions);
-    final dim = dimensions;
-    final offset = _computeOffset();
-    final lowerBoundFraction =
-        (dim.height - dim.padding.bottom - max(0.0, offset)) / dim.height;
-    final preferredFraction = fractionBehavior.preferredFraction(this, offset);
-    return max(lowerBoundFraction, preferredFraction);
   }
 }
 
