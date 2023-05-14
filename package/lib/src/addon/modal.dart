@@ -62,7 +62,7 @@ class ModalExprollable extends StatefulWidget {
     this.dismissBehavior = _defaultDismissBehavior,
     this.barrierDismissible = true,
     this.dismissThresholdOffset = const ViewportOffset.fractional(0.1),
-  }) : assert(dismissThresholdOffset > ViewportOffset.shrunk);
+  });
 
   /// Called when the dialog should be dismissed.
   /// The default behavior is to pop the dialog
