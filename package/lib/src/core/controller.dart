@@ -98,7 +98,7 @@ class ExprollablePageController extends PageController {
   ///
   /// Specifying `viewportFractionBehavior` allows you to control how the viewport fraction changes
   /// along with vertical scrolling. [DefaultViewportFractionBehavior] is used by default.
-  /// 
+  ///
   /// If [overshootEffect] is enabled, the upper segment of the active page will slightly exceed the top of the viewport when it goes fullscreen.
   /// To be precise, this means that the viewport offset will take a negative value when the viewport fraction is 1.0.
   /// This trick creates a dynamic visual effect when the page goes fullscreen.
@@ -134,6 +134,8 @@ class ExprollablePageController extends PageController {
     double minViewportFraction = 0.9,
     bool overshootEffect = false,
     ViewportOffset shrunkViewportOffset = ViewportOffset.shrunk,
+    ViewportOffset? expandedViewportOffset,
+    ViewportOffset? minViewportOffset,
     ViewportOffset? maxViewportOffset,
     ViewportOffset? initialViewportOffset,
     List<ViewportOffset>? snapViewportOffsets,
@@ -141,23 +143,22 @@ class ExprollablePageController extends PageController {
         const DefaultViewportFractionBehavior(),
   })  : assert(0 <= minViewportFraction && minViewportFraction <= 1.0),
         super(viewportFraction: minViewportFraction) {
+    final expandedOffset = expandedViewportOffset ??
+        (overshootEffect ? ViewportOffset.overshoot : ViewportOffset.expanded);
     viewport = PageViewport(
       minFraction: viewportFraction,
       absorber: _absorberGroup,
       fractionBehavior: viewportFractionBehavior,
       initialOffset: initialViewportOffset ?? shrunkViewportOffset,
+      minOffset: minViewportOffset ?? expandedOffset,
       maxOffset: maxViewportOffset ?? shrunkViewportOffset,
-      expandedOffset: ViewportOffset.expanded(
-        overshootEffect: overshootEffect,
-      ),
+      expandedOffset: expandedOffset,
       shrunkOffset: shrunkViewportOffset,
     );
     _snapPhysics = _SnapViewportOffsetPhysics(
       snapOffsets: snapViewportOffsets ??
           [
-            ViewportOffset.expanded(
-              overshootEffect: overshootEffect,
-            ),
+            expandedOffset,
             shrunkViewportOffset,
           ],
       viewport: viewport,
@@ -183,13 +184,12 @@ class ExprollablePageController extends PageController {
     ViewportOffset? maxViewportOffset,
   }) {
     assert(additionalSnapOffsets.isNotEmpty);
-    final snapViewportOffsets = {
-      ViewportOffset.expanded(
-        overshootEffect: overshootEffect,
-      ),
+    final snapViewportOffsets = [
+      if (overshootEffect) ViewportOffset.overshoot,
+      if (!overshootEffect) ViewportOffset.expanded,
       ViewportOffset.shrunk,
       ...additionalSnapOffsets,
-    }.toList();
+    ];
     return ExprollablePageController(
       initialPage: initialPage,
       keepPage: keepPage,
@@ -546,11 +546,13 @@ class PageViewport extends ChangeNotifier
     required this.fractionBehavior,
     required ScrollAbsorber absorber,
     required ViewportOffset initialOffset,
+    required ViewportOffset minOffset,
     required ViewportOffset maxOffset,
     required ViewportOffset expandedOffset,
     required ViewportOffset shrunkOffset,
   })  : assert(0.0 <= minFraction && minFraction <= 1.0),
         _absorber = absorber,
+        _minOffset = minOffset,
         _maxOffset = maxOffset,
         _initialOffset = initialOffset,
         _expandedOffset = expandedOffset,
@@ -561,6 +563,7 @@ class PageViewport extends ChangeNotifier
   /// Describes how the [fraction] changes along with vertical scrolling.
   final ViewportFractionBehavior fractionBehavior;
 
+  final ViewportOffset _minOffset;
   final ViewportOffset _maxOffset;
   final ViewportOffset _initialOffset;
   final ViewportOffset _expandedOffset;
@@ -585,7 +588,7 @@ class PageViewport extends ChangeNotifier
   double get maxOffset => _maxOffset.toConcreteValue(this);
 
   @override
-  double get minOffset => expandedOffset;
+  double get minOffset => _minOffset.toConcreteValue(this);
 
   double? _offset;
 
@@ -927,19 +930,18 @@ class _SnapViewportOffsetPhysics extends ScrollPhysics {
 abstract class ViewportOffset {
   /// The offset at which the viewport is fully expanded
   /// (more precisely, when [PageViewport.fraction] is equal to [PageViewport.maxFraction]).
-  const factory ViewportOffset.expanded({bool overshootEffect}) =
-      DefaultExpandedViewportOffset;
+  static const expanded = DefaultExpandedViewportOffset();
 
   /// The offset at which the viewport is fully shrunk
   /// (more precisely, when [PageViewport.fraction] is equal to [PageViewport.minFraction]).
   static const shrunk = DefaultShrunkViewportOffset();
 
+  static const overshoot = OvershootViewportOffset();
+
   /// Create an user defined viewport offset from a fractional value.
   /// [fraction] must be between 0.0 and 1.0.
-  const factory ViewportOffset.fractional(
-    double fraction, {
-    bool relativeToExpandedViewport,
-  }) = FractionalViewportOffset;
+  const factory ViewportOffset.fractional(double fraction) =
+      FractionalViewportOffset;
 
   const factory ViewportOffset.fixed(double pixels) = FixedViewportOffset;
 
@@ -958,17 +960,20 @@ abstract class ViewportOffset {
   }
 }
 
-/// The upper bound of the offset at which the viewport is fully expanded.
-class DefaultExpandedViewportOffset extends ViewportOffset {
-  const DefaultExpandedViewportOffset({
-    this.overshootEffect = false,
-  });
-
-  final bool overshootEffect;
+class OvershootViewportOffset extends ViewportOffset {
+  const OvershootViewportOffset();
 
   @override
   double toConcreteValue(PageViewportMetrics metrics) =>
-      overshootEffect ? -1 * metrics.dimensions.padding.bottom : 0.0;
+      -1 * metrics.dimensions.padding.bottom;
+}
+
+/// The upper bound of the offset at which the viewport is fully expanded.
+class DefaultExpandedViewportOffset extends ViewportOffset {
+  const DefaultExpandedViewportOffset();
+
+  @override
+  double toConcreteValue(PageViewportMetrics metrics) => 0.0;
 }
 
 /// The lower bound of the offset at which the viewport is fully shrunk.
@@ -993,30 +998,16 @@ class DefaultShrunkViewportOffset extends ViewportOffset {
 class FractionalViewportOffset extends ViewportOffset {
   /// Creates a viewport offset from a fractional value.
   /// [fraction] must be between 0.0 and 1.0.
-  const FractionalViewportOffset(
-    this.fraction, {
-    this.relativeToExpandedViewport = false,
-  }) : assert(0.0 <= fraction && fraction <= 1.0);
+  const FractionalViewportOffset(this.fraction)
+      : assert(0.0 <= fraction && fraction <= 1.0);
 
   /// The fractional value of the offset.
   final double fraction;
 
-  final bool relativeToExpandedViewport;
-
   @override
-  double toConcreteValue(PageViewportMetrics metrics) {
-    return relativeToExpandedViewport
-        ? fraction *
-                (metrics.dimensions.height -
-                    metrics.dimensions.padding.bottom -
-                    max(0.0, metrics.expandedOffset)) +
-            max(0.0, metrics.expandedOffset)
-        : fraction *
-                (metrics.dimensions.height -
-                    metrics.dimensions.padding.bottom -
-                    metrics.shrunkOffset) +
-            metrics.shrunkOffset;
-  }
+  double toConcreteValue(PageViewportMetrics metrics) =>
+      fraction *
+      (metrics.dimensions.height - metrics.dimensions.padding.bottom);
 }
 
 class FixedViewportOffset extends ViewportOffset {

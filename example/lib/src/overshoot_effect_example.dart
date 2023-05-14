@@ -16,11 +16,19 @@ class _OvershootEffectExampleState extends State<OvershootEffectExample> {
   void initState() {
     super.initState();
     controller = ExprollablePageController(
-      // Make sure that your Scaffold has a bottom navigation bar,
-      // and Scaffold.extendBody is set true. You should avoid using
-      // SafeArea for the top of the screen for better visual effect.
-      overshootEffect: true,
-    );
+        // Make sure that your Scaffold has a bottom navigation bar,
+        // and Scaffold.extendBody is set true. You should avoid using
+        // SafeArea for the top of the screen for better visual effect.
+        overshootEffect: true,
+        minViewportOffset: ViewportOffset.overshoot,
+        maxViewportOffset: ViewportOffset.fractional(0.6),
+        shrunkViewportOffset: ViewportOffset.fractional(0.4),
+        expandedViewportOffset: ViewportOffset.fractional(0.2),
+        initialViewportOffset: ViewportOffset.fractional(0.6),
+        snapViewportOffsets: [
+          ViewportOffset.overshoot,
+          ViewportOffset.fractional(0.6),
+        ]);
   }
 
   @override
