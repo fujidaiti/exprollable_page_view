@@ -16,7 +16,7 @@ Future<T?> showModalExprollable<T>(
   Color initialBarrierColor = Colors.black54,
   void Function(BuildContext) dismissBehavior = _defaultDismissBehavior,
   bool barrierDismissible = true,
-  ViewportOffset dismissThresholdOffset = const ViewportOffset.fractional(0.1),
+  ViewportOffset dismissThresholdOffset = const DismissThresholdOffset(),
 }) =>
     showDialog<T>(
       context: context,
@@ -42,6 +42,18 @@ Future<T?> showModalExprollable<T>(
 void _defaultDismissBehavior(BuildContext context) =>
     Navigator.of(context).pop();
 
+class DismissThresholdOffset extends ViewportOffset {
+  const DismissThresholdOffset({
+    this.dragMargin = 86.0,
+  });
+
+  final double dragMargin;
+
+  @override
+  double toConcreteValue(PageViewportMetrics metrics) =>
+      metrics.shrunkOffset + dragMargin;
+}
+
 /// A widget that makes a modal dialog style [ExprollablePageView].
 ///
 /// This widget adds a translucent background (barrier) and
@@ -61,7 +73,7 @@ class ModalExprollable extends StatefulWidget {
     this.initialBarrierColor = Colors.black54,
     this.dismissBehavior = _defaultDismissBehavior,
     this.barrierDismissible = true,
-    this.dismissThresholdOffset = const ViewportOffset.fractional(0.1),
+    this.dismissThresholdOffset = const DismissThresholdOffset(),
   });
 
   /// Called when the dialog should be dismissed.
@@ -132,10 +144,11 @@ class _ModalExprollableState extends State<ModalExprollable> {
     assert(lastViewportMetrics != null);
     assert(lastViewportMetrics!.hasDimensions);
     final vp = lastViewportMetrics!;
-    final maxOverscroll =
-        widget.dismissThresholdOffset.toConcreteValue(vp) - vp.shrunkOffset;
+    final dismissThresholdOffset =
+        widget.dismissThresholdOffset.toConcreteValue(vp);
+    assert(dismissThresholdOffset > vp.shrunkOffset);
+    final maxOverscroll = dismissThresholdOffset - vp.shrunkOffset;
     final overscroll = max(0.0, vp.offset - vp.maxOffset);
-    assert(maxOverscroll > 0.0);
     barrierColorFraction.value = (overscroll / maxOverscroll).clamp(0.0, 1.0);
   }
 
