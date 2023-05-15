@@ -16,8 +16,12 @@ class _CustomSnapOffsetsExampleState extends State<CustomSnapOffsetsExample> {
   @override
   void initState() {
     super.initState();
-    controller = ExprollablePageController.withAdditionalSnapOffsets(
-      const [ViewportOffset.fractional(0.5)],
+    controller = ExprollablePageController(
+      viewportConfiguration: ViewportConfiguration(
+        extraSnapOffsets: [
+          ViewportOffset.fractional(0.5),
+        ],
+      ),
     );
   }
 
