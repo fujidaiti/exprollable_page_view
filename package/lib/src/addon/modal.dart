@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:exprollable_page_view/src/core/controller.dart';
 import 'package:exprollable_page_view/src/core/view.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Viewport;
 
-/// Show an [ExprollablePageView] as a modal dialog.
+/// Shows an [ExprollablePageView] as a modal dialog.
 Future<T?> showModalExprollable<T>(
   BuildContext context, {
   required WidgetBuilder builder,
@@ -16,7 +16,7 @@ Future<T?> showModalExprollable<T>(
   Color initialBarrierColor = Colors.black54,
   void Function(BuildContext) dismissBehavior = _defaultDismissBehavior,
   bool barrierDismissible = true,
-  ViewportOffset dismissThresholdOffset = const DismissThresholdOffset(),
+  ViewportInset dismissThresholdInset = const DismissThresholdInset(),
 }) =>
     showDialog<T>(
       context: context,
@@ -34,7 +34,7 @@ Future<T?> showModalExprollable<T>(
           initialBarrierColor: initialBarrierColor,
           dismissBehavior: dismissBehavior,
           barrierDismissible: barrierDismissible,
-          dismissThresholdOffset: dismissThresholdOffset,
+          dismissThresholdInset: dismissThresholdInset,
         ),
       ),
     );
@@ -42,22 +42,22 @@ Future<T?> showModalExprollable<T>(
 void _defaultDismissBehavior(BuildContext context) =>
     Navigator.of(context).pop();
 
-class DismissThresholdOffset extends ViewportOffset {
-  const DismissThresholdOffset({
+class DismissThresholdInset extends ViewportInset {
+  const DismissThresholdInset({
     this.dragMargin = 86.0,
   });
 
   final double dragMargin;
 
   @override
-  double toConcreteValue(PageViewportMetrics metrics) =>
-      metrics.shrunkOffset + dragMargin;
+  double toConcreteValue(ViewportMetrics metrics) =>
+      metrics.shrunkInset + dragMargin;
 }
 
 /// A widget that makes a modal dialog style [ExprollablePageView].
 ///
 /// This widget adds a translucent background (barrier) and
-/// *swipe down to dismiss* action to the child page view.
+/// *swipe down to dismiss* action to the decendant page view. 
 /// Use [showModalExprollable] as a convenience method
 /// to show the [ExprollablePageView] as a dialog,
 /// which wraps the page view with [ModalExprollable].
@@ -73,17 +73,20 @@ class ModalExprollable extends StatefulWidget {
     this.initialBarrierColor = Colors.black54,
     this.dismissBehavior = _defaultDismissBehavior,
     this.barrierDismissible = true,
-    this.dismissThresholdOffset = const DismissThresholdOffset(),
+    this.dismissThresholdInset = const DismissThresholdInset(),
   });
 
   /// Called when the dialog should be dismissed.
+  ///
   /// The default behavior is to pop the dialog
   /// by calling [Navigator.pop] without result value.
   final void Function(BuildContext) dismissBehavior;
 
-  /// The threshold offset at which the dialog
-  /// should be dismissed by *swipe down to dismiss* action.
-  final ViewportOffset dismissThresholdOffset;
+  /// The threshold inset used to trigger *swipe down to dismiss* action.
+  ///
+  /// When the [Viewport.inset] exceeds this threshold,
+  /// [dismissBehavior] is called to dismiss the dialog.
+  final ViewportInset dismissThresholdInset;
 
   /// Whether the dialog is dismissible by tapping the barrier.
   final bool barrierDismissible;
@@ -106,7 +109,7 @@ class ModalExprollable extends StatefulWidget {
 
 class _ModalExprollableState extends State<ModalExprollable> {
   final ValueNotifier<double?> barrierColorFraction = ValueNotifier(null);
-  PageViewportMetrics? lastViewportMetrics;
+  ViewportMetrics? lastViewportMetrics;
 
   @override
   void dispose() {
@@ -114,7 +117,7 @@ class _ModalExprollableState extends State<ModalExprollable> {
     barrierColorFraction.dispose();
   }
 
-  void onViewportChanged(PageViewportMetrics metrics) {
+  void onViewportChanged(ViewportMetrics metrics) {
     lastViewportMetrics = metrics;
     invalidateBarrierColorFraction();
   }
@@ -128,8 +131,8 @@ class _ModalExprollableState extends State<ModalExprollable> {
   bool shouldDismiss() {
     if (lastViewportMetrics != null && lastViewportMetrics!.hasDimensions) {
       final vp = lastViewportMetrics!;
-      final threshold = widget.dismissThresholdOffset.toConcreteValue(vp);
-      if (vp.offset > threshold) return true;
+      final threshold = widget.dismissThresholdInset.toConcreteValue(vp);
+      if (vp.inset > threshold) return true;
     }
     return false;
   }
@@ -144,11 +147,11 @@ class _ModalExprollableState extends State<ModalExprollable> {
     assert(lastViewportMetrics != null);
     assert(lastViewportMetrics!.hasDimensions);
     final vp = lastViewportMetrics!;
-    final dismissThresholdOffset =
-        widget.dismissThresholdOffset.toConcreteValue(vp);
-    assert(dismissThresholdOffset > vp.shrunkOffset);
-    final maxOverscroll = dismissThresholdOffset - vp.shrunkOffset;
-    final overscroll = max(0.0, vp.offset - vp.maxOffset);
+    final dismissThresholdInset =
+        widget.dismissThresholdInset.toConcreteValue(vp);
+    assert(dismissThresholdInset > vp.shrunkInset);
+    final maxOverscroll = dismissThresholdInset - vp.shrunkInset;
+    final overscroll = max(0.0, vp.inset - vp.maxInset);
     barrierColorFraction.value = (overscroll / maxOverscroll).clamp(0.0, 1.0);
   }
 
@@ -174,7 +177,7 @@ class _ModalExprollableState extends State<ModalExprollable> {
 
     final pageView = Listener(
       onPointerUp: (_) => onPointerUp(),
-      child: NotificationListener<PageViewportUpdateNotification>(
+      child: NotificationListener<ViewportUpdateNotification>(
         onNotification: (notification) {
           onViewportChanged(notification.metrics);
           return false;
