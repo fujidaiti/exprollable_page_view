@@ -767,6 +767,12 @@ class PageViewport extends ChangeNotifier {
   /// The fraction of the viewport that the page should occupy.
   double get fraction => _fraction;
 
+  /// The lower bound of [fraction].
+  double get minFraction => _pageController.viewport.minFraction;
+
+  /// The upper bound of [fraction].
+  double get maxFraction => _pageController.viewport.maxFraction;
+
   /// The distance from the top of the viewport to the top of this page viewport.
   ///
   /// This value will be equal to [Viewport.inset] if [page] is the current page.
