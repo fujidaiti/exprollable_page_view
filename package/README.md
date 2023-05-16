@@ -14,7 +14,7 @@ Here is an example of what you can do with this widget:
 
 ### 05-17-2023
 
-Version 1.0.0-pre has been released 🎉. This version contains some breaking changes, please follow [the migration guide](#100-beta-to-100-pre).
+Version 1.0.0-rc.1 has been released 🎉. This version includes several breaking changes, so if you are already using ^1.0.0-beta, you may need to migrate according to [Migration Guide](#100-beta-to-100-rc1).
 
 
 
@@ -44,7 +44,7 @@ Version 1.0.0-pre has been released 🎉. This version contains some breaking ch
     - [prevent my app bar going off the screen when overshoote ffect is true?](#prevent-my-app-bar-going-off-the-screen-when-overshoote-ffect-is-true)
     - [animate the viewport state?](#animate-the-viewport-state)
   - [Migration guide](#migration-guide)
-    - [^1.0.0-beta to ^1.0.0-pre](#100-beta-to-100-pre)
+    - [^1.0.0-beta to ^1.0.0-rc.1](#100-beta-to-100-rc1)
       - [PageViewportMetrics update](#pageviewportmetrics-update)
       - [ViewportController update](#viewportcontroller-update)
       - [ViewportOffset update](#viewportoffset-update)
@@ -52,6 +52,7 @@ Version 1.0.0-pre has been released 🎉. This version contains some breaking ch
       - [Other renamed classes](#other-renamed-classes)
   - [Questions](#questions)
   - [Contributing](#contributing)
+
 
 ## Try it
 
@@ -371,9 +372,9 @@ controller.animateViewportInsetTo(
 
 ## Migration guide
 
-### ^1.0.0-beta to ^1.0.0-pre
+### ^1.0.0-beta to ^1.0.0-rc.1
 
-With the release of version 1.0.0-pre, there are several breaking changes.
+With the release of version 1.0.0-rc.1, there are several breaking changes.
 
 #### PageViewportMetrics update
 
