@@ -242,7 +242,7 @@ class ViewportDimensions {
 /// {@template exprollable_page_view.controller.ViewportMetrics}
 /// The state of the viewport is described by the 2 mesurements: fraction and inset.
 /// The fraction indicates how much space each page should occupy in the viewport,
-/// and hhe inset is the distance from the top of the viewport to the top of the current page viewport.
+/// and the inset is the distance from the top of the viewport to the top of the current page viewport.
 /// {@endtemplate}
 mixin ViewportMetrics {
   /// The mesurements of the viewport.
@@ -253,7 +253,7 @@ mixin ViewportMetrics {
   /// Indicates if [dimensions] property is available.
   bool get hasDimensions;
 
-  /// Indicates how much space each page should occupy in the viewport.
+  /// The fraction of the viewport that the each page should occupy.
   ///
   /// [fraction] must be between [minFraction] and [maxFraction] including both edges.
   double get fraction;
@@ -768,7 +768,7 @@ class PageViewport extends ChangeNotifier {
   double get fraction => _fraction;
 
   /// The distance from the top of the viewport to the top of this page viewport.
-  /// 
+  ///
   /// This value will be equal to [Viewport.inset] if [page] is the current page.
   double get offset => _isPageActive
       ? _pageController.viewport.inset
