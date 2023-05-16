@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:exprollable_page_view/src/core/controller.dart';
 import 'package:exprollable_page_view/src/core/view.dart';
 import 'package:exprollable_page_view/src/internal/utils.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide Viewport;
 
 /// Inserts appropriate padding into the child widget according to the current viewpor offset.
 class AdaptivePagePadding extends StatefulWidget {
@@ -29,29 +29,32 @@ class AdaptivePagePadding extends StatefulWidget {
 }
 
 class _AdaptivePagePaddingState extends State<AdaptivePagePadding> {
-  ViewportController? viewport;
+  Viewport? viewport;
+  PageViewport? pageViewport;
   double? padding;
 
   @override
   void dispose() {
     super.dispose();
-    viewport?.removeListener(invalidateState);
+    pageViewport?.removeListener(invalidateState);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final viewport = ViewportController.of(context);
+    final viewport = ExprollablePageController.of(context)?.viewport;
+    final pageViewport = PageViewport.of(context);
     assert(
-      viewport != null,
+      pageViewport != null && viewport != null,
       "$AdaptivePagePadding can only be placed in a subtree of $ExprollablePageView.",
     );
 
-    if (!identical(viewport, this.viewport)) {
-      this.viewport?.removeListener(invalidateState);
-      this.viewport = viewport!..addListener(invalidateState);
-      correctState();
+    if (!identical(pageViewport, this.pageViewport)) {
+      this.pageViewport?.removeListener(invalidateState);
+      this.pageViewport = pageViewport!..addListener(invalidateState);
     }
+    this.viewport = viewport!;
+    correctState();
   }
 
   @override
@@ -71,10 +74,12 @@ class _AdaptivePagePaddingState extends State<AdaptivePagePadding> {
 
   void correctState() {
     assert(viewport != null);
-    final vp = viewport!;
+    assert(pageViewport != null);
+    final offset = pageViewport!.offset;
+    final topPadding = viewport!.dimensions.padding.top;
     padding = widget.useSafeArea
-        ? max(0.0, vp.dimensions.padding.top - vp.offset)
-        : max(0.0, -1 * vp.offset);
+        ? max(0.0, topPadding - offset)
+        : max(0.0, -1 * offset);
   }
 
   @override

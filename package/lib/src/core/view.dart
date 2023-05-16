@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:exprollable_page_view/src/core/controller.dart';
 import 'package:exprollable_page_view/src/internal/paging.dart';
-import 'package:exprollable_page_view/src/internal/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
@@ -74,7 +73,7 @@ class ExprollablePageView extends StatefulWidget {
 
   /// Called whnever the viewport fraction or offset changes. Providing this callback
   /// is equivalent to subscribing to [ExprollablePageController.viewport].
-  final void Function(PageViewportMetrics metrics)? onViewportChanged;
+  final void Function(ViewportMetrics metrics)? onViewportChanged;
 
   /// Called whenever the focused page changes. Providing this callback
   /// is equivalent to subscribing to [ExprollablePageController.currentPage].
@@ -128,8 +127,8 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
   void onViewportChanged() {
     allowPaging.value = checkIfPagingIsAllowed();
     widget.onViewportChanged?.call(controller.viewport);
-    PageViewportUpdateNotification(
-      StaticPageViewportMetrics.from(controller.viewport),
+    ViewportUpdateNotification(
+      StaticViewportMetrics.from(controller.viewport),
     ).dispatch(context);
   }
 
@@ -137,8 +136,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
     widget.onPageChanged?.call(controller.currentPage.value);
   }
 
-  bool checkIfPagingIsAllowed() => controller.viewport.fraction
-      .almostEqualTo(controller.viewport.minFraction);
+  bool checkIfPagingIsAllowed() => controller.viewport.isPageShrunk;
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +160,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
                 valueListenable: controller.viewport,
                 builder: (context, viewport, child) {
                   return Transform.translate(
-                    offset: Offset(0, max(0.0, viewport.offset)),
+                    offset: Offset(0, max(0.0, viewport.inset)),
                     child: child,
                   );
                 },
@@ -217,13 +215,13 @@ class _PageItemContainer extends StatefulWidget {
 
 class _PageItemContainerState extends State<_PageItemContainer> {
   late PageContentScrollController scrollController;
-  late ViewportController viewport;
+  late PageViewport viewport;
   late ValueNotifier<bool> isActive;
 
   @override
   void initState() {
     super.initState();
-    viewport = ViewportController(
+    viewport = PageViewport(
       page: widget.page,
       pageController: widget.controller,
     );
@@ -260,7 +258,7 @@ class _PageItemContainerState extends State<_PageItemContainer> {
     if (oldWidget.controller != widget.controller ||
         oldWidget.page != widget.page) {
       viewport.dispose();
-      viewport = ViewportController(
+      viewport = PageViewport(
         page: widget.page,
         pageController: widget.controller,
       );
@@ -273,8 +271,8 @@ class _PageItemContainerState extends State<_PageItemContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return InheritedViewportController(
-      controller: viewport,
+    return InheritedPageViewport(
+      pageView: viewport,
       child: InheritedPageContentScrollController(
         controller: scrollController,
         child: _PageItem(
@@ -295,7 +293,7 @@ class _PageItem extends StatelessWidget {
   });
 
   final ValueListenable<bool> isActive;
-  final ViewportController viewport;
+  final PageViewport viewport;
   final WidgetBuilder builder;
 
   @override

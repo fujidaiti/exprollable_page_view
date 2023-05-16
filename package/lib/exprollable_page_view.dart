@@ -5,4 +5,4 @@ export 'package:exprollable_page_view/src/core/core.dart'
     hide
         InheritedExprollablePageController,
         InheritedPageContentScrollController,
-        InheritedViewportController;
+        InheritedPageViewport;

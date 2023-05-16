@@ -38,7 +38,7 @@ class _PageGutterState extends State<PageGutter> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final controller = ExprollablePageController.of(context);
-    final page = ViewportController.of(context)?.page;
+    final page = PageViewport.of(context)?.page;
 
     assert(
       controller != null && page != null,
