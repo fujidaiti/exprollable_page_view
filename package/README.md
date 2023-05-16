@@ -14,7 +14,7 @@ Here is an example of what you can do with this widget:
 
 ### 05-17-2023
 
-Version 1.0.0-pre has been released 🎉. This version contains some break changes, please follow [the migration guide](#100-beta-to-100-pre).
+Version 1.0.0-pre has been released 🎉. This version contains some breaking changes, please follow [the migration guide](#100-beta-to-100-pre).
 
 
 
