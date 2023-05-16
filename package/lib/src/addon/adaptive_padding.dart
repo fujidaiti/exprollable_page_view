@@ -5,12 +5,12 @@ import 'package:exprollable_page_view/src/core/view.dart';
 import 'package:exprollable_page_view/src/internal/utils.dart';
 import 'package:flutter/widgets.dart' hide Viewport;
 
-/// Inserts appropriate padding into the child widget according to the current viewpor offset.
+/// Inserts appropriate padding into the child widget according to the current viewpor inset.
 class AdaptivePagePadding extends StatefulWidget {
-  /// Creates a widget that inserts appropriate padding
-  /// into the top of the child widget according to the current viewpor offset.
-  /// It also adds extra padding if [useSafeArea] is enabled
-  /// to prevents the child from being obscured by the system UI such as a status bar.
+  /// Creates a widget that inserts appropriate padding into
+  /// the top of the child widget according to the current viewport inset.
+  /// It also adds extra padding if [useSafeArea] is enabled to prevents
+  /// the child from being obscured by the system UI such as the status bar.
   const AdaptivePagePadding({
     super.key,
     required this.child,

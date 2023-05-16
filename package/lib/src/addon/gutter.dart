@@ -3,7 +3,7 @@ import 'package:exprollable_page_view/src/core/view.dart';
 import 'package:exprollable_page_view/src/internal/utils.dart';
 import 'package:flutter/widgets.dart';
 
-/// Insert spaces at both sides of the wrapped page.
+/// Inserts spaces at both sides of the wrapped page.
 class PageGutter extends StatefulWidget {
   /// Creates a widget that inserts spaces of [gutterWidth] at both sides of [child].
   const PageGutter({
