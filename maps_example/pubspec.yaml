@@ -40,6 +40,7 @@ dependencies:
     path: ../package
   http: ^0.13.5
   json_serializable: ^6.6.1
+  json_annotation: ^4.8.1
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,6 @@
 import 'package:example/src/adaptive_padding_example.dart';
 import 'package:example/src/complex_example/complex_example.dart';
-import 'package:example/src/custom_snap_offsets_example.dart';
+import 'package:example/src/custom_snap_insets_example.dart';
 import 'package:example/src/gutter_example.dart';
 import 'package:example/src/modal_dialog_example.dart';
 import 'package:example/src/overshoot_effect_example.dart';
@@ -34,8 +34,8 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void pushRoute(Widget widget) => Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => widget));
+    void pushRoute(Widget widget) =>
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => widget));
 
     return ListView(
       children: [
@@ -48,8 +48,8 @@ class Home extends StatelessWidget {
           onTap: () => pushRoute(const OvershootEffectExample()),
         ),
         ListTile(
-          title: const Text("Custom Snap Offsets Example"),
-          onTap: () => pushRoute(const CustomSnapOffsetsExample()),
+          title: const Text("Custom Snap Insets Example"),
+          onTap: () => pushRoute(const CustomSnapInsetsExample()),
         ),
         ListTile(
           title: const Text("Gutter Example"),

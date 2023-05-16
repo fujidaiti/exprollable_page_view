@@ -38,7 +38,9 @@ class _AlbumDetailsDialogState extends ConsumerState<AlbumDetailsDialog> {
     super.initState();
     controller = ExprollablePageController(
       initialPage: widget.index,
-      overshootEffect: true,
+      viewportConfiguration: ViewportConfiguration(
+        overshootEffect: true,
+      ),
     );
   }
 

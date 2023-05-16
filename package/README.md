@@ -4,35 +4,52 @@
 
 # ExprollablePageView
 
-Yet another PageView widget that expands its viewport as it scrolls. **Exprollable** is a coined word combining the words expandable and scrollable. This project is an attemt to clone a modal sheet UI used in [Apple Books](https://www.apple.com/jp/apple-books/) app on iOS.
+Yet another PageView widget that expands the viewport of the current page while scrolling it. **Exprollable** is a coined word combining the words expandable and scrollable. This project is an attemt to clone a modal sheet UI used in [Apple Books](https://www.apple.com/jp/apple-books/) app on iOS.
 
 Here is an example of what you can do with this widget:
 
 <img width="320" src="https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif"> <img width="320" src="https://user-images.githubusercontent.com/68946713/234313845-caa8dd75-c9e2-4fd9-b177-f4a6795c4802.gif">
 
+## Announcement
+
+### 17-05-2023
+
+Version 1.0.0-rc.1 has been released 🎉. This version includes several breaking changes, so if you are already using ^1.0.0-beta, you may need to migrate according to [Migration Guide](#100-beta-to-100-rc1).
+
+
+
 ## Index
 
 - [ExprollablePageView](#exprollablepageview)
+  - [Announcement](#announcement)
+    - [17-05-2023](#17-05-2023)
   - [Index](#index)
   - [Try it](#try-it)
   - [Install](#install)
   - [Usage](#usage)
     - [ExprollablePageView](#exprollablepageview-1)
     - [ExprollablePageController](#exprollablepagecontroller)
-      - [Viewport fraction and offset](#viewport-fraction-and-offset)
+      - [Viewport fraction and inset](#viewport-fraction-and-inset)
       - [Overshoot effect](#overshoot-effect)
     - [ModalExprollable](#modalexprollable)
     - [Slidable list items](#slidable-list-items)
   - [How to](#how-to)
     - [get the curret page?](#get-the-curret-page)
-    - [make the PageView like a BottomSheet?](#make-the-pageview-like-a-bottomsheet)
-    - [observe the state of the viewport?](#observe-the-state-of-the-viewport)
+    - [make the page view like a BottomSheet?](#make-the-page-view-like-a-bottomsheet)
+    - [observe the viewport state?](#observe-the-viewport-state)
       - [1. Listen `ExprollablePageController.viewport`](#1-listen-exprollablepagecontrollerviewport)
-      - [2. Listen `PageViewportUpdateNotification`](#2-listen-pageviewportupdatenotification)
+      - [2. Listen `ViewportUpdateNotification`](#2-listen-viewportupdatenotification)
       - [3. Use `onViewportChanged` callback](#3-use-onviewportchanged-callback)
     - [add space between pages?](#add-space-between-pages)
-    - [prevent my AppBar going off the screen when `overshootEffect` is true?](#prevent-my-appbar-going-off-the-screen-when-overshooteffect-is-true)
+    - [prevent my app bar going off the screen when overshoote ffect is true?](#prevent-my-app-bar-going-off-the-screen-when-overshoote-ffect-is-true)
     - [animate the viewport state?](#animate-the-viewport-state)
+  - [Migration guide](#migration-guide)
+    - [^1.0.0-beta to ^1.0.0-rc.1](#100-beta-to-100-rc1)
+      - [PageViewportMetrics update](#pageviewportmetrics-update)
+      - [ViewportController update](#viewportcontroller-update)
+      - [ViewportOffset update](#viewportoffset-update)
+      - [ExprollablePageController update](#exprollablepagecontroller-update)
+      - [Other renamed classes](#other-renamed-classes)
   - [Questions](#questions)
   - [Contributing](#contributing)
 
@@ -59,12 +76,12 @@ flutter pub add exprollable_page_view
 
 ## Usage
 
-See  [how-to](#how-to) section If you are looking for specific usages.
+See  [how-to](#how-to) section if you are looking for specific usages.
 
 
 ### ExprollablePageView
 
-You can use `ExprollablePageView` just as built-in `PageView` as bellow. `ExprollablePageView` works with any scrollable widget that can accept a `ScrollController`. Note, however, that **it will not work as expected unless you use a `ScrollController` obtained from `PageContentScrollController.of`**.
+You can use `ExprollablePageView` just as built-in `PageView` as bellow. `ExprollablePageView` works with any scrollable widgets that can accept a `ScrollController`. Note, however, that **it will not work as expected unless you use a `ScrollController` obtained from `PageContentScrollController.of`**.
 
 ```dart
 import 'package:exprollable_page_view/exprollable_page_view.dart';
@@ -87,7 +104,7 @@ Widget build(BuildContext context) {
 }
 ```
 
-The constructor of `ExprollablePageView` has almost the same signature as `PageView.builder`. See [PageView's docs](https://api.flutter.dev/flutter/widgets/PageView/PageView.builder.html) for more details on each parameter.
+The constructor of `ExprollablePageView` has almost the same signature as `PageView.builder`. See [the document of PageView](https://api.flutter.dev/flutter/widgets/PageView/PageView.builder.html) for more details on each parameter.
 
 ```dart
   const ExprollablePageView({
@@ -110,52 +127,58 @@ The constructor of `ExprollablePageView` has almost the same signature as `PageV
 
 ### ExprollablePageController
 
-A subclass of `PageController` that is used by the internal `PageView`. It also controlls how the `ExprollablePageView` changes its viewport as it scrolls.
+A subclass of `PageController` that will be attached to the internal `PageView`. It also controlls how the viewport of the current page changes along with vertical scrolling.
 
 ```dart
-  ExprollablePageController({
-    super.initialPage,
-    super.keepPage,
-    double minViewportFraction = 0.9,
-    bool overshootEffect = false,
-    ViewportOffset initialViewportOffset = ViewportOffset.shrunk,
-    ViewportOffset maxViewportOffset = ViewportOffset.shrunk,
-    List<ViewportOffset> snapViewportOffsets = const [
-      ViewportOffset.expanded,
-      ViewportOffset.shrunk,
-    ],
-  });
+final controller = ExprollablePageController(
+  initialPage: 0,
+  viewportConfiguration: ViewportConfiguration(
+    minFraction: 0.9,
+  ),
+);
 ```
 
-- `initialPage`: The page to show when first creating the `ExprollablePageView`.
+Specify a `ViewportConfiguration` with the desired values to tweak the behavior of the page view.
 
-- `minViewportFraction`: The minimum fraction of the viewport that each page should occupy. It must be between 0.0 ~ 1.0.
+```dart
+factory ViewportConfiguration({
+  bool overshootEffect = false,
+  double minFraction = 0.9,
+  double maxFraction = 1.0,
+  ViewportInset shrunkInset = ViewportInset.shrunk,
+  ViewportInset? initialInset,
+  List<ViewportInset> extraSnapInsets = const [],
+});
+```
 
-- `initialViewportOffset`: The initial offset of the viewport. 
-
-- `maxViewportOffset`: The maximum offset of the viewport. Typically used with custom `snapViewportOffsets`. 
-
-- `snapViewportOffsets`: A list of offsets to snap the viewport to. An example of this feature can be found in [make the PageView like a BottomSheet](#make-the-pageview-like-a-bottomsheet) section.
-
+- `minFraction`: The fraction of the viewport that each page should occupy when it is shrunk by vertical scrolling.
+- `initialInset`: The initial [viewport inset](#viewport-fraction-and-inset).
+- `shrunkInset`: A viewport inset at which the current page is fully shrunk.
+- `extraSnapInsets`: A list of extra insets the viewport will snap to. An example of the use of this feature can be found in [make the page view like a BottomSheet](#make-the-page-view-like-a-bottomsheet) section.
 - `overshootEffect`: Indicates if overshoot effect is enabled. See [Overshoot effect](#overshoot-effect) section for more details.
 
-  
+#### Viewport fraction and inset
 
-#### Viewport fraction and offset
+The state of the viewport is described by the 2 mesurements: **fraction** and **inset**. The fraction indicates how much space each page should occupy in the viewport, and the inset is the distance from the top of the viewport to the top of the current page viewport. These measurements are managed in `Viewport` class, and can be referenced via the controller as it is exposed as  `ExprollablePageController.viewport`. See [observe the vewport state](#observe-the-viewport-state) section for more details.
 
-The state of the viewport is described by the 2 mesurements: **fraction** and **offset**. A fraction indicates how much space each page should occupy in the viewport, and it must be between 0.0 and 1.0. An offset is the distance from the top of the viewport to the top of the current page.  
+![viewport-fraction-and-inset](https://github.com/fujidaiti/exprollable_page_view/assets/68946713/128a7788-112f-45fd-957f-626b0176b052)
 
-![viewport-fraction-offset](https://user-images.githubusercontent.com/68946713/231830114-f4d9bec4-cb85-41f8-a9fd-7b3f21ff336a.png)
+`ViewportInset` is a class that represents an inset. There are 3 predefined `ViewportInset`s:
 
-`ViewportOffset` is a class that represents an offset. It has 2 pre-defined offsets, `ViewportOffset.expanded` and `ViewportOffset.shrunk`, at which the viewport fraction is 1.0 and the minimum, respectively. It also has a factory constructor `ViewportOffset.fractional` that creates an offset from a fractional value. For example, `ViewportOffset.fractional(1.0)` is equivalent to `ViewportOffset.shrunk`, and `ViewportOffset.fractional(0.0)` matches the bottom of the viewport. Some examples of the use of this class can be found in [make the PageView like a BottomSheet](#make-the-pageview-like-a-bottomsheet), [observe the state of the viewport](#observe-the-state-of-the-viewport).
+- `ViewportInset.expanded`: The default inset at which the current page is fully expanded.
+- `ViewportInset.shrunk` : The default inset at which the current page is fully shrunk.
+- `ViewportInset.overshoot` : The default inset at which the current page is fully expanded and overshot (see [Overshoot effect](#overshoot-effect)).
 
-![viewport-offsets](https://user-images.githubusercontent.com/68946713/231827251-fed9575c-980a-40b8-b01a-da984d58f3ec.png)
+User defined insets can be created using `ViewportInset.fixed` and `ViewportInset.fractional`, or you can extend `ViewportInset` to perform more complex calculations. Some examples of the use of this class can be found in [make the PageView like a BottomSheet](#make-the-pageview-like-a-bottomsheet), [observe the state of the viewport](#observe-the-state-of-the-viewport).
+
+![viewport-insets](https://github.com/fujidaiti/exprollable_page_view/assets/68946713/23aa944c-61d4-4578-b194-cf4224fe757c)
 
 
 
 #### Overshoot effect
 
-If `ExprollablePageController.overshootEffect` is enabled, the upper segment of the current page will slightly exceed the top of the viewport when it goes fullscreen. To be precise, this means that the viewport offset will take a negative value when the viewport fraction is 1.0. This trick creates a dynamic visual effect when the page goes fullscreen. The figures below are a demonstration of how the overshoot effect affects (disabled in the left, enabled in the right).
+  If the overshoot effect is enabled, the upper segment of the current page viewport will
+  slightly exceed the top of the viewport when it goes fullscreen. To be precise, this means that the viewport inset will take a negative value when the viewport fraction is 1. This trick creates a dynamic visual effect when the page goes fullscreen. The figures below are demonstrations of how the overshoot effect affects (disabled in the left, enabled in the right).
 
 ![overshoot-disabled](https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif) ![overshoot-enabled](https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif)
 
@@ -167,25 +190,29 @@ Overshoot effect will works correctly only if:
 Perhaps the most common use is to wrap an `ExprollablePageView` with a `Scaffold`. In that case, do not forget to enable `Scaffold.extentBody` and then everything should be fine.
 
 ```dart
-controller = ExprollablePageController(overshootEffect: true);
-
-Widget build(BuildContext context) {
-  return Scaffold(
-    extendBody: true,
-    bottomNavigationBar: BottomNavigationBar(...),
-    body: ExprollablePageView(
-      controller: controller,
-      itemBuilder: (context, page) { ... },
+  controller = ExprollablePageController(
+    viewportConfiguration: ViewportConfiguration(
+     overshootEffect: true, // Enable the overshoot effect
     ),
   );
-}
+  
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBody: true, // Do not forget this line
+      bottomNavigationBar: BottomNavigationBar(...),
+      body: ExprollablePageView(
+        controller: controller,
+        itemBuilder: (context, page) { ... },
+      ),
+    );
+  }
 ```
 
 
 
 ### ModalExprollable
 
-Use `ModalExprollable` to create modal dialog style PageViews. This widget adds a translucent background and *swipe down to dismiss* action to your `ExprollablePageView`. You can use `showModalExprollable` a convenience function that wraps your `ExprollablePageView` with `ModalExprollable` and display it as a dialog. If you want to customize reveal/dismiss behavior of the dialog, create your own `PageRoute` and use `ModalExprollable` in it.
+Use `ModalExprollable` to create modal dialog style page views. This widget adds a translucent background and *swipe down to dismiss* action to your `ExprollablePageView`. You can use `showModalExprollable` a convenience function that wraps your `ExprollablePageView` with `ModalExprollable` and display it as a dialog. If you want to customize reveal/dismiss behavior of the dialog, create your own `PageRoute` and use `ModalExprollable` in it.
 
 ```dart
 showModalExprollable(
@@ -201,7 +228,7 @@ showModalExprollable(
 
 ### Slidable list items
 
-One of the advantages of `ExprollablePageView` over built-in `PageView` is that widgets with horizontal slide action such as [flutter_slidable](https://pub.dev/packages/flutter_slidable) can be used within each page. You can see an example that uses flutter_slidable in `example/lib/src/complex_example/album_details.dart`.
+One of the advantages of `ExprollablePageView` over the built-in `PageView` is that widgets with horizontal slide action such as [flutter_slidable](https://pub.dev/packages/flutter_slidable) can be used within a page. You can see an example that uses flutter_slidable in `example/lib/src/complex_example/album_details.dart`.
 
 ![SlideActionDemo](https://user-images.githubusercontent.com/68946713/231349155-aa6bb0a7-f85f-4bab-b7d0-30692338f61b.gif)
 
@@ -235,61 +262,52 @@ ExprollablePageView(
 
 
 
-### make the PageView like a BottomSheet?
+### make the page view like a BottomSheet?
 
-Use  `ExprollablePageController` . Below is an example controller for snapping to the three states:
+Use  `ExprollablePageController`  and `ViewportConfiguration`. Below is an example controller for snapping to the three states:
 
-1. The viewport is completely expanded (`viewportFraction == 1.0`)
-2. The viewport is slightly smaller than the screen (`viewportFraction == 0.9`)
-3. `viewportFraction == 0.9` and the PageView covers only half of the screen like BottomSheet.
+1. The page is completely expanded (`Viewport.fraction == 1.0`)
+2. The page is slightly smaller than the viewport (`Viewport.fraction == 0.9`)
+3. `Viewport.fraction == 0.9` and the page view covers only half of the screen like a bottom sheet.
 
 For complete code, see [custom_snap_offsets_example.dart](https://github.com/fujidaiti/exprollable_page_view/blob/master/example/lib/src/custom_snap_offsets_example.dart).
 
 ```dart
-const peekOffset = ViewportOffset.fractional(0.5);
 controller = ExprollablePageController(
-  minViewportFraction: 0.9,
-  initialViewportOffset: peekOffset,
-  maxViewportOffset: peekOffset,
-  snapViewportOffsets: [
-    ViewportOffset.expanded,
-    ViewportOffset.shrunk,
-    peekOffset,
-  ],
+  viewportConfiguration: ViewportConfiguration(
+    minFraction: 0.9,
+    extraSnapInsets: [
+      ViewportInset.fractional(0.5),
+    ],
+  ),
 );
 ```
 
-You can also use `ExprollablePageController.withAdditionalSnapOffsets` as a shorthand. The following snippet is equevalent to the above:
-
-```dart
-controller = ExprollablePageController.withAdditionalSnapOffsets([peekOffset]);
-```
-
-### observe the state of the viewport?
+### observe the viewport state?
 
 There are 3 ways to observe changes of the viewport state.
 
 #### 1. Listen `ExprollablePageController.viewport`
 
-`ExprollablePageController.viewport` is a `ValueListenable<PageViewportMetrics>` and `PageViewportMetrics` contains the current state of the viewport. Thus, you can listen and use it to perfom some actions that depend on the viewport  state.
+`ExprollablePageController.viewport` is a `ValueListenable<ViewportMetrics>` and `ViewportMetrics` contains the current state of the viewport. Thus, you can listen and use it to perfom some actions that depend on the viewport  state.
 
 ```dart
 controller.viewport.addListener(() {
-  final PageViewportMetrics vp = controller.viewport.value;
-  final bool isShrunk = vp.isShrunk;
-  final bool isExpanded = vp.isExpanded;
+  final ViewportMetrics vp = controller.viewport.value;
+  final bool isShrunk = vp.isPageShrunk;
+  final bool isExpanded = vp.isPageExpanded;
 });
 ```
 
-#### 2. Listen `PageViewportUpdateNotification`
+#### 2. Listen `ViewportUpdateNotification`
 
-`ExprollablePageView` dispatches `PageViewportUpdateNotification` every time its state changes, and it contains a `PageViewportMetrics`. You can listen the notifications using `NotificationListener` widget. Make sure that the `NotificationListener` is an ancestor of the `ExprollablePageView` in your widget tree. This method is useful when you want to perform a state-dependent action, but do not have a controller.
+`ExprollablePageView` dispatches `ViewportUpdateNotification` every time its state changes, and it contains a `ViewportMetrics`. You can listen the notifications using `NotificationListener` widget. Make sure that the `NotificationListener` is an ancestor of the `ExprollablePageView` in your widget tree. This method is useful when you want to perform a state dependent action, but do not have a controller.
 
 
 ```dart
-NotificationListener<PageViewportUpdateNotification>(
+NotificationListener<ViewportUpdateNotification>(
         onNotification: (notification) {
-          final PageViewportMetrics vp = notification.metrics;
+          final ViewportMetrics vp = notification.metrics;
           return false;
         },
         child: ...,
@@ -301,7 +319,7 @@ The constructor of `ExprollablePageView` accepts a callback that is invoked when
 
 ```dart
 ExprollablePageView(
-  onPageViewChanged: (PageViewportMetrics vp) {...},
+  onPageViewChanged: (ViewportMetrics vp) {...},
 );
 ```
 
@@ -321,7 +339,7 @@ ExprollablePageView(
 );
 ```
 
-### prevent my AppBar going off the screen when `overshootEffect` is true?
+### prevent my app bar going off the screen when overshoote ffect is true?
 
 Use `AdaptivePagePadding`. This widget adds appropriate padding to its child according to the current viewpor offset. An example code is found in [adaptive_padding_example.dart](https://github.com/fujidaiti/exprollable_page_view/blob/master/example/lib/src/adaptive_padding_example.dart).
 
@@ -339,15 +357,102 @@ Container(
 
 ### animate the viewport state?
 
-Use `ExprollablePageController.animateViewportOffsetTo`.
+Use `ExprollablePageController.animateViewportInsetTo`.
 
 ```dart
-controller.animateViewportOffsetTo(
-  ViewportOffset.shrunk,
+// Shrunk the current page with scroll animation in 1 second.
+controller.animateViewportInsetTo(
+  ViewportInset.shrunk,
   curve: Curves.easeInOutSine,
   duration: Duration(seconds: 1),
 );
 ```
+
+
+
+## Migration guide
+
+### ^1.0.0-beta to ^1.0.0-rc.1
+
+With the release of version 1.0.0-rc.1, there are several breaking changes.
+
+#### PageViewportMetrics update
+
+`PageViewportMetrics` mixin was merged into `ViewportMetrics` mixin and now deleted, and some properties were renamed. Replace the symbols in your code according to the table below:
+
+- `PageViewportMetrics`  👉  `ViewportMetrics`
+- `PageViewportMetrics.isShrunk`   👉 `ViewportMetrics.isPageShrunk`
+- `PageViewportMetrics.isExpanded`   👉 `ViewportMetrics.isPageExpanded`
+- `PageViewportMetrics.xxxOffset`   👉 `ViewportMetrics.xxxInset` (the all properties with suffix `Offset` was renamed with the new suffix `Inset`)
+- `PageViewportMetrics.overshootEffect` was deleted
+
+#### ViewportController update
+
+ `ViewportController` class was renamed to `PageViewport` and no longer mixins `ViewportMetrics`.
+
+#### ViewportOffset update
+
+For `ViewportOffset` and its inherited classes, the suffix `Offset` was replaced with the new suffix `Inset`, and 2 new inherited classes were introduced (see [Viewport fraction and inset](#viewport-fraction-and-inset)).
+
+- `ViewportOffset`  👉  `ViewportInset`
+
+- `ExpandedViewportOffset`  👉  `DefaultExpandedViewportinset`
+- `ShrunkViewportOffset`  👉  `DefaultShrunkViewportInset`
+
+#### ExprollablePageController update
+
+With the introduction of `ViewportConfiguration`, the signature of `ExprollablePageController`'s constructor was changed.
+
+Before:
+
+```dart
+  final controller = ExprollablePageController(
+    initialPage: 0,
+    minViewportFraction: 0.9,
+    overshootEffect: true,
+    initialViewportOffset: ViewportOffset.shrunk,
+  );
+```
+
+After:
+
+```dart
+final controller = ExprollablePageController(
+  initialPage: 0,
+  viewportConfiguration: ViewportConfiguration(
+    minFraction: 0.9,
+    overshootEffect: true,
+    initialInset: ViewportInset.shrunk,
+  ),
+);
+```
+
+In addition, `ExprollablePageController.withAdditionalSnapOffsets` was removed, use `ViewportConfiguration.extraSnapInsets` instead. See [ExprollablePageController](#exprollablepagecontroller) section for more details.
+
+Before:
+
+```dart
+final controller = ExprollablePageController.withAdditionalSnapOffsets([
+  ViewportOffset.fractional(0.5),
+]);
+```
+
+After:
+
+```dart
+final controller = ExprollablePageController(
+  viewportConfiguration: ViewportConfiguration(
+    extraSnapOffset: [ViewportInset.fractional(0.5)],
+  ),
+);
+```
+
+#### Other renamed classes
+
+- `StaticPageViewportMetrics`  👉  `StaticViewportMetrics`
+- `PageViewportUpdateNotification`  👉  `ViewportUpdateNotification`
+- `PageViewport`  👉  `Viewport`
+
 
 
 ## Questions

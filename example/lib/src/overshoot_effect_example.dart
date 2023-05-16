@@ -19,7 +19,9 @@ class _OvershootEffectExampleState extends State<OvershootEffectExample> {
       // Make sure that your Scaffold has a bottom navigation bar,
       // and Scaffold.extendBody is set true. You should avoid using
       // SafeArea for the top of the screen for better visual effect.
-      overshootEffect: true,
+      viewportConfiguration: ViewportConfiguration(
+        overshootEffect: true,
+      ),
     );
   }
 

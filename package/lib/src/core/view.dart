@@ -2,12 +2,11 @@ import 'dart:math';
 
 import 'package:exprollable_page_view/src/core/controller.dart';
 import 'package:exprollable_page_view/src/internal/paging.dart';
-import 'package:exprollable_page_view/src/internal/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-/// A page view that expands its viewport while scrolling the page.
+/// A page view that expands the viewport of the current page while scrolling it.
 class ExprollablePageView extends StatefulWidget {
   const ExprollablePageView({
     super.key,
@@ -27,57 +26,69 @@ class ExprollablePageView extends StatefulWidget {
   });
 
   /// A builder that creates a scrollable page for a given index.
+  /// 
   /// Note that **[ExprollablePageView] will not works as expected
   /// if a [ScrollController] obtained by [PageContentScrollController.of]
   /// is not attached to the scrollable widget that is returned**.
   final IndexedWidgetBuilder itemBuilder;
 
-  /// The number of pages. Providing null makes the [ExprollablePageView] to scroll infinitely.
+  /// The number of pages.
+  /// 
+  /// Providing null makes the [ExprollablePageView] to scroll infinitely.
   final int? itemCount;
 
-  /// An object that can be used to control the position to which this page view is scrolled.
-  /// It also controlls how the viewport changes as the page scrolls.
+  /// A controller for the page view.
   final ExprollablePageController? controller;
 
   /// Whether the page view scrolls in the reading direction.
+  /// 
   /// See [PageView.reverse] for more details.
   final bool reverse;
 
   /// How the page view should respond to user input.
+  /// 
   /// See [PageView.physics] for more details.
   final ScrollPhysics? physics;
 
   /// Determines the way that drag start behavior is handled.
+  /// 
   /// See [PageView.dragStartBehavior] for more details.
   final DragStartBehavior dragStartBehavior;
 
   /// Controls whether the widget's pages will respond to [RenderObject.showOnScreen],
   /// which will allow for implicit accessibility scrolling.
+  /// 
   /// See [PageView.allowImplicitScrolling] for more detials.
   final bool allowImplicitScrolling;
 
   /// Restoration ID to save and restore the scroll offset of the scrollable.
+  /// 
   /// See [PageView.restorationId] for more details.
   final String? restorationId;
 
   /// The content will be clipped (or not) according to this option.
+  /// 
   /// See [PageView.clipBehavior] for more details.
   final Clip clipBehavior;
 
   /// A [ScrollBehavior] that will be applied to this widget individually.
+  /// 
   /// See [PageView.scrollBehavior] for more detials.
   final ScrollBehavior? scrollBehavior;
 
   /// Whether to add padding to both ends of the list.
+  /// 
   /// See [PageView.padEnds] for more details.
   final bool padEnds;
 
-  /// Called whnever the viewport fraction or offset changes. Providing this callback
-  /// is equivalent to subscribing to [ExprollablePageController.viewport].
-  final void Function(PageViewportMetrics metrics)? onViewportChanged;
+  /// Called whnever the viewport fraction or inset changes.
+  /// 
+  /// Providing this callback is equivalent to subscribing to [ExprollablePageController.viewport].
+  final void Function(ViewportMetrics metrics)? onViewportChanged;
 
-  /// Called whenever the focused page changes. Providing this callback
-  /// is equivalent to subscribing to [ExprollablePageController.currentPage].
+  /// Called whenever the focused page changes.
+  /// 
+  /// Providing this callback is equivalent to subscribing to [ExprollablePageController.currentPage].
   final void Function(int page)? onPageChanged;
 
   @override
@@ -128,8 +139,8 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
   void onViewportChanged() {
     allowPaging.value = checkIfPagingIsAllowed();
     widget.onViewportChanged?.call(controller.viewport);
-    PageViewportUpdateNotification(
-      StaticPageViewportMetrics.from(controller.viewport),
+    ViewportUpdateNotification(
+      StaticViewportMetrics.from(controller.viewport),
     ).dispatch(context);
   }
 
@@ -137,8 +148,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
     widget.onPageChanged?.call(controller.currentPage.value);
   }
 
-  bool checkIfPagingIsAllowed() => controller.viewport.fraction
-      .almostEqualTo(controller.viewport.minFraction);
+  bool checkIfPagingIsAllowed() => controller.viewport.isPageShrunk;
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +172,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
                 valueListenable: controller.viewport,
                 builder: (context, viewport, child) {
                   return Transform.translate(
-                    offset: Offset(0, max(0.0, viewport.offset)),
+                    offset: Offset(0, max(0.0, viewport.inset)),
                     child: child,
                   );
                 },
@@ -217,13 +227,13 @@ class _PageItemContainer extends StatefulWidget {
 
 class _PageItemContainerState extends State<_PageItemContainer> {
   late PageContentScrollController scrollController;
-  late ViewportController viewport;
+  late PageViewport viewport;
   late ValueNotifier<bool> isActive;
 
   @override
   void initState() {
     super.initState();
-    viewport = ViewportController(
+    viewport = PageViewport(
       page: widget.page,
       pageController: widget.controller,
     );
@@ -260,7 +270,7 @@ class _PageItemContainerState extends State<_PageItemContainer> {
     if (oldWidget.controller != widget.controller ||
         oldWidget.page != widget.page) {
       viewport.dispose();
-      viewport = ViewportController(
+      viewport = PageViewport(
         page: widget.page,
         pageController: widget.controller,
       );
@@ -273,8 +283,8 @@ class _PageItemContainerState extends State<_PageItemContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return InheritedViewportController(
-      controller: viewport,
+    return InheritedPageViewport(
+      pageView: viewport,
       child: InheritedPageContentScrollController(
         controller: scrollController,
         child: _PageItem(
@@ -295,7 +305,7 @@ class _PageItem extends StatelessWidget {
   });
 
   final ValueListenable<bool> isActive;
-  final ViewportController viewport;
+  final PageViewport viewport;
   final WidgetBuilder builder;
 
   @override
