@@ -599,7 +599,7 @@ class ViewportConfiguration {
 /// This object subscribes to the given [ScrollAbsorber] to calculates the [inset] and [fraction]
 /// depending on [ScrollAbsorber.pixels], and if there are any changes, notifies its listeners.
 class Viewport extends ChangeNotifier
-    with ViewportMetrics, ViewportMetrics
+    with ViewportMetrics
     implements ValueListenable<ViewportMetrics> {
   /// Creates an object that represents the state of the **conceptual** viewport.
   Viewport({
