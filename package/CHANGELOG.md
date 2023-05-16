@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0-rc.1 17-05-2023
+
+This version contains some breaking changes (see the migraiton guide in README).
+
+- The behavior of the viewport is now more customizable (#24)
+- Terminology was reorganized and some classes and properties were renamed accordingly
+- Some improvements in the documents
+
 ## 1.0.0-beta.8 05-05-2023
 
 - Fix #25, #26

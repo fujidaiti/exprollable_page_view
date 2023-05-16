@@ -1,10 +1,10 @@
 name: exprollable_page_view
-description: Yet another PageView widget that expands its viewport as it scrolls. Exprollable is a coined word combining the words expandable and scrollable.
-version: 1.0.0-beta.8
+description: Yet another PageView widget that expands its page while scrolling it. Exprollable is a coined word combining the words expandable and scrollable.
+version: 1.0.0-rc.1
 repository: https://github.com/fujidaiti/exprollable_page_view
 
 environment:
-  sdk: ">=2.19.0 <3.0.0"
+  sdk: ">=2.19.0 <4.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
