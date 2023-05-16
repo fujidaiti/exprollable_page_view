@@ -12,7 +12,7 @@ Here is an example of what you can do with this widget:
 
 ## Announcement
 
-### 05-17-2023
+### 17-05-2023
 
 Version 1.0.0-rc.1 has been released 🎉. This version includes several breaking changes, so if you are already using ^1.0.0-beta, you may need to migrate according to [Migration Guide](#100-beta-to-100-rc1).
 
@@ -22,7 +22,7 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
 
 - [ExprollablePageView](#exprollablepageview)
   - [Announcement](#announcement)
-    - [05-17-2023](#05-17-2023)
+    - [17-05-2023](#17-05-2023)
   - [Index](#index)
   - [Try it](#try-it)
   - [Install](#install)
