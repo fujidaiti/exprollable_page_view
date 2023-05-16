@@ -23,10 +23,10 @@ class _MapsExampleState extends State<MapsExample> {
   @override
   void initState() {
     super.initState();
-    const peekOffset = ViewportInset.fractional(0.7);
+    const peekInset = ViewportInset.fractional(0.7);
     _pageController = ExprollablePageController(
       viewportConfiguration: ViewportConfiguration(
-        extraSnapInsets: [peekOffset],
+        extraSnapInsets: [peekInset],
       ),
     );
   }

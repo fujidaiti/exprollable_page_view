@@ -2,15 +2,15 @@ import 'package:example/src/common.dart';
 import 'package:exprollable_page_view/exprollable_page_view.dart';
 import 'package:flutter/material.dart';
 
-class CustomSnapOffsetsExample extends StatefulWidget {
-  const CustomSnapOffsetsExample({super.key});
+class CustomSnapInsetsExample extends StatefulWidget {
+  const CustomSnapInsetsExample({super.key});
 
   @override
-  State<CustomSnapOffsetsExample> createState() =>
-      _CustomSnapOffsetsExampleState();
+  State<CustomSnapInsetsExample> createState() =>
+      _CustomSnapInsetsExampleState();
 }
 
-class _CustomSnapOffsetsExampleState extends State<CustomSnapOffsetsExample> {
+class _CustomSnapInsetsExampleState extends State<CustomSnapInsetsExample> {
   late final ExprollablePageController controller;
 
   @override
