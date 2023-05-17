@@ -8,7 +8,7 @@ Yet another PageView widget that expands the viewport of the current page while 
 
 Here is an example of what you can do with this widget:
 
-<img width="320" src="https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif"> <img width="320" src="https://user-images.githubusercontent.com/68946713/234313845-caa8dd75-c9e2-4fd9-b177-f4a6795c4802.gif">
+<img width="260" src="https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif"> <img width="260" src="https://user-images.githubusercontent.com/68946713/234313845-caa8dd75-c9e2-4fd9-b177-f4a6795c4802.gif">
 
 ## Announcement
 
@@ -159,7 +159,7 @@ factory ViewportConfiguration({
 
 #### Viewport fraction and inset
 
-The state of the viewport is described by the 2 mesurements: **fraction** and **inset**. The fraction indicates how much space each page should occupy in the viewport, and the inset is the distance from the top of the viewport to the top of the current page viewport. These measurements are managed in `Viewport` class, and can be referenced via the controller as it is exposed as  `ExprollablePageController.viewport`. See [observe the vewport state](#observe-the-viewport-state) section for more details.
+The state of the viewport is described by the 2 mesurements: **fraction** and **inset**. The fraction indicates how much space each page should occupy in the viewport, and the inset is the distance from the top of the viewport to the top of the current page viewport. These measurements are managed in `Viewport` class, and can be referenced through the controller. See [observe the vewport state](#observe-the-viewport-state) section for more details.
 
 ![viewport-fraction-and-inset](https://github.com/fujidaiti/exprollable_page_view/assets/68946713/128a7788-112f-45fd-957f-626b0176b052)
 
@@ -180,7 +180,7 @@ User defined insets can be created using `ViewportInset.fixed` and `ViewportInse
   If the overshoot effect is enabled, the upper segment of the current page viewport will
   slightly exceed the top of the viewport when it goes fullscreen. To be precise, this means that the viewport inset will take a negative value when the viewport fraction is 1. This trick creates a dynamic visual effect when the page goes fullscreen. The figures below are demonstrations of how the overshoot effect affects (disabled in the left, enabled in the right).
 
-![overshoot-disabled](https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif) ![overshoot-enabled](https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif)
+<img width="260" src="https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif"> <img width="260" src="https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif">
 
 Overshoot effect will works correctly only if:
 
@@ -223,14 +223,14 @@ showModalExprollable(
   );
 ```
 
-![modal-exprollable](https://user-images.githubusercontent.com/68946713/231827874-71a0ea47-6576-4fcc-ae37-d1bc38825234.gif)
+<img width="260" src="https://user-images.githubusercontent.com/68946713/231827874-71a0ea47-6576-4fcc-ae37-d1bc38825234.gif">
 
 
 ### Slidable list items
 
 One of the advantages of `ExprollablePageView` over the built-in `PageView` is that widgets with horizontal slide action such as [flutter_slidable](https://pub.dev/packages/flutter_slidable) can be used within a page. You can see an example that uses flutter_slidable in `example/lib/src/complex_example/album_details.dart`.
 
-![SlideActionDemo](https://user-images.githubusercontent.com/68946713/231349155-aa6bb0a7-f85f-4bab-b7d0-30692338f61b.gif)
+<img width="260" src="https://user-images.githubusercontent.com/68946713/231349155-aa6bb0a7-f85f-4bab-b7d0-30692338f61b.gif">
 
 
 
