@@ -2,7 +2,7 @@
 
 [![Pub](https://img.shields.io/pub/v/exprollable_page_view.svg?logo=flutter&color=blue)](https://pub.dev/packages/exprollable_page_view) [![Pub Popularity](https://img.shields.io/pub/popularity/exprollable_page_view)](https://pub.dev/packages/exprollable_page_view) [![Docs](https://img.shields.io/badge/-API%20Reference-orange)](https://pub.dev/documentation/exprollable_page_view/latest/)
 
-# ExprollablePageView
+# exprollable_page_view 🐦
 
 Yet another PageView widget that expands the viewport of the current page while scrolling it. **Exprollable** is a coined word combining the words expandable and scrollable. This project is an attemt to clone a modal sheet UI used in [Apple Books](https://www.apple.com/jp/apple-books/) app on iOS.
 
@@ -20,17 +20,18 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
 
 ## Index
 
-- [ExprollablePageView](#exprollablepageview)
+- [exprollable\_page\_view 🐦](#exprollable_page_view-)
   - [Announcement](#announcement)
     - [17-05-2023](#17-05-2023)
   - [Index](#index)
   - [Try it](#try-it)
   - [Install](#install)
   - [Usage](#usage)
-    - [ExprollablePageView](#exprollablepageview-1)
+    - [ExprollablePageView](#exprollablepageview)
     - [ExprollablePageController](#exprollablepagecontroller)
       - [Viewport fraction and inset](#viewport-fraction-and-inset)
       - [Overshoot effect](#overshoot-effect)
+    - [ViewportConfiguration](#viewportconfiguration)
     - [ModalExprollable](#modalexprollable)
     - [Slidable list items](#slidable-list-items)
   - [How to](#how-to)
@@ -64,6 +65,7 @@ cd example
 flutter pub get
 flutter run
 ```
+
 There is another example, which demonstrates how `ExprollablePageView` is able to work with Google Maps. See [maps_example/README](https://github.com/fujidaiti/exprollable_page_view/blob/master/maps_example/README.md) for more details.
 
 ## Install
@@ -77,7 +79,6 @@ flutter pub add exprollable_page_view
 ## Usage
 
 See  [how-to](#how-to) section if you are looking for specific usages.
-
 
 ### ExprollablePageView
 
@@ -208,7 +209,38 @@ Perhaps the most common use is to wrap an `ExprollablePageView` with a `Scaffold
   }
 ```
 
+### ViewportConfiguration
 
+`ViewportConfiguration` provides flexible ways to customize viewport behavior. For standard use cases, the unnamed constructor of `ViewportConfiguration` is sufficient. However, if you need more fine-grained control, you can use `ViewportConfiguration.raw` to specify the fraction range and the inset range of the viewport, as well as the position at which the page will shrink/expand. The following snippet is an example of a page view that snaps the current page to the 4 states:
+
+- Collapsed: The page is almost hidden
+- Shrunk: It's like a bottom sheet
+- Expanded: It's still like a bottom sheet, but the page is expanded
+- Fullscreen: The page completely covers the entire screen
+
+```dart
+const fullscreenInset = ViewportInset.fixed(0);
+const expandedInset = ViewportInset.fractional(0.2);
+const shrunkInset = ViewportInset.fractional(0.5);
+const collapsedkInset = ViewportInset.fractional(0.9);
+final controller = ExprollablePageController(
+  viewportConfiguration: ViewportConfiguration.raw(
+    minInset: fullscreenInset,
+    expandedInset: expandedInset,
+    shrunkInset: shrunkInset,
+    maxInset: collapsedInset,
+    initialInset: collapsedInset,
+    snapInsets: [
+      fullscreenInset,
+      expandedInset,
+      shrunkInset,
+      collapsedInset,
+    ],
+  ),
+);
+```
+
+<img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/1e848ad0-5111-4d5a-8663-ee0b07d813c6">
 
 ### ModalExprollable
 
