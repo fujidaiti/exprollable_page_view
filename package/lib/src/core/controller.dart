@@ -481,14 +481,17 @@ class ViewportConfiguration {
   /// It is recommended to use [ViewportConfiguration.new],
   /// which is a convenient constructor sufficient for most use cases.
   const ViewportConfiguration.raw({
-    required this.minFraction,
-    required this.maxFraction,
-    required this.minInset,
-    required this.maxInset,
-    required this.shrunkInset,
-    required this.expandedInset,
-    required this.initialInset,
-    required this.snapInsets,
+    this.minFraction = 0.9,
+    this.maxFraction = 1.0,
+    this.minInset = ViewportInset.expanded,
+    this.maxInset = ViewportInset.shrunk,
+    this.shrunkInset = ViewportInset.shrunk,
+    this.expandedInset = ViewportInset.expanded,
+    this.initialInset = ViewportInset.shrunk,
+    this.snapInsets = const [
+      ViewportInset.expanded,
+      ViewportInset.shrunk,
+    ],
   });
 
   /// Create a configuration for standard use cases.
