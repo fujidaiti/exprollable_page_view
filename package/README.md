@@ -179,9 +179,9 @@ User defined insets can be created using `ViewportInset.fixed` and `ViewportInse
 #### Overshoot effect
 
   If the overshoot effect is enabled, the upper segment of the current page viewport will
-  slightly exceed the top of the viewport when it goes fullscreen. To be precise, this means that the viewport inset will take a negative value when the viewport fraction is 1. This trick creates a dynamic visual effect when the page goes fullscreen. The figures below are demonstrations of how the overshoot effect affects (disabled in the left, enabled in the right).
+  slightly exceed the top of the viewport when it goes fullscreen. To be precise, this means that the viewport inset will take a negative value when the viewport fraction is 1. This trick creates a dynamic visual effect when the page goes fullscreen. The 2 figures below are demonstrations of how the overshoot effect affects (enabled in the left, disabled in the middle). The same behavior can be seen in the apple books app (rightmost image).
 
-<img width="260" src="https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif"> <img width="260" src="https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif">
+ <img width="260" src="https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif"><img width="260" src="https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif"><img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/ef450917-4339-4ae1-b149-bca1e4699c2a">
 
 Overshoot effect will works correctly only if:
 
