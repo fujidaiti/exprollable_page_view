@@ -1,4 +1,5 @@
 import 'package:example/src/adaptive_padding_example.dart';
+import 'package:example/src/animation_example.dart';
 import 'package:example/src/complex_example/complex_example.dart';
 import 'package:example/src/custom_snap_insets_example.dart';
 import 'package:example/src/gutter_example.dart';
@@ -67,6 +68,10 @@ class Home extends StatelessWidget {
         ListTile(
           title: const Text("Viewport Configuration Example"),
           onTap: () => pushRoute(const ViewportConfigurationExample()),
+        ),
+        ListTile(
+          title: const Text("Animation Example"),
+          onTap: () => pushRoute(const AnimationExample()),
         ),
         ListTile(
           title: const Text("Complex Example"),
