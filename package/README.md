@@ -400,7 +400,9 @@ controller.animateViewportInsetTo(
 );
 ```
 
+A more concrete example can be seen in [animation_example.dart](https://github.com/fujidaiti/exprollable_page_view/blob/master/example/lib/src/animation_example.dart).
 
+<img width="260" src="https://github.com/fujidaiti/fms/assets/68946713/63b2a875-3b54-4031-9817-a808bce2b3f8">
 
 ## Migration guide
 
