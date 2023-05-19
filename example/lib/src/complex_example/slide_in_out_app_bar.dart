@@ -53,6 +53,7 @@ class _SlideInOutAppBarState extends State<SlideInOutAppBar> {
   @override
   Widget build(BuildContext context) {
     final appBar = AppBar(
+      elevation: isShown ? null : 0,
       automaticallyImplyLeading: false,
       backgroundColor: Colors.grey[200],
       title: Text(
@@ -61,12 +62,11 @@ class _SlideInOutAppBarState extends State<SlideInOutAppBar> {
       ),
     );
 
-    const shadowExtent = 12;
     final appBarHeight =
         appBar.preferredSize.height + MediaQuery.of(context).padding.top;
 
     return AnimatedPositioned(
-      top: isShown ? 0.0 : -1 * (appBarHeight + shadowExtent),
+      top: isShown ? 0.0 : -1 * (appBarHeight),
       left: 0.0,
       right: 0.0,
       duration: const Duration(milliseconds: 150),
