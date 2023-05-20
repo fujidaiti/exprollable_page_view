@@ -24,6 +24,7 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
   - [Announcement](#announcement)
     - [17-05-2023](#17-05-2023)
   - [Index](#index)
+  - [Background](#background)
   - [Try it](#try-it)
   - [Install](#install)
   - [Usage](#usage)
@@ -54,6 +55,18 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
   - [Questions](#questions)
   - [Contributing](#contributing)
 
+
+## Background
+
+Books, an e-book reading application from Apple, has a unique user interface; tapping a book cover image displays its details page as a modal view, and the user can swpie the pages back and forth to explore the details of different books, and if the user scrolls vertically up the page, the width of the page gradually expands (or shrinks). The beauty of this UI is that:
+
+- the user can see at a glance that they can move between content by swiping
+- it does not reduce the horizontal space for the layout because it can go full-screen
+- the page switching by swiping is disabled in fullscreen mode, which allows both horizontal swipe actions like flutter_slidable and page switching in the page view.
+
+<img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/daa8a72f-6904-4b45-ac2b-913e8fb9974a">
+
+Unfortunately, `PageView` widget in flutter framework does not provide ways to dynamically change the size of each page, and this is why I created *exprollable_page_view*.
 
 ## Try it
 
