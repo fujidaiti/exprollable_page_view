@@ -2,35 +2,37 @@
 
 [![Pub](https://img.shields.io/pub/v/exprollable_page_view.svg?logo=flutter&color=blue)](https://pub.dev/packages/exprollable_page_view) [![Pub Popularity](https://img.shields.io/pub/popularity/exprollable_page_view)](https://pub.dev/packages/exprollable_page_view) [![Docs](https://img.shields.io/badge/-API%20Reference-orange)](https://pub.dev/documentation/exprollable_page_view/latest/)
 
-# ExprollablePageView
+# exprollable_page_view 🐦
 
 Yet another PageView widget that expands the viewport of the current page while scrolling it. **Exprollable** is a coined word combining the words expandable and scrollable. This project is an attemt to clone a modal sheet UI used in [Apple Books](https://www.apple.com/jp/apple-books/) app on iOS.
 
 Here is an example of what you can do with this widget:
 
-<img width="320" src="https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif"> <img width="320" src="https://user-images.githubusercontent.com/68946713/234313845-caa8dd75-c9e2-4fd9-b177-f4a6795c4802.gif">
+<img width="260" src="https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif"> <img width="260" src="https://user-images.githubusercontent.com/68946713/234313845-caa8dd75-c9e2-4fd9-b177-f4a6795c4802.gif">
 
 ## Announcement
 
 ### 17-05-2023
 
-Version 1.0.0-rc.1 has been released 🎉. This version includes several breaking changes, so if you are already using ^1.0.0-beta, you may need to migrate according to [Migration Guide](#100-beta-to-100-rc1).
+Version 1.0.0-rc.1 has been released 🎉. This version includes several breaking changes, so if you are already using ^1.0.0-beta, you may need to migrate according to [the migration guide](#100-beta-to-100-rc1).
 
 
 
 ## Index
 
-- [ExprollablePageView](#exprollablepageview)
+- [exprollable\_page\_view 🐦](#exprollable_page_view-)
   - [Announcement](#announcement)
     - [17-05-2023](#17-05-2023)
   - [Index](#index)
+  - [Background](#background)
   - [Try it](#try-it)
   - [Install](#install)
   - [Usage](#usage)
-    - [ExprollablePageView](#exprollablepageview-1)
+    - [ExprollablePageView](#exprollablepageview)
     - [ExprollablePageController](#exprollablepagecontroller)
       - [Viewport fraction and inset](#viewport-fraction-and-inset)
       - [Overshoot effect](#overshoot-effect)
+    - [ViewportConfiguration](#viewportconfiguration)
     - [ModalExprollable](#modalexprollable)
     - [Slidable list items](#slidable-list-items)
   - [How to](#how-to)
@@ -54,6 +56,18 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
   - [Contributing](#contributing)
 
 
+## Background
+
+Books, an e-book reading application from Apple, has a unique user interface; tapping a book cover image displays its details page as a modal view, and the user can swpie the pages back and forth to explore the details of different books, and if the user scrolls vertically up the page, the width of the page gradually expands (or shrinks). The beauty of this UI is that:
+
+- the user can see at a glance that they can move between content by swiping
+- it does not reduce the horizontal space for the layout because it can go full-screen
+- the page switching by swiping is disabled in fullscreen mode, which allows both horizontal swipe actions like flutter_slidable and page switching in the page view.
+
+<img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/daa8a72f-6904-4b45-ac2b-913e8fb9974a">
+
+Unfortunately, `PageView` widget in flutter framework does not provide ways to dynamically change the size of each page, and this is why I created *exprollable_page_view*.
+
 ## Try it
 
 Run the example application and explore the all features of this package.
@@ -64,6 +78,7 @@ cd example
 flutter pub get
 flutter run
 ```
+
 There is another example, which demonstrates how `ExprollablePageView` is able to work with Google Maps. See [maps_example/README](https://github.com/fujidaiti/exprollable_page_view/blob/master/maps_example/README.md) for more details.
 
 ## Install
@@ -77,7 +92,6 @@ flutter pub add exprollable_page_view
 ## Usage
 
 See  [how-to](#how-to) section if you are looking for specific usages.
-
 
 ### ExprollablePageView
 
@@ -159,7 +173,7 @@ factory ViewportConfiguration({
 
 #### Viewport fraction and inset
 
-The state of the viewport is described by the 2 mesurements: **fraction** and **inset**. The fraction indicates how much space each page should occupy in the viewport, and the inset is the distance from the top of the viewport to the top of the current page viewport. These measurements are managed in `Viewport` class, and can be referenced via the controller as it is exposed as  `ExprollablePageController.viewport`. See [observe the vewport state](#observe-the-viewport-state) section for more details.
+The state of the viewport is described by the 2 mesurements: **fraction** and **inset**. The fraction indicates how much space each page should occupy in the viewport, and the inset is the distance from the top of the viewport to the top of the current page viewport. These measurements are managed in `Viewport` class, and can be referenced through the controller. See [observe the vewport state](#observe-the-viewport-state) section for more details.
 
 ![viewport-fraction-and-inset](https://github.com/fujidaiti/exprollable_page_view/assets/68946713/128a7788-112f-45fd-957f-626b0176b052)
 
@@ -178,9 +192,9 @@ User defined insets can be created using `ViewportInset.fixed` and `ViewportInse
 #### Overshoot effect
 
   If the overshoot effect is enabled, the upper segment of the current page viewport will
-  slightly exceed the top of the viewport when it goes fullscreen. To be precise, this means that the viewport inset will take a negative value when the viewport fraction is 1. This trick creates a dynamic visual effect when the page goes fullscreen. The figures below are demonstrations of how the overshoot effect affects (disabled in the left, enabled in the right).
+  slightly exceed the top of the viewport when it goes fullscreen. To be precise, this means that the viewport inset will take a negative value when the viewport fraction is 1. This trick creates a dynamic visual effect when the page goes fullscreen. The 2 figures below are demonstrations of how the overshoot effect affects (enabled in the left, disabled in the middle). The same behavior can be seen in the apple books app (rightmost image).
 
-![overshoot-disabled](https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif) ![overshoot-enabled](https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif)
+ <img width="260" src="https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif"><img width="260" src="https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif"><img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/ef450917-4339-4ae1-b149-bca1e4699c2a">
 
 Overshoot effect will works correctly only if:
 
@@ -208,7 +222,38 @@ Perhaps the most common use is to wrap an `ExprollablePageView` with a `Scaffold
   }
 ```
 
+### ViewportConfiguration
 
+`ViewportConfiguration` provides flexible ways to customize viewport behavior. For standard use cases, the unnamed constructor of `ViewportConfiguration` is sufficient. However, if you need more fine-grained control, you can use `ViewportConfiguration.raw` to specify the fraction range and the inset range of the viewport, as well as the position at which the page will shrink/expand. The following snippet is an example of a page view that snaps the current page to the 4 states:
+
+- Collapsed: The page is almost hidden
+- Shrunk: It's like a bottom sheet
+- Expanded: It's still like a bottom sheet, but the page is expanded
+- Fullscreen: The page completely covers the entire screen
+
+```dart
+const fullscreenInset = ViewportInset.fixed(0);
+const expandedInset = ViewportInset.fractional(0.2);
+const shrunkInset = ViewportInset.fractional(0.5);
+const collapsedkInset = ViewportInset.fractional(0.9);
+final controller = ExprollablePageController(
+  viewportConfiguration: ViewportConfiguration.raw(
+    minInset: fullscreenInset,
+    expandedInset: expandedInset,
+    shrunkInset: shrunkInset,
+    maxInset: collapsedInset,
+    initialInset: collapsedInset,
+    snapInsets: [
+      fullscreenInset,
+      expandedInset,
+      shrunkInset,
+      collapsedInset,
+    ],
+  ),
+);
+```
+
+<img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/1e848ad0-5111-4d5a-8663-ee0b07d813c6">
 
 ### ModalExprollable
 
@@ -223,14 +268,14 @@ showModalExprollable(
   );
 ```
 
-![modal-exprollable](https://user-images.githubusercontent.com/68946713/231827874-71a0ea47-6576-4fcc-ae37-d1bc38825234.gif)
+<img width="260" src="https://user-images.githubusercontent.com/68946713/231827874-71a0ea47-6576-4fcc-ae37-d1bc38825234.gif">
 
 
 ### Slidable list items
 
 One of the advantages of `ExprollablePageView` over the built-in `PageView` is that widgets with horizontal slide action such as [flutter_slidable](https://pub.dev/packages/flutter_slidable) can be used within a page. You can see an example that uses flutter_slidable in `example/lib/src/complex_example/album_details.dart`.
 
-![SlideActionDemo](https://user-images.githubusercontent.com/68946713/231349155-aa6bb0a7-f85f-4bab-b7d0-30692338f61b.gif)
+<img width="260" src="https://user-images.githubusercontent.com/68946713/231349155-aa6bb0a7-f85f-4bab-b7d0-30692338f61b.gif">
 
 
 
@@ -368,7 +413,9 @@ controller.animateViewportInsetTo(
 );
 ```
 
+A more concrete example can be seen in [animation_example.dart](https://github.com/fujidaiti/exprollable_page_view/blob/master/example/lib/src/animation_example.dart).
 
+<img width="260" src="https://github.com/fujidaiti/fms/assets/68946713/63b2a875-3b54-4031-9817-a808bce2b3f8">
 
 ## Migration guide
 

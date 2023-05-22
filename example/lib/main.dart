@@ -1,10 +1,12 @@
 import 'package:example/src/adaptive_padding_example.dart';
+import 'package:example/src/animation_example.dart';
 import 'package:example/src/complex_example/complex_example.dart';
 import 'package:example/src/custom_snap_insets_example.dart';
 import 'package:example/src/gutter_example.dart';
 import 'package:example/src/modal_dialog_example.dart';
 import 'package:example/src/overshoot_effect_example.dart';
 import 'package:example/src/simple_example.dart';
+import 'package:example/src/viewport_configuration_example.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -62,6 +64,14 @@ class Home extends StatelessWidget {
         ListTile(
           title: const Text("Modal Dialog Example"),
           onTap: () => pushRoute(const ModalDialogExample()),
+        ),
+        ListTile(
+          title: const Text("Viewport Configuration Example"),
+          onTap: () => pushRoute(const ViewportConfigurationExample()),
+        ),
+        ListTile(
+          title: const Text("Animation Example"),
+          onTap: () => pushRoute(const AnimationExample()),
         ),
         ListTile(
           title: const Text("Complex Example"),

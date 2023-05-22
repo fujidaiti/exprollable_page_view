@@ -465,30 +465,24 @@ class DefaultViewportFractionBehavior implements ViewportFractionBehavior {
 /// A configuration for the viewport.
 class ViewportConfiguration {
   /// A const object to be used as the default configuration of [Viewport].
-  static const defaultConfiguration = ViewportConfiguration.raw(
-    minFraction: 0.9,
-    maxFraction: 1.0,
-    minInset: ViewportInset.expanded,
-    maxInset: ViewportInset.shrunk,
-    shrunkInset: ViewportInset.shrunk,
-    expandedInset: ViewportInset.expanded,
-    initialInset: ViewportInset.shrunk,
-    snapInsets: [ViewportInset.expanded, ViewportInset.shrunk],
-  );
+  static const defaultConfiguration = ViewportConfiguration.raw();
 
   /// A general constructor for [ViewportConfiguration].
   ///
   /// It is recommended to use [ViewportConfiguration.new],
   /// which is a convenient constructor sufficient for most use cases.
   const ViewportConfiguration.raw({
-    required this.minFraction,
-    required this.maxFraction,
-    required this.minInset,
-    required this.maxInset,
-    required this.shrunkInset,
-    required this.expandedInset,
-    required this.initialInset,
-    required this.snapInsets,
+    this.minFraction = 0.9,
+    this.maxFraction = 1.0,
+    this.minInset = ViewportInset.expanded,
+    this.maxInset = ViewportInset.shrunk,
+    this.shrunkInset = ViewportInset.shrunk,
+    this.expandedInset = ViewportInset.expanded,
+    this.initialInset = ViewportInset.shrunk,
+    this.snapInsets = const [
+      ViewportInset.expanded,
+      ViewportInset.shrunk,
+    ],
   });
 
   /// Create a configuration for standard use cases.
