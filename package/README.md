@@ -27,6 +27,7 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
   - [Background](#background)
   - [Try it](#try-it)
   - [Install](#install)
+  - [Tutorial](#tutorial)
   - [Usage](#usage)
     - [ExprollablePageView](#exprollablepageview)
     - [ExprollablePageController](#exprollablepagecontroller)
@@ -88,6 +89,10 @@ Add this package to your project using `pub` command.
 ```shell
 flutter pub add exprollable_page_view
 ```
+
+## Tutorial
+
+There is [a tutorial article](https://medium.com/itnext/create-a-modal-ui-used-in-apples-books-app-with-flutter-8f5241a7c8ff) that provides step-by-step instructions for the example app.
 
 ## Usage
 
