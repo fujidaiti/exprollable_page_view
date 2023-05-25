@@ -71,8 +71,6 @@ Unfortunately, `PageView` widget in flutter framework does not provide ways to d
 
 ## Try it
 
- (Access from a mobile browser is recommended)
-
 Run the example application and explore the all features of this package. It is also available on [web](https://fujidaiti.github.io/exprollable_page_view/#/) (access from a mobile browser is recommended).
 
 ```shell
