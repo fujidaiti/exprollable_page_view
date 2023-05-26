@@ -782,6 +782,12 @@ class PageViewport extends ChangeNotifier {
   /// The upper bound of [offset].
   double get maxOffset => _pageController.viewport.inset;
 
+  /// The actual size of the page viewport.
+  Size get dimensions => Size(
+        _pageController.viewport.dimensions.width,
+        _pageController.viewport.dimensions.height,
+      );
+
   bool get _isPageActive => page == _pageController.currentPage.value;
 
   Offset _computeTranslation() => Offset(
@@ -802,12 +808,11 @@ class PageViewport extends ChangeNotifier {
   double _computeHorizontalTranslation() {
     final vp = _pageController.viewport;
     if (_isPageActive) {
-      return vp.dimensions.width * (vp.fraction - vp.minFraction) / -2.0;
+      return 0;
     } else {
       final isOnLeftSide = page < _pageController.currentPage.value;
-      return isOnLeftSide
-          ? -vp.dimensions.width * (vp.fraction - vp.minFraction) * 1.5
-          : vp.dimensions.width * (vp.fraction - vp.minFraction) / 2.0;
+      final dx = vp.dimensions.width * (vp.fraction - vp.minFraction);
+      return isOnLeftSide ? -1 * dx : dx;
     }
   }
 

@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:exprollable_page_view/src/core/controller.dart';
-import 'package:exprollable_page_view/src/internal/paging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
@@ -26,14 +25,14 @@ class ExprollablePageView extends StatefulWidget {
   });
 
   /// A builder that creates a scrollable page for a given index.
-  /// 
+  ///
   /// Note that **[ExprollablePageView] will not works as expected
   /// if a [ScrollController] obtained by [PageContentScrollController.of]
   /// is not attached to the scrollable widget that is returned**.
   final IndexedWidgetBuilder itemBuilder;
 
   /// The number of pages.
-  /// 
+  ///
   /// Providing null makes the [ExprollablePageView] to scroll infinitely.
   final int? itemCount;
 
@@ -41,53 +40,53 @@ class ExprollablePageView extends StatefulWidget {
   final ExprollablePageController? controller;
 
   /// Whether the page view scrolls in the reading direction.
-  /// 
+  ///
   /// See [PageView.reverse] for more details.
   final bool reverse;
 
   /// How the page view should respond to user input.
-  /// 
+  ///
   /// See [PageView.physics] for more details.
   final ScrollPhysics? physics;
 
   /// Determines the way that drag start behavior is handled.
-  /// 
+  ///
   /// See [PageView.dragStartBehavior] for more details.
   final DragStartBehavior dragStartBehavior;
 
   /// Controls whether the widget's pages will respond to [RenderObject.showOnScreen],
   /// which will allow for implicit accessibility scrolling.
-  /// 
+  ///
   /// See [PageView.allowImplicitScrolling] for more detials.
   final bool allowImplicitScrolling;
 
   /// Restoration ID to save and restore the scroll offset of the scrollable.
-  /// 
+  ///
   /// See [PageView.restorationId] for more details.
   final String? restorationId;
 
   /// The content will be clipped (or not) according to this option.
-  /// 
+  ///
   /// See [PageView.clipBehavior] for more details.
   final Clip clipBehavior;
 
   /// A [ScrollBehavior] that will be applied to this widget individually.
-  /// 
+  ///
   /// See [PageView.scrollBehavior] for more detials.
   final ScrollBehavior? scrollBehavior;
 
   /// Whether to add padding to both ends of the list.
-  /// 
+  ///
   /// See [PageView.padEnds] for more details.
   final bool padEnds;
 
   /// Called whnever the viewport fraction or inset changes.
-  /// 
+  ///
   /// Providing this callback is equivalent to subscribing to [ExprollablePageController.viewport].
   final void Function(ViewportMetrics metrics)? onViewportChanged;
 
   /// Called whenever the focused page changes.
-  /// 
+  ///
   /// Providing this callback is equivalent to subscribing to [ExprollablePageController.currentPage].
   final void Function(int page)? onPageChanged;
 
@@ -176,7 +175,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
                     child: child,
                   );
                 },
-                child: AlwaysFillViewportPageView.builder(
+                child: PageView.builder(
                   reverse: widget.reverse,
                   dragStartBehavior: widget.dragStartBehavior,
                   allowImplicitScrolling: widget.allowImplicitScrolling,
@@ -312,7 +311,13 @@ class _PageItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: isActive,
-      child: builder(context),
+      child: OverflowBox(
+        minWidth: viewport.dimensions.width,
+        maxWidth: viewport.dimensions.width,
+        minHeight: viewport.dimensions.height,
+        maxHeight: viewport.dimensions.height,
+        child: builder(context),
+      ),
       builder: (_, isActive, child) {
         return IgnorePointer(
           ignoring: !isActive,
@@ -320,12 +325,15 @@ class _PageItem extends StatelessWidget {
             animation: viewport,
             builder: (_, __) {
               return Transform(
-                transform: Matrix4.identity()
-                  ..translate(
+                alignment: Alignment.topCenter,
+                transform: Matrix4.diagonal3Values(
+                  viewport.fraction,
+                  viewport.fraction,
+                  1.0,
+                )..translate(
                     viewport.translation.dx,
                     viewport.translation.dy,
-                  )
-                  ..scale(viewport.fraction),
+                  ),
                 child: child,
               );
             },
