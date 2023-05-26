@@ -988,9 +988,11 @@ class OvershootViewportInset extends ViewportInset {
   /// Create the overshot viewport inset.
   const OvershootViewportInset();
 
+  static const _defaultPixels = -82.0;
+
   @override
   double toConcreteValue(ViewportMetrics metrics) =>
-      -1 * metrics.dimensions.padding.bottom;
+      min(-1 * metrics.dimensions.padding.bottom, _defaultPixels);
 }
 
 /// {@template exprollable_page_view.controller.DefaultExpandedViewportInset}
