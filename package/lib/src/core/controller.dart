@@ -753,13 +753,12 @@ class PageViewport extends ChangeNotifier {
   final ExprollablePageController _pageController;
 
   late Offset _translation = _computeTranslation();
-  late double _fraction = _computeFraction();
 
   /// How many pixels the page should translate from the actual position in the page view.
   Offset get translation => _translation;
 
   /// The fraction of the viewport that the page should occupy.
-  double get fraction => _fraction;
+  double get fraction => _pageController.viewport.fraction;
 
   /// The lower bound of [fraction].
   double get minFraction => _pageController.viewport.minFraction;
@@ -816,11 +815,8 @@ class PageViewport extends ChangeNotifier {
     }
   }
 
-  double _computeFraction() => _pageController.viewport.fraction;
-
   void _invalidateState() {
     _translation = _computeTranslation();
-    _fraction = _computeFraction();
     notifyListeners();
   }
 
