@@ -237,6 +237,49 @@ class ViewportDimensions {
   int get hashCode => Object.hash(runtimeType, width, height, padding);
 }
 
+/// A description of the page viewport mesurements.
+@immutable
+class PageViewportDimensions {
+  const PageViewportDimensions({
+    required this.minWidth,
+    required this.minHeight,
+    required this.maxWidth,
+    required this.maxHeight,
+    required this.width,
+    required this.height,
+  });
+
+  final double minWidth;
+  final double maxWidth;
+  final double minHeight;
+  final double maxHeight;
+  final double width;
+  final double height;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (runtimeType == other.runtimeType &&
+          other is PageViewportDimensions &&
+          minWidth == other.minWidth &&
+          maxWidth == other.maxWidth &&
+          minHeight == other.minHeight &&
+          maxHeight == other.maxHeight &&
+          width == other.width &&
+          height == other.height);
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        minWidth,
+        maxWidth,
+        minHeight,
+        maxHeight,
+        width,
+        height,
+      );
+}
+
 /// A description of the viewport state.
 ///
 /// {@template exprollable_page_view.controller.ViewportMetrics}
