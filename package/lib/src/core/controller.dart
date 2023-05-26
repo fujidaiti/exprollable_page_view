@@ -818,22 +818,10 @@ class PageViewport extends ChangeNotifier {
 
   double _computeFraction() => _pageController.viewport.fraction;
 
-  void _correctState() {
+  void _invalidateState() {
     _translation = _computeTranslation();
     _fraction = _computeFraction();
-  }
-
-  void _invalidateState() {
-    final oldTranslation = translation;
-    final oldOffset = offset;
-    final oldFraction = fraction;
-    _correctState();
-    if (!oldTranslation.dx.almostEqualTo(translation.dx) ||
-        !oldTranslation.dy.almostEqualTo(translation.dy) ||
-        !oldOffset.almostEqualTo(offset) ||
-        !oldFraction.almostEqualTo(fraction)) {
-      notifyListeners();
-    }
+    notifyListeners();
   }
 
   /// Obtains the [PageViewport] attached to the page that is the nearest ancestor from [context].
