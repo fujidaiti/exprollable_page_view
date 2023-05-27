@@ -10,15 +10,19 @@
 
 ## アナウンス
 
+### XX-XX-2023
+
+安定版のバージョン1.0.0がリリースされました。詳しくは [マイグレーションガイド](#100-rcx-から-1x)をご覧ください。
+
 ### 2023/05/17
 
-バージョン1.0.0-rc.1がリリースされました 🎉！このバージョンはいくつかの破壊的な変更を含んでいます。もしベータ版（1.0.0-beta.xx）をすでに使用中の場合、コードの修正が必要になるかもしれません。詳しくは [マイグレーションガイド](#100-beta-to-100-rc1)をご覧ください。
-
+バージョン1.0.0-rc.1がリリースされました 🎉！このバージョンはいくつかの破壊的な変更を含んでいます。もしベータ版（1.0.0-beta.xx）をすでに使用中の場合、コードの修正が必要になるかもしれません。詳しくは [マイグレーションガイド](100-beta-から-100-rc1)をご覧ください。
 
 ## 目次
 
 - [exprollable\_page\_view 🐦](#exprollable_page_view-)
   - [アナウンス](#アナウンス)
+    - [XX-XX-2023](#xx-xx-2023)
     - [2023/05/17](#20230517)
   - [目次](#目次)
   - [試してみる](#試してみる)
@@ -42,12 +46,14 @@
     - [overshoot effectが有効なときapp barが画面の外に飛び出してしまうのを防ぐ](#overshoot-effectが有効なときapp-barが画面の外に飛び出してしまうのを防ぐ)
     - [viewportの状態をアニメーションで動かす](#viewportの状態をアニメーションで動かす)
   - [マイグレーションガイド](#マイグレーションガイド)
+    - [1.0.0-rc.x から 1.x](#100-rcx-から-1x)
     - [^1.0.0-beta から ^1.0.0-rc.1](#100-beta-から-100-rc1)
       - [PageViewportMetricsの変更](#pageviewportmetricsの変更)
       - [ViewportControllerの変更](#viewportcontrollerの変更)
       - [ViewportOffsetの変更](#viewportoffsetの変更)
       - [ExprollablePageControllerの変更](#exprollablepagecontrollerの変更)
       - [その他シンボル名の変更](#その他シンボル名の変更)
+
 
 ## 試してみる
 
@@ -177,32 +183,6 @@ overshoot effectはページが拡大される際の視覚効果です。これ�
 
  <img width="260" src="https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif"><img width="260" src="https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif"><img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/ef450917-4339-4ae1-b149-bca1e4699c2a">
 
-overshoot effectが正しく動作するには以下の条件を満たす必要があります。
-
-- `MediaQuery.padding.bottom` > 0
-- `NavigationBar`や`BottomAppBar`のようなwidgetが`ExprollablePageView`の下部を覆い隠している
-
-おそらく最もよくある使用方法は`Scaffold`の中に`ExprollablePageView`を設置することでしょう。その場合`Scaffold.bottomNavigationBar`を指定し、`Scaffold.extentBody`を有効にしてください。これにより上記の条件が満たされます。
-
-```dart
-  controller = ExprollablePageController(
-    viewportConfiguration: ViewportConfiguration(
-     overshootEffect: true, // overshoot effectを有効にする
-    ),
-  );
-  
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true, // これを忘れずに
-      bottomNavigationBar: BottomNavigationBar(...),
-      body: ExprollablePageView(
-        controller: controller,
-        itemBuilder: (context, page) { ... },
-      ),
-    );
-  }
-```
-
 ### ViewportConfiguration
 
 `ViewportConfiguration` はviewportの動作をカスタマイズするための柔軟な方法を提供します。ほとんどのケースでは`ViewportConfiguration`の無名コンストラクタで十分だと思いますが、より細かい制御が必要な場合は、`ViewportConfiguration.raw`を使用してください。viewport fractionとinsetの範囲、またページが完全に拡大（縮小）する位置を指定することができます。以下のコードはページを4つの状態にスナップさせる`ExprollablePageController`の例です。
@@ -249,8 +229,9 @@ showModalExprollable(
   );
 ```
 
-<img width="260" src="https://user-images.githubusercontent.com/68946713/231827874-71a0ea47-6576-4fcc-ae37-d1bc38825234.gif">
+より詳しい例は [modal_dialog_example.dart](https://github.com/fujidaiti/exprollable_page_view/blob/master/example/lib/src/modal_dialog_example.dart) をご覧ください。
 
+<img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/ec375a0d-0844-481c-a8ae-47cb5bb24b19">
 
 ### スライドアクションを持つリストアイテム
 
@@ -397,6 +378,36 @@ controller.animateViewportInsetTo(
 <img width="260" src="https://github.com/fujidaiti/fms/assets/68946713/63b2a875-3b54-4031-9817-a808bce2b3f8">
 
 ## マイグレーションガイド
+
+
+### 1.0.0-rc.x から 1.x
+
+バージョン1.0.0以前では、overshoot effectは以下の条件を満たした場合のみ正しく機能しました。
+
+- `MediaQuery.padding.bottom` > 0
+- `NavigationBar`や`BottomAppBar`のようなwidgetが`ExprollablePageView`の下部を覆い隠している
+
+バージョン1.0.0からは上記の制限がなくなり、`Scaffold.bottomNavigationBar`や`Scaffold.extendBody`の有無に関わらずovershoot effectを有効にすることができるようになりました。
+
+```dart
+  controller = ExprollablePageController(
+    viewportConfiguration: ViewportConfiguration(
+     overshootEffect: true,
+    ),
+  );
+  
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // 以下の２行はバージョン1.0.0以降では不要になりました
+      // extendBody: true,
+      // bottomNavigationBar: BottomNavigationBar(...),
+      body: ExprollablePageView(
+        controller: controller,
+        itemBuilder: (context, page) { ... },
+      ),
+    );
+  }
+```
 
 ### ^1.0.0-beta から ^1.0.0-rc.1
 
