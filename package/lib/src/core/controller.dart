@@ -553,32 +553,6 @@ class ViewportConfiguration {
   ///
   /// ![overshoot-disabled](https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif) ![overshoot-enabled](https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif)
   ///
-  /// Overshoot effect will works correctly only if:
-  ///
-  /// - [MediaQueryData.padding.data] > 0
-  /// - Ther lower segment of [ExprollablePageView] is behind a widget such as [NavigationBar], [BottomAppBar]
-  ///
-  /// Perhaps the most common use is to wrap an [ExprollablePageView] with a [Scaffold].
-  /// In that case, do not forget to enable [Scaffold.extentBody] and then everything should be fine.
-  ///
-  /// ```dart
-  /// controller = ExprollablePageController(
-  ///   viewportConfiguration: ViewportConfiguration(
-  ///    overshootEffect: true,
-  ///   ),
-  /// );
-  ///
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///     extendBody: true,
-  ///     bottomNavigationBar: BottomNavigationBar(...),
-  ///     body: ExprollablePageView(
-  ///       controller: controller,
-  ///       itemBuilder: (context, page) { ... },
-  ///     ),
-  ///   );
-  /// }
-  /// ```
   factory ViewportConfiguration({
     bool overshootEffect = false,
     bool extendPage = false,
