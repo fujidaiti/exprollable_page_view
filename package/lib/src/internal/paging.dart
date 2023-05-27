@@ -45,7 +45,11 @@ class _RenderSliverFillViewport extends RenderSliverFillViewport {
   _RenderSliverFillViewport({
     required super.childManager,
     super.viewportFraction,
+    required this.childConstraints,
   });
+
+  // This is the only change made in this class.
+  BoxConstraints childConstraints;
 
   int _calculateLeadingGarbage(int firstIndex) {
     RenderBox? walker = firstChild;
@@ -82,12 +86,12 @@ class _RenderSliverFillViewport extends RenderSliverFillViewport {
     assert(remainingExtent >= 0.0);
     final double targetEndScrollOffset = scrollOffset + remainingExtent;
 
-    // This is the only part that differs from the original implementation.
-    // Ignore `itemExtent` and force each child to always fill the viewport.
-    final BoxConstraints childConstraints = constraints.asBoxConstraints(
-      minExtent: constraints.viewportMainAxisExtent,
-      maxExtent: constraints.viewportMainAxisExtent,
-    );
+    // The original implementation.
+    //
+    // final BoxConstraints childConstraints = constraints.asBoxConstraints(
+    //   minExtent: itemExtent,
+    //   maxExtent: itemExtent,
+    // );
 
     final int firstIndex =
         getMinChildIndexForScrollOffset(scrollOffset, itemExtent);
@@ -236,23 +240,31 @@ class _SliverFillViewportRenderObjectWidget
     extends SliverMultiBoxAdaptorWidget {
   const _SliverFillViewportRenderObjectWidget({
     required super.delegate,
+    required this.childConstraints,
     this.viewportFraction = 1.0,
   }) : assert(viewportFraction > 0.0);
 
   final double viewportFraction;
+  final BoxConstraints childConstraints;
 
   @override
   RenderSliverFillViewport createRenderObject(BuildContext context) {
     final SliverMultiBoxAdaptorElement element =
         context as SliverMultiBoxAdaptorElement;
     return _RenderSliverFillViewport(
-        childManager: element, viewportFraction: viewportFraction);
+      childManager: element,
+      viewportFraction: viewportFraction,
+      childConstraints: childConstraints,
+    );
   }
 
   @override
   void updateRenderObject(
       BuildContext context, RenderSliverFillViewport renderObject) {
     renderObject.viewportFraction = viewportFraction;
+    assert(renderObject is _RenderSliverFillViewport);
+    (renderObject as _RenderSliverFillViewport).childConstraints =
+        childConstraints;
   }
 }
 
@@ -261,7 +273,10 @@ class _SliverFillViewport extends SliverFillViewport {
     required super.delegate,
     super.padEnds,
     super.viewportFraction,
+    required this.childConstraints,
   });
+
+  final BoxConstraints childConstraints;
 
   @override
   Widget build(BuildContext context) {
@@ -271,6 +286,7 @@ class _SliverFillViewport extends SliverFillViewport {
       sliver: _SliverFillViewportRenderObjectWidget(
         delegate: delegate,
         viewportFraction: viewportFraction,
+        childConstraints: childConstraints,
       ),
     );
   }
@@ -353,10 +369,10 @@ class _RenderSliverFractionalPadding extends RenderSliverEdgeInsetsPadding {
   }
 }
 
-/// A page view that forces the pages to occupy the viewport
-/// regardless of [PageController.viewportFraction].
-class AlwaysFillViewportPageView extends PageView {
-  AlwaysFillViewportPageView.builder({
+/// A page view that imposes different constraints on each page
+/// than it gets from its parent, possibly allowing the pages to overflow the parent.
+class OverflowPageView extends PageView {
+  OverflowPageView.builder({
     super.key,
     super.scrollDirection,
     super.reverse,
@@ -373,7 +389,10 @@ class AlwaysFillViewportPageView extends PageView {
     super.clipBehavior,
     super.scrollBehavior,
     super.padEnds,
+    required this.childConstraints,
   }) : super.builder();
+
+  final BoxConstraints childConstraints;
 
   @override
   State<PageView> createState() => _PageViewState();
@@ -383,7 +402,7 @@ const PageScrollPhysics _kPagePhysics = PageScrollPhysics();
 
 /// This class was copied and modified from:
 /// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/widgets/page_view.dart
-class _PageViewState extends State<PageView> {
+class _PageViewState extends State<OverflowPageView> {
   int _lastReportedPage = 0;
 
   @override
@@ -453,6 +472,7 @@ class _PageViewState extends State<PageView> {
                 viewportFraction: widget.controller.viewportFraction,
                 delegate: widget.childrenDelegate,
                 padEnds: widget.padEnds,
+                childConstraints: widget.childConstraints,
               ),
             ],
           );

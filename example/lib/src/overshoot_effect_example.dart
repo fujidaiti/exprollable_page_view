@@ -16,9 +16,6 @@ class _OvershootEffectExampleState extends State<OvershootEffectExample> {
   void initState() {
     super.initState();
     controller = ExprollablePageController(
-      // Make sure that your Scaffold has a bottom navigation bar,
-      // and Scaffold.extendBody is set true. You should avoid using
-      // SafeArea for the top of the screen for better visual effect.
       viewportConfiguration: ViewportConfiguration(
         overshootEffect: true,
       ),
@@ -34,7 +31,6 @@ class _OvershootEffectExampleState extends State<OvershootEffectExample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
       bottomNavigationBar: const ExampleBottomAppBar(),
       body: ExprollablePageView(
         controller: controller,

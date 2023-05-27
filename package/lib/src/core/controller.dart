@@ -237,6 +237,41 @@ class ViewportDimensions {
   int get hashCode => Object.hash(runtimeType, width, height, padding);
 }
 
+/// A description of the page viewport mesurements.
+@immutable
+class PageViewportDimensions {
+  const PageViewportDimensions({
+    required this.minWidth,
+    required this.minHeight,
+    required this.maxWidth,
+    required this.maxHeight,
+  });
+
+  final double minWidth;
+  final double maxWidth;
+  final double minHeight;
+  final double maxHeight;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (runtimeType == other.runtimeType &&
+          other is PageViewportDimensions &&
+          minWidth == other.minWidth &&
+          maxWidth == other.maxWidth &&
+          minHeight == other.minHeight &&
+          maxHeight == other.maxHeight);
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        minWidth,
+        maxWidth,
+        minHeight,
+        maxHeight,
+      );
+}
+
 /// A description of the viewport state.
 ///
 /// {@template exprollable_page_view.controller.ViewportMetrics}
@@ -322,6 +357,11 @@ mixin ViewportMetrics {
   /// Indicates if the current page viewport is fully expanded.
   bool get isPageExpanded =>
       fraction.almostEqualTo(maxFraction) || fraction > maxFraction;
+
+  /// The measurements of the current page viewport.
+  ///
+  /// Only available if [hasDimensions] is true.
+  PageViewportDimensions get pageDimensions;
 }
 
 /// A snapshot of the viewport state.
@@ -338,6 +378,7 @@ class StaticViewportMetrics with ViewportMetrics {
     required this.shrunkInset,
     required this.expandedInset,
     required this.dimensions,
+    required this.pageDimensions,
   });
 
   /// Create a [StaticViewportMetrics] copying another [ViewportMetrics].
@@ -354,6 +395,7 @@ class StaticViewportMetrics with ViewportMetrics {
         shrunkInset: metrics.shrunkInset,
         expandedInset: metrics.expandedInset,
         dimensions: metrics.dimensions,
+        pageDimensions: metrics.pageDimensions,
       );
 
   @override
@@ -384,6 +426,9 @@ class StaticViewportMetrics with ViewportMetrics {
   final ViewportDimensions dimensions;
 
   @override
+  final PageViewportDimensions pageDimensions;
+
+  @override
   bool get hasDimensions => true;
 
   @override
@@ -399,7 +444,8 @@ class StaticViewportMetrics with ViewportMetrics {
           maxInset == other.maxInset &&
           shrunkInset == other.shrunkInset &&
           expandedInset == other.expandedInset &&
-          dimensions == other.dimensions);
+          dimensions == other.dimensions &&
+          pageDimensions == other.pageDimensions);
 
   @override
   int get hashCode => Object.hash(
@@ -413,6 +459,7 @@ class StaticViewportMetrics with ViewportMetrics {
         shrunkInset,
         expandedInset,
         dimensions,
+        pageDimensions,
       );
 }
 
@@ -472,6 +519,7 @@ class ViewportConfiguration {
   /// It is recommended to use [ViewportConfiguration.new],
   /// which is a convenient constructor sufficient for most use cases.
   const ViewportConfiguration.raw({
+    this.extendPage = false,
     this.minFraction = 0.9,
     this.maxFraction = 1.0,
     this.minInset = ViewportInset.expanded,
@@ -505,34 +553,9 @@ class ViewportConfiguration {
   ///
   /// ![overshoot-disabled](https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif) ![overshoot-enabled](https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif)
   ///
-  /// Overshoot effect will works correctly only if:
-  ///
-  /// - [MediaQueryData.padding.data] > 0
-  /// - Ther lower segment of [ExprollablePageView] is behind a widget such as [NavigationBar], [BottomAppBar]
-  ///
-  /// Perhaps the most common use is to wrap an [ExprollablePageView] with a [Scaffold].
-  /// In that case, do not forget to enable [Scaffold.extentBody] and then everything should be fine.
-  ///
-  /// ```dart
-  /// controller = ExprollablePageController(
-  ///   viewportConfiguration: ViewportConfiguration(
-  ///    overshootEffect: true,
-  ///   ),
-  /// );
-  ///
-  /// Widget build(BuildContext context) {
-  ///   return Scaffold(
-  ///     extendBody: true,
-  ///     bottomNavigationBar: BottomNavigationBar(...),
-  ///     body: ExprollablePageView(
-  ///       controller: controller,
-  ///       itemBuilder: (context, page) { ... },
-  ///     ),
-  ///   );
-  /// }
-  /// ```
   factory ViewportConfiguration({
     bool overshootEffect = false,
+    bool extendPage = false,
     double minFraction = 0.9,
     double maxFraction = 1.0,
     ViewportInset shrunkInset = ViewportInset.shrunk,
@@ -555,6 +578,7 @@ class ViewportConfiguration {
       expandedInset: expandedInset,
       initialInset: initialInset ?? snapInsets.last,
       snapInsets: snapInsets,
+      extendPage: extendPage,
     );
   }
 
@@ -584,6 +608,10 @@ class ViewportConfiguration {
   /// The list must be sorted in ascending order by the actual inset value
   /// calculated from [ViewportInset.toConcreteValue].
   final List<ViewportInset> snapInsets;
+
+  /// If true, the page extends to the bottom of the viewport when it fully expanded,
+  /// even if the viewport has non-zero bottom padding.
+  final bool extendPage;
 }
 
 /// An object that represents the state of the viewport.
@@ -660,6 +688,21 @@ class Viewport extends ChangeNotifier
   @override
   double get shrunkInset => configuration.shrunkInset.toConcreteValue(this);
 
+  @override
+  PageViewportDimensions get pageDimensions {
+    assert(hasDimensions);
+    final baseHeight = configuration.extendPage
+        ? dimensions.height - minInset
+        : dimensions.height - minInset - dimensions.padding.bottom;
+    assert(baseHeight > 0);
+    return PageViewportDimensions(
+      minWidth: dimensions.width * minFraction,
+      maxWidth: dimensions.width * maxFraction,
+      minHeight: baseHeight * minFraction,
+      maxHeight: baseHeight * maxFraction,
+    );
+  }
+
   double get _initialAbsorberPixels {
     final initialInset = configuration.initialInset.toConcreteValue(this);
     assert(initialInset >= minInset);
@@ -707,12 +750,12 @@ class Viewport extends ChangeNotifier
     assert(_absorber.pixels != null);
     assert(hasDimensions);
     final newInset = minInset + _absorber.pixels!;
-    final dim = dimensions;
-    final lowerBoundFraction =
-        (dim.height - dim.padding.bottom - max(0.0, newInset)) / dim.height;
     final preferredFraction =
         fractionBehavior.preferredFraction(this, newInset);
-
+    final lowerBoundPageHeight = configuration.extendPage
+        ? dimensions.height - dimensions.padding.bottom - max(0.0, newInset)
+        : dimensions.height - max(0.0, newInset);
+    final lowerBoundFraction = lowerBoundPageHeight / pageDimensions.maxHeight;
     _fraction = max(lowerBoundFraction, preferredFraction);
     _inset = newInset;
   }
@@ -988,9 +1031,11 @@ class OvershootViewportInset extends ViewportInset {
   /// Create the overshot viewport inset.
   const OvershootViewportInset();
 
+  static const _defaultPixels = -82.0;
+
   @override
   double toConcreteValue(ViewportMetrics metrics) =>
-      -1 * metrics.dimensions.padding.bottom;
+      min(-1 * metrics.dimensions.padding.bottom, _defaultPixels);
 }
 
 /// {@template exprollable_page_view.controller.DefaultExpandedViewportInset}
@@ -1025,7 +1070,7 @@ class DefaultShrunkViewportInset extends ViewportInset {
     const margin = 16.0;
     final preferredInset = metrics.dimensions.padding.top + margin;
     final lowerBoundInset =
-        (1.0 - metrics.minFraction) * metrics.dimensions.height;
+        metrics.dimensions.height - metrics.pageDimensions.minHeight;
     return max(preferredInset, lowerBoundInset);
   }
 }

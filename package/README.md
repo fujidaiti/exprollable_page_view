@@ -12,9 +12,13 @@ Here is an example of what you can do with this widget:
 
 ## Announcement
 
+### XX-XX-2023
+
+The first stable version has been released. See [the migration guide](#100-rcx-to-1x) for more details.
+
 ### 17-05-2023
 
-Version 1.0.0-rc.1 has been released 🎉. This version includes several breaking changes, so if you are already using ^1.0.0-beta, you may need to migrate according to [the migration guide](#100-beta-to-100-rc1).
+Version 1.0.0-rc.1 has been released 🎉. This version includes several breaking changes, so if you are already using ^1.0.0-beta, you may need to migrate according to [the migration guide](#100-betax-to-100-rcx).
 
 
 
@@ -22,6 +26,7 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
 
 - [exprollable\_page\_view 🐦](#exprollable_page_view-)
   - [Announcement](#announcement)
+    - [XX-XX-2023](#xx-xx-2023)
     - [17-05-2023](#17-05-2023)
   - [Index](#index)
   - [Background](#background)
@@ -47,7 +52,8 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
     - [prevent my app bar going off the screen when overshoote ffect is true?](#prevent-my-app-bar-going-off-the-screen-when-overshoote-ffect-is-true)
     - [animate the viewport state?](#animate-the-viewport-state)
   - [Migration guide](#migration-guide)
-    - [^1.0.0-beta to ^1.0.0-rc.1](#100-beta-to-100-rc1)
+    - [1.0.0-rc.x to 1.x](#100-rcx-to-1x)
+    - [1.0.0-beta.x to 1.0.0-rc.x](#100-betax-to-100-rcx)
       - [PageViewportMetrics update](#pageviewportmetrics-update)
       - [ViewportController update](#viewportcontroller-update)
       - [ViewportOffset update](#viewportoffset-update)
@@ -56,13 +62,14 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
   - [Questions](#questions)
   - [Contributing](#contributing)
 
-
 ## Background
 
 Books, an e-book reading application from Apple, has a unique user interface; tapping a book cover image displays its details page as a modal view, and the user can swpie the pages back and forth to explore the details of different books, and if the user scrolls vertically up the page, the width of the page gradually expands (or shrinks). The beauty of this UI is that:
 
 - the user can see at a glance that they can move between content by swiping
+
 - it does not reduce the horizontal space for the layout because it can go full-screen
+
 - the page switching by swiping is disabled in fullscreen mode, which allows both horizontal swipe actions like flutter_slidable and page switching in the page view.
 
 <img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/daa8a72f-6904-4b45-ac2b-913e8fb9974a">
@@ -201,31 +208,7 @@ User defined insets can be created using `ViewportInset.fixed` and `ViewportInse
 
  <img width="260" src="https://user-images.githubusercontent.com/68946713/231827364-40843efc-5a91-49ff-ab74-c9af1e4b0c62.gif"><img width="260" src="https://user-images.githubusercontent.com/68946713/231827343-155a750d-b21f-4a96-b81a-74c8873c46cb.gif"><img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/ef450917-4339-4ae1-b149-bca1e4699c2a">
 
-Overshoot effect will works correctly only if:
 
-- `MediaQuery.padding.bottom` > 0
-- Ther lower segment of `ExprollablePageView` is behind a widget such as `NavigationBar`, `BottomAppBar`
-
-Perhaps the most common use is to wrap an `ExprollablePageView` with a `Scaffold`. In that case, do not forget to enable `Scaffold.extentBody` and then everything should be fine.
-
-```dart
-  controller = ExprollablePageController(
-    viewportConfiguration: ViewportConfiguration(
-     overshootEffect: true, // Enable the overshoot effect
-    ),
-  );
-  
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true, // Do not forget this line
-      bottomNavigationBar: BottomNavigationBar(...),
-      body: ExprollablePageView(
-        controller: controller,
-        itemBuilder: (context, page) { ... },
-      ),
-    );
-  }
-```
 
 ### ViewportConfiguration
 
@@ -273,7 +256,9 @@ showModalExprollable(
   );
 ```
 
-<img width="260" src="https://user-images.githubusercontent.com/68946713/231827874-71a0ea47-6576-4fcc-ae37-d1bc38825234.gif">
+See [this example](https://github.com/fujidaiti/exprollable_page_view/blob/master/example/lib/src/modal_dialog_example.dart) for more detailed usage.
+
+<img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/ec375a0d-0844-481c-a8ae-47cb5bb24b19">
 
 
 ### Slidable list items
@@ -424,7 +409,38 @@ A more concrete example can be seen in [animation_example.dart](https://github.c
 
 ## Migration guide
 
-### ^1.0.0-beta to ^1.0.0-rc.1
+### 1.0.0-rc.x to 1.x
+
+Prior to version 1.0.0, the overshoot effect only worked if the following conditions were satisfied:
+
+- `MediaQuery.padding.bottom` > 0
+- The bottom part of the `ExprollablePageView` is behind a widget like `NavigationBar` or `BottomAppBar`.
+
+Starting with version 1.0.0, the above restriction has been removed and the overshoot effect can be enabled with or without a bottom app bar. Also, `Scaffold.extendBody` is now optional.
+
+```dart
+  controller = ExprollablePageController(
+    viewportConfiguration: ViewportConfiguration(
+     overshootEffect: true,
+    ),
+  );
+  
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // These two lines are no longer required in version 1.0.0 or later
+      // extendBody: true,
+      // bottomNavigationBar: BottomNavigationBar(...),
+      body: ExprollablePageView(
+        controller: controller,
+        itemBuilder: (context, page) { ... },
+      ),
+    );
+  }
+```
+
+
+
+### 1.0.0-beta.x to 1.0.0-rc.x
 
 With the release of version 1.0.0-rc.1, there are several breaking changes.
 
