@@ -49,7 +49,7 @@ class _RenderSliverFillViewport extends RenderSliverFillViewport {
   });
 
   // This is the only change made in this class.
-  final BoxConstraints childConstraints;
+  BoxConstraints childConstraints;
 
   int _calculateLeadingGarbage(int firstIndex) {
     RenderBox? walker = firstChild;
@@ -262,6 +262,9 @@ class _SliverFillViewportRenderObjectWidget
   void updateRenderObject(
       BuildContext context, RenderSliverFillViewport renderObject) {
     renderObject.viewportFraction = viewportFraction;
+    assert(renderObject is _RenderSliverFillViewport);
+    (renderObject as _RenderSliverFillViewport).childConstraints =
+        childConstraints;
   }
 }
 
