@@ -57,7 +57,7 @@ class DismissThresholdInset extends ViewportInset {
 /// A widget that makes a modal dialog style [ExprollablePageView].
 ///
 /// This widget adds a translucent background (barrier) and
-/// *swipe down to dismiss* action to the decendant page view. 
+/// *swipe down to dismiss* action to the decendant page view.
 /// Use [showModalExprollable] as a convenience method
 /// to show the [ExprollablePageView] as a dialog,
 /// which wraps the page view with [ModalExprollable].
@@ -300,6 +300,8 @@ class ModalExprollableScrollPhysics extends ScrollPhysics {
   }
 }
 
+/// Provides [BouncingScrollPhysics] or [ModalExprollableScrollPhysics]
+/// as the default scroll physics for descendants.
 class _ModalExprollableScrollBehavior extends ScrollBehavior {
   const _ModalExprollableScrollBehavior();
 
