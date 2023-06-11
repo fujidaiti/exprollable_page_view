@@ -269,6 +269,12 @@ One of the advantages of `ExprollablePageView` over the built-in `PageView` is t
 
 
 
+### Hero animations
+
+Hero animations are also supported! Take a look at the example in `example/lib/src/hero_animation_example.dart`.
+
+<img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/94dad854-8237-40e7-9da2-e9a1f638af0c"/>
+
 ## How to
 
 ### get the curret page?
