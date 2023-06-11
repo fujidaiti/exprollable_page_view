@@ -41,6 +41,7 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
     - [ViewportConfiguration](#viewportconfiguration)
     - [ModalExprollable](#modalexprollable)
     - [Slidable list items](#slidable-list-items)
+    - [Hero animations](#hero-animations)
   - [How to](#how-to)
     - [get the curret page?](#get-the-curret-page)
     - [make the page view like a BottomSheet?](#make-the-page-view-like-a-bottomsheet)
@@ -268,6 +269,12 @@ One of the advantages of `ExprollablePageView` over the built-in `PageView` is t
 <img width="260" src="https://user-images.githubusercontent.com/68946713/231349155-aa6bb0a7-f85f-4bab-b7d0-30692338f61b.gif">
 
 
+
+### Hero animations
+
+Hero animations are also supported! Take a look at the example in `example/lib/src/hero_animation_example.dart`.
+
+<img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/94dad854-8237-40e7-9da2-e9a1f638af0c"/>
 
 ## How to
 

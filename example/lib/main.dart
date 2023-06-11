@@ -3,6 +3,7 @@ import 'package:example/src/animation_example.dart';
 import 'package:example/src/complex_example/complex_example.dart';
 import 'package:example/src/custom_snap_insets_example.dart';
 import 'package:example/src/gutter_example.dart';
+import 'package:example/src/hero_animation_example.dart';
 import 'package:example/src/modal_dialog_example.dart';
 import 'package:example/src/overshoot_effect_example.dart';
 import 'package:example/src/simple_example.dart';
@@ -70,8 +71,12 @@ class Home extends StatelessWidget {
           onTap: () => pushRoute(const ViewportConfigurationExample()),
         ),
         ListTile(
-          title: const Text("Animation Example"),
+          title: const Text("Viewport Inset Animation Example"),
           onTap: () => pushRoute(const AnimationExample()),
+        ),
+        ListTile(
+          title: const Text("Hero Animation Example"),
+          onTap: () => pushRoute(const HeroAnimationExample()),
         ),
         ListTile(
           title: const Text("Complex Example"),
