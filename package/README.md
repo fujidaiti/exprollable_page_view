@@ -41,6 +41,7 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
     - [ViewportConfiguration](#viewportconfiguration)
     - [ModalExprollable](#modalexprollable)
     - [Slidable list items](#slidable-list-items)
+    - [Hero animations](#hero-animations)
   - [How to](#how-to)
     - [get the curret page?](#get-the-curret-page)
     - [make the page view like a BottomSheet?](#make-the-page-view-like-a-bottomsheet)
