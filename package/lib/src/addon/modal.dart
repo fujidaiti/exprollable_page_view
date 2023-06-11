@@ -1,9 +1,13 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:exprollable_page_view/src/core/controller.dart';
 import 'package:exprollable_page_view/src/core/view.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Viewport;
 
+// TODO: Deprecate this
+//
 /// Shows an [ExprollablePageView] as a modal dialog.
 Future<T?> showModalExprollable<T>(
   BuildContext context, {
@@ -54,6 +58,8 @@ class DismissThresholdInset extends ViewportInset {
       metrics.shrunkInset + dragMargin;
 }
 
+// TODO: Deprecate this
+//
 /// A widget that makes a modal dialog style [ExprollablePageView].
 ///
 /// This widget adds a translucent background (barrier) and
@@ -311,5 +317,452 @@ class _ModalExprollableScrollBehavior extends ScrollBehavior {
     return defaultPhysics is BouncingScrollPhysics
         ? defaultPhysics
         : ModalExprollableScrollPhysics(parent: defaultPhysics);
+  }
+}
+
+/// A utility class for defining modal route style [ExprollablePageView]s.
+///
+/// This route has a translucent background (barrier) and
+/// adds the *drag down to dismiss* action to the decendant page view.
+class ModalExprollableRouteBuilder<T> extends PageRouteBuilder<T> {
+  ///Creates a modal style route for a page view.
+  ///
+  /// If the routes behind this route do not need to be painted,
+  /// it is recommended to enable [opaque] and specify [backgroundColor] as well,
+  /// which can reduce the cost of building hidden widgets.
+  /// See [opaque] for more information.
+  ///
+  /// If you want to customize reveal/dismiss behavior of the route,
+  /// specify your own transitions in [ModalExprollableRouteBuilder.transitionsBuilder].
+  ModalExprollableRouteBuilder({
+    super.settings,
+    required super.pageBuilder,
+    super.transitionsBuilder = _defaultTransitionsBuilder,
+    super.transitionDuration = const Duration(milliseconds: 300),
+    super.reverseTransitionDuration = const Duration(milliseconds: 300),
+    super.opaque = false,
+    super.barrierDismissible = true,
+    super.barrierLabel,
+    super.maintainState = true,
+    super.fullscreenDialog,
+    super.allowSnapshotting = true,
+    super.barrierColor = Colors.black54,
+    this.backgroundColor,
+    this.dismissThresholdInset = const DismissThresholdInset(),
+    this.dragDownDismissible = true,
+    this.onDismiss,
+  }) : assert(backgroundColor == null || opaque,
+            "Only opaque routes can have a background color");
+
+  /// The color used for the background if the route is opaque.
+  final Color? backgroundColor;
+
+  /// The threshold viewport inset used to trigger the *drap down to dismiss* action.
+  ///
+  /// When the [Viewport.inset] of the descendant page view
+  /// exceeds this threshold and [dragDownDismissible] is true,
+  /// [onDismiss] is called to pop the route.
+  final DismissThresholdInset dismissThresholdInset;
+
+  /// Specifies if the route will be dismissed by the *drag down to dismiss* action.
+  final bool dragDownDismissible;
+
+  /// Called when the route should be dismissed.
+  ///
+  /// If null, [Navigator.maybePop] is called.
+  final VoidCallback? onDismiss;
+
+  ViewportMetrics? _lastReportedViewportMetrics;
+
+  late final ValueNotifier<double?> _userDragDrivenBarrierOpacity;
+
+  bool get _barrierIsNotTransparent => !_barrierIsTransparent;
+
+  bool get _barrierIsTransparent =>
+      barrierColor == null || barrierColor!.alpha == 0;
+
+  @override
+  void install() {
+    super.install();
+    if (_barrierIsNotTransparent) {
+      _userDragDrivenBarrierOpacity = ValueNotifier(null);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (_barrierIsNotTransparent) {
+      _userDragDrivenBarrierOpacity.dispose();
+    }
+  }
+
+  void _onViewportMetricsChanged(ViewportMetrics metrics) {
+    _lastReportedViewportMetrics = metrics;
+    if (_barrierIsNotTransparent) {
+      _updateUserDragDrivenBarrierOpacity();
+    }
+  }
+
+  void _updateUserDragDrivenBarrierOpacity() {
+    assert(barrierColor != null);
+    assert(_lastReportedViewportMetrics != null);
+    assert(_lastReportedViewportMetrics!.hasDimensions);
+    final metrics = _lastReportedViewportMetrics!;
+    final dismissThresholdInset =
+        this.dismissThresholdInset.toConcreteValue(metrics);
+    assert(dismissThresholdInset > metrics.shrunkInset);
+    final maxOverscroll = dismissThresholdInset - metrics.shrunkInset;
+    final overscroll = max(0.0, metrics.inset - metrics.maxInset);
+    final dimmedBarrierOpacity = barrierColor!.opacity;
+    final brightenedBarrierOpacity = barrierColor!.opacity * 0.5;
+    _userDragDrivenBarrierOpacity.value = lerpDouble(
+      brightenedBarrierOpacity,
+      dimmedBarrierOpacity,
+      1.0 - (overscroll / maxOverscroll).clamp(0.0, 1.0),
+    );
+  }
+
+  @override
+  Widget buildModalBarrier() {
+    if (_barrierIsTransparent || offstage) {
+      return ModalBarrier(
+        onDismiss: onDismiss,
+        dismissible: barrierDismissible,
+        semanticsLabel: barrierLabel,
+        barrierSemanticsDismissible: semanticsDismissible,
+      );
+    }
+
+    assert(animation != null);
+    assert(barrierColor != null);
+    final targetOpacity =
+        _userDragDrivenBarrierOpacity.value ?? barrierColor!.opacity;
+    final barrier = _AnimatedModalExprollableRouteBarrier(
+      color: barrierColor!,
+      userDragDrivenOpacity: _userDragDrivenBarrierOpacity,
+      animationDrivenOpacity: animation!.drive(
+        Tween(begin: 0.0, end: targetOpacity)
+            .chain(CurveTween(curve: barrierCurve)),
+      ),
+      dismissible: barrierDismissible,
+      semanticsLabel: barrierLabel,
+      barrierSemanticsDismissible: semanticsDismissible,
+      onDismiss: onDismiss,
+    );
+
+    if (!opaque || backgroundColor == null || backgroundColor!.alpha == 0) {
+      return barrier;
+    }
+
+    final background = FadeTransition(
+      opacity: animation!.drive(CurveTween(curve: barrierCurve)),
+      child: ColoredBox(color: backgroundColor!),
+    );
+    return Stack(children: [
+      Positioned.fill(child: background),
+      Positioned.fill(child: barrier),
+    ]);
+  }
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
+    Widget page = pageBuilder(context, animation, secondaryAnimation);
+    if (_barrierIsNotTransparent) {
+      page = NotificationListener<ViewportUpdateNotification>(
+        onNotification: (notification) {
+          _onViewportMetricsChanged(notification.metrics);
+          return false;
+        },
+        child: page,
+      );
+    }
+    if (dragDownDismissible) {
+      page = _ModalExprollableDismissible(
+        dismissThresholdInset: dismissThresholdInset,
+        onDismiss: onDismiss,
+        child: page,
+      );
+    }
+    return page;
+  }
+
+  static Widget _defaultTransitionsBuilder(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return DefaultModalExprollableRouteTransition(
+      parentAnimation: animation,
+      slideInCurve: Curves.easeOutCubic,
+      slideOutCurve: Curves.easeInCubic,
+      child: child,
+    );
+  }
+}
+
+/// The default transition for [ModalExprollableRouteBuilder].
+///
+/// It is a combination of a slide transition and a fade transition.
+class DefaultModalExprollableRouteTransition extends StatefulWidget {
+  /// Creates a default transition for [ModalExprollableRouteBuilder].
+  const DefaultModalExprollableRouteTransition({
+    super.key,
+    required this.parentAnimation,
+    this.fadeInCurve = Curves.easeInOut,
+    this.fadeOutCurve,
+    this.slideInCurve = Curves.easeOutCubic,
+    this.slideOutCurve,
+    required this.child,
+  });
+
+  /// An animation that drives this transition.
+  final Animation<double> parentAnimation;
+
+  /// The curve used for the fade in transition.
+  final Curve fadeInCurve;
+
+  /// The curve used for the fade out transition.
+  ///
+  /// If null, [fadeInCurve] is used.
+  final Curve? fadeOutCurve;
+
+  /// The curve used for the slide in transition.
+  final Curve slideInCurve;
+
+  /// The curve used for the slide out transition.
+  ///
+  /// If null, [slideInCurve] is used.
+  final Curve? slideOutCurve;
+
+  /// The widget below this widget in the tree.
+  final Widget child;
+
+  @override
+  State<DefaultModalExprollableRouteTransition> createState() =>
+      _DefaultModalExprollableRouteTransitionState();
+}
+
+class _DefaultModalExprollableRouteTransitionState
+    extends State<DefaultModalExprollableRouteTransition> {
+  late Animation<double> opacityAnimation;
+  late Animation<Offset> positionAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    initAnimations();
+  }
+
+  @override
+  void didUpdateWidget(DefaultModalExprollableRouteTransition oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.parentAnimation != oldWidget.parentAnimation ||
+        widget.fadeInCurve != oldWidget.fadeInCurve ||
+        widget.fadeOutCurve != oldWidget.fadeOutCurve ||
+        widget.slideInCurve != oldWidget.slideInCurve ||
+        widget.slideOutCurve != oldWidget.slideOutCurve) {
+      initAnimations();
+    }
+  }
+
+  void initAnimations() {
+    opacityAnimation = Tween(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(
+      CurvedAnimation(
+        parent: widget.parentAnimation,
+        curve: widget.fadeInCurve,
+        reverseCurve: widget.fadeOutCurve ?? widget.fadeInCurve,
+      ),
+    );
+    positionAnimation = Tween(
+      begin: const Offset(0, 1),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: widget.parentAnimation,
+        curve: widget.slideInCurve,
+        reverseCurve: widget.slideOutCurve ?? widget.slideInCurve,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: opacityAnimation,
+      child: SlideTransition(
+        position: positionAnimation,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+class _AnimatedModalExprollableRouteBarrier extends StatefulWidget {
+  _AnimatedModalExprollableRouteBarrier({
+    required this.color,
+    required this.animationDrivenOpacity,
+    required this.userDragDrivenOpacity,
+    this.dismissible = true,
+    this.barrierSemanticsDismissible,
+    this.semanticsLabel,
+    this.onDismiss,
+  }) : assert(color.alpha != 0);
+
+  final Color color;
+  final Animation<double> animationDrivenOpacity;
+  final ValueListenable<double?> userDragDrivenOpacity;
+  final bool dismissible;
+  final bool? barrierSemanticsDismissible;
+  final String? semanticsLabel;
+  final VoidCallback? onDismiss;
+
+  @override
+  State<_AnimatedModalExprollableRouteBarrier> createState() =>
+      _AnimatedModalExprollableRouteBarrierState();
+}
+
+class _AnimatedModalExprollableRouteBarrierState
+    extends State<_AnimatedModalExprollableRouteBarrier> {
+  @override
+  void initState() {
+    super.initState();
+    attachUserDrivenOpacity(widget.userDragDrivenOpacity);
+    attachAnimationDrivenOpacity(widget.animationDrivenOpacity);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    detachUserDrivenOpacity(widget.userDragDrivenOpacity);
+    detachAnimationDrivenOpacity(widget.animationDrivenOpacity);
+  }
+
+  @override
+  void didUpdateWidget(_AnimatedModalExprollableRouteBarrier oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.userDragDrivenOpacity != oldWidget.userDragDrivenOpacity) {
+      detachUserDrivenOpacity(oldWidget.userDragDrivenOpacity);
+      attachUserDrivenOpacity(widget.userDragDrivenOpacity);
+    }
+    if (widget.animationDrivenOpacity != oldWidget.animationDrivenOpacity) {
+      detachAnimationDrivenOpacity(oldWidget.animationDrivenOpacity);
+      attachAnimationDrivenOpacity(widget.animationDrivenOpacity);
+    }
+  }
+
+  void attachUserDrivenOpacity(ValueListenable<double?> opacity) =>
+      opacity.addListener(handleUserDragDrivenOpacityUpdate);
+
+  void detachUserDrivenOpacity(ValueListenable<double?> opacity) =>
+      opacity.removeListener(handleUserDragDrivenOpacityUpdate);
+
+  void attachAnimationDrivenOpacity(Animation<double> opacity) =>
+      opacity.addListener(handleAnimationDrivenOpacityUpdate);
+
+  void detachAnimationDrivenOpacity(Animation<double> opacity) =>
+      opacity.removeListener(handleAnimationDrivenOpacityUpdate);
+
+  void handleAnimationDrivenOpacityUpdate() => setState(() {});
+
+  void handleUserDragDrivenOpacityUpdate() {
+    if (!isAnimationRunning()) setState(() {});
+  }
+
+  bool isAnimationRunning() =>
+      widget.animationDrivenOpacity.status == AnimationStatus.forward ||
+      widget.animationDrivenOpacity.status == AnimationStatus.reverse;
+
+  double currentOpacity() {
+    switch (widget.animationDrivenOpacity.status) {
+      case AnimationStatus.forward:
+      case AnimationStatus.reverse:
+        return widget.animationDrivenOpacity.value;
+      case AnimationStatus.completed:
+        return widget.userDragDrivenOpacity.value ?? widget.color.opacity;
+      case AnimationStatus.dismissed:
+        return widget.userDragDrivenOpacity.value ?? 0.0;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ModalBarrier(
+      color: widget.color.withOpacity(currentOpacity()),
+      semanticsLabel: widget.semanticsLabel,
+      dismissible: widget.dismissible,
+      barrierSemanticsDismissible: widget.barrierSemanticsDismissible,
+      onDismiss: widget.onDismiss,
+    );
+  }
+}
+
+// TODO: Improve the logic
+class _ModalExprollableDismissible extends StatefulWidget {
+  const _ModalExprollableDismissible({
+    required this.dismissThresholdInset,
+    required this.onDismiss,
+    required this.child,
+  });
+
+  final Widget child;
+  final DismissThresholdInset dismissThresholdInset;
+  final VoidCallback? onDismiss;
+
+  @override
+  State<_ModalExprollableDismissible> createState() =>
+      _ModalExprollableDismissibleState();
+}
+
+class _ModalExprollableDismissibleState
+    extends State<_ModalExprollableDismissible> {
+  ViewportMetrics? _lastReportedViewportMetrics;
+
+  bool _handleViewportMetricsUpdate(ViewportUpdateNotification notification) {
+    _lastReportedViewportMetrics = notification.metrics;
+    return false;
+  }
+
+  void _handlePointerUp(PointerUpEvent event) {
+    if (shouldDismiss()) _handleDismiss();
+  }
+
+  void _handleDismiss() {
+    if (widget.onDismiss != null) {
+      widget.onDismiss!();
+    } else {
+      Navigator.maybePop(context);
+    }
+  }
+
+  bool shouldDismiss() {
+    final metrics = _lastReportedViewportMetrics;
+    if (metrics != null && metrics.hasDimensions) {
+      final threshold = widget.dismissThresholdInset.toConcreteValue(metrics);
+      if (metrics.inset > threshold) return true;
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Listener(
+      onPointerUp: _handlePointerUp,
+      child: ScrollConfiguration(
+        behavior: const _ModalExprollableScrollBehavior(),
+        child: NotificationListener<ViewportUpdateNotification>(
+          onNotification: _handleViewportMetricsUpdate,
+          child: widget.child,
+        ),
+      ),
+    );
   }
 }
