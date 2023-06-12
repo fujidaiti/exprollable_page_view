@@ -237,6 +237,31 @@ class AbsorbScrollPosition extends ScrollPositionWithSingleContext {
     }
   }
 
+  @override
+  // The code was mostly borrowed from [super.pointerScroll]:
+  void pointerScroll(double delta) {
+    if (delta == 0.0) {
+      goBallistic(0.0);
+      return;
+    }
+
+    final double targetPixels =
+        (impliedPixels + delta).clamp(impliedMinScrollExtent, maxScrollExtent);
+    if (targetPixels != impliedPixels) {
+      goIdle();
+      updateUserScrollDirection(
+        -delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse,
+      );
+      final double oldPixels = pixels;
+      isScrollingNotifier.value = true;
+      forcePixels(targetPixels);
+      didStartScroll();
+      didUpdateScrollPositionBy(pixels - oldPixels);
+      didEndScroll();
+      goBallistic(0.0);
+    }
+  }
+
   /// Copied from 'package:flutter/lib/src/widgets/scroll_position.dart'.
   /// This is only used in [forcePixels] and [recommendDeferredLoading].
   double _impliedVelocity = 0;
