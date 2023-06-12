@@ -6,9 +6,11 @@ import 'package:exprollable_page_view/src/core/view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Viewport;
 
-// TODO: Deprecate this
-//
 /// Shows an [ExprollablePageView] as a modal dialog.
+@Deprecated(
+  "It will be removed in v1.0.0. "
+  "Use 'ModalExprollableRouteBuilder' instead",
+)
 Future<T?> showModalExprollable<T>(
   BuildContext context, {
   required WidgetBuilder builder,
@@ -58,8 +60,6 @@ class DismissThresholdInset extends ViewportInset {
       metrics.shrunkInset + dragMargin;
 }
 
-// TODO: Deprecate this
-//
 /// A widget that makes a modal dialog style [ExprollablePageView].
 ///
 /// This widget adds a translucent background (barrier) and
@@ -69,6 +69,10 @@ class DismissThresholdInset extends ViewportInset {
 /// which wraps the page view with [ModalExprollable].
 /// If you want to customize reveal/dismiss behavior of the dialog,
 /// create your own [PageRoute] and use [ModalExprollable] in it.
+@Deprecated(
+  "It will be removed in v1.0.0. "
+  "Use 'ModalExprollableRouteBuilder' instead",
+)
 class ModalExprollable extends StatefulWidget {
   /// Creates a modal dialog style [ExprollablePageView].
   const ModalExprollable({
@@ -113,6 +117,7 @@ class ModalExprollable extends StatefulWidget {
   State<StatefulWidget> createState() => _ModalExprollableState();
 }
 
+// ignore: deprecated_member_use_from_same_package
 class _ModalExprollableState extends State<ModalExprollable> {
   final ValueNotifier<double?> barrierColorFraction = ValueNotifier(null);
   ViewportMetrics? lastViewportMetrics;
@@ -204,11 +209,11 @@ class _ModalExprollableState extends State<ModalExprollable> {
   }
 }
 
-/// Scroll physics normally used for descendant scrollables of [ModalExprollable].
+/// Scroll physics normally used for scrollable contents of [ModalExprollableRouteBuilder].
 ///
 /// This physics always lets the user overscroll making *drag down to dismiss* action
-/// available on every platform. [ModalExprollable] provides this as the default physics
-/// for its descendants via [ScrollConfiguration].
+/// available on every platform. [ModalExprollableRouteBuilder] provides this as the default physics
+/// for its scrollable contents via [ScrollConfiguration].
 /// If you explicitly specify a physics for a descendant scrollable,
 /// consider to wrap that physics with this.
 ///

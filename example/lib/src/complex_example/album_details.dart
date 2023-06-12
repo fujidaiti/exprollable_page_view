@@ -7,12 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 void showAlbumDetailsDialog(BuildContext context, int index) {
-  showModalExprollable(
-    context,
-    useSafeArea: false,
-    useRootNavigator: false,
-    builder: (context) => AlbumDetailsDialog(
-      index: index,
+  Navigator.of(context).push(
+    ModalExprollableRouteBuilder(
+      pageBuilder: (_, __, ___) => AlbumDetailsDialog(index: index),
     ),
   );
 }
