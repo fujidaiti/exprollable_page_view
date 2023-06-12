@@ -2,32 +2,30 @@
 
 [![Pub](https://img.shields.io/pub/v/exprollable_page_view.svg?logo=flutter&color=blue)](https://pub.dev/packages/exprollable_page_view) [![Pub Popularity](https://img.shields.io/pub/popularity/exprollable_page_view)](https://pub.dev/packages/exprollable_page_view) [![Docs](https://img.shields.io/badge/-API%20Reference-orange)](https://pub.dev/documentation/exprollable_page_view/latest/) [![Demo](https://img.shields.io/badge/Demo-try%20it%20on%20web-blueviolet)](#try-it)
 
-# exprollable_page_view 🐦
+# exprollable_page_view :bird:
 
 Yet another PageView widget that expands the viewport of the current page while scrolling it. **Exprollable** is a coined word combining the words expandable and scrollable. This project is an attemt to clone a modal sheet UI used in [Apple Books](https://www.apple.com/jp/apple-books/) app on iOS.
 
 Here is an example of what you can do with this widget:
 
-<img width="260" src="https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif"> <img width="260" src="https://user-images.githubusercontent.com/68946713/234313845-caa8dd75-c9e2-4fd9-b177-f4a6795c4802.gif">
+<img width="260" src="https://user-images.githubusercontent.com/68946713/231328800-03038dc6-19e8-4c7c-933b-7e7436ba6619.gif"> <img width="260" src="https://user-images.githubusercontent.com/68946713/234313845-caa8dd75-c9e2-4fd9-b177-f4a6795c4802.gif"> <img width="270" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/94dad854-8237-40e7-9da2-e9a1f638af0c"/>
 
 ## Announcement
 
-### XX-XX-2023
+### 2023-06-XX
 
-The first stable version has been released. See [the migration guide](#100-rcx-to-1x) for more details.
+Version 1.0.0-rc.2 has been released. This update contains some changes that require migration from previous versions. See [the migration guild](#100-rc1-arrow_right-100-rc2) for more information.
 
-### 17-05-2023
+### 2023-05-17
 
-Version 1.0.0-rc.1 has been released 🎉. This version includes several breaking changes, so if you are already using ^1.0.0-beta, you may need to migrate according to [the migration guide](#100-betax-to-100-rcx).
-
-
+Version 1.0.0-rc.1 has been released 🎉. This version includes several breaking changes, so if you are already using ^1.0.0-beta, you may need to migrate according to [the migration guide](#100-betax-arrow_right-100-rc1).
 
 ## Index
 
-- [exprollable\_page\_view 🐦](#exprollable_page_view-)
+- [exprollable\_page\_view :bird:](#exprollable_page_view-bird)
   - [Announcement](#announcement)
-    - [XX-XX-2023](#xx-xx-2023)
-    - [17-05-2023](#17-05-2023)
+    - [2023-06-XX](#2023-06-xx)
+    - [2023-05-17](#2023-05-17)
   - [Index](#index)
   - [Background](#background)
   - [Try it](#try-it)
@@ -39,7 +37,7 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
       - [Viewport fraction and inset](#viewport-fraction-and-inset)
       - [Overshoot effect](#overshoot-effect)
     - [ViewportConfiguration](#viewportconfiguration)
-    - [ModalExprollable](#modalexprollable)
+    - [ModalExprollableRouteBuilder](#modalexprollableroutebuilder)
     - [Slidable list items](#slidable-list-items)
     - [Hero animations](#hero-animations)
   - [How to](#how-to)
@@ -50,11 +48,14 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
       - [2. Listen `ViewportUpdateNotification`](#2-listen-viewportupdatenotification)
       - [3. Use `onViewportChanged` callback](#3-use-onviewportchanged-callback)
     - [add space between pages?](#add-space-between-pages)
-    - [prevent my app bar going off the screen when overshoote ffect is true?](#prevent-my-app-bar-going-off-the-screen-when-overshoote-ffect-is-true)
+    - [prevent my app bar going off the screen when overshoot effect is enabled?](#prevent-my-app-bar-going-off-the-screen-when-overshoot-effect-is-enabled)
     - [animate the viewport state?](#animate-the-viewport-state)
+    - [remove the empty space at the bottom of the page?](#remove-the-empty-space-at-the-bottom-of-the-page)
   - [Migration guide](#migration-guide)
-    - [1.0.0-rc.x to 1.x](#100-rcx-to-1x)
-    - [1.0.0-beta.x to 1.0.0-rc.x](#100-betax-to-100-rcx)
+    - [1.0.0-rc.1 :arrow\_right: 1.0.0-rc.2](#100-rc1-arrow_right-100-rc2)
+      - [Removed the constraints on the overshoot effect](#removed-the-constraints-on-the-overshoot-effect)
+      - [Introduced ModalExprollableRouteBuilder](#introduced-modalexprollableroutebuilder)
+    - [1.0.0-beta.x :arrow\_right: 1.0.0-rc.1](#100-betax-arrow_right-100-rc1)
       - [PageViewportMetrics update](#pageviewportmetrics-update)
       - [ViewportController update](#viewportcontroller-update)
       - [ViewportOffset update](#viewportoffset-update)
@@ -62,6 +63,7 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
       - [Other renamed classes](#other-renamed-classes)
   - [Questions](#questions)
   - [Contributing](#contributing)
+
 
 ## Background
 
@@ -215,10 +217,10 @@ User defined insets can be created using `ViewportInset.fixed` and `ViewportInse
 
 `ViewportConfiguration` provides flexible ways to customize viewport behavior. For standard use cases, the unnamed constructor of `ViewportConfiguration` is sufficient. However, if you need more fine-grained control, you can use `ViewportConfiguration.raw` to specify the fraction range and the inset range of the viewport, as well as the position at which the page will shrink/expand. The following snippet is an example of a page view that snaps the current page to the 4 states:
 
-- Collapsed: The page is almost hidden
-- Shrunk: It's like a bottom sheet
-- Expanded: It's still like a bottom sheet, but the page is expanded
-- Fullscreen: The page completely covers the entire screen
+- **Collapsed** : The page is almost hidden
+- **Shrunk** : It's like a bottom sheet
+- **Expanded** : It's still like a bottom sheet, but the page is expanded
+- **Fullscreen** : The page completely covers the entire screen
 
 ```dart
 const fullscreenInset = ViewportInset.fixed(0);
@@ -244,17 +246,16 @@ final controller = ExprollablePageController(
 
 <img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/1e848ad0-5111-4d5a-8663-ee0b07d813c6">
 
-### ModalExprollable
+### ModalExprollableRouteBuilder
 
-Use `ModalExprollable` to create modal dialog style page views. This widget adds a translucent background and *swipe down to dismiss* action to your `ExprollablePageView`. You can use `showModalExprollable` a convenience function that wraps your `ExprollablePageView` with `ModalExprollable` and display it as a dialog. If you want to customize reveal/dismiss behavior of the dialog, create your own `PageRoute` and use `ModalExprollable` in it.
+Use `ModalExprollableRouteBuilder` to create modal style page views. This route adds a translucent background (called barrier) and *drag down to dismiss* action to your page view.
 
 ```dart
-showModalExprollable(
-    context,
-    builder: (context) {
-      return ExprollablePageView(...);
-    },
-  );
+Navigator.of(context).push(
+  ModalExprollableRouteBuilder(
+    pageBuilder: (context, _, __) => ExprollablePageView(...),
+  ),
+);
 ```
 
 See [this example](https://github.com/fujidaiti/exprollable_page_view/blob/master/example/lib/src/modal_dialog_example.dart) for more detailed usage.
@@ -381,19 +382,13 @@ ExprollablePageView(
 );
 ```
 
-### prevent my app bar going off the screen when overshoote ffect is true?
+### prevent my app bar going off the screen when overshoot effect is enabled?
 
 Use `AdaptivePagePadding`. This widget adds appropriate padding to its child according to the current viewpor offset. An example code is found in [adaptive_padding_example.dart](https://github.com/fujidaiti/exprollable_page_view/blob/master/example/lib/src/adaptive_padding_example.dart).
 
 ```dart
-Container(
-  color: Colors.lightBlue,
-  child: AdaptivePagePadding(
-    child: SizedBox(
-      height: height,
-      child: const Placeholder(),
-    ),
-  ),
+AdaptivePagePadding(
+  child: YourAppBar(...),
 );
 ```
 
@@ -414,16 +409,37 @@ A more concrete example can be seen in [animation_example.dart](https://github.c
 
 <img width="260" src="https://github.com/fujidaiti/fms/assets/68946713/63b2a875-3b54-4031-9817-a808bce2b3f8">
 
+### remove the empty space at the bottom of the page?
+
+This problem can occur if the bottom padding of the viewport is non-zero. In such a case, enable `ViewportConfiguration.extendPage`. When this is true, the pages will extend to the bottom of the viewport, ignoring the bottom padding. However, even if there is padding at the bottom, it may not be necessary to enable `extendPage` if there is a widget that obscures the empty space (e.g. `Scaffold` with `BottomNavigationBar`).
+
+```dart
+controller = ExprollablePageController(
+  viewportConfiguration: ViewportConfiguration(
+    extendPage: true,
+    ...
+  ),
+);
+```
+
+Here is an example of how `extendPage` works. It is disable in the left image below and enabled in the right image.
+
+<img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/ed24dfba-decf-4390-892e-2ad4440f2b0d"> <img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/0227b9cf-97ae-4fdd-9871-6e045498392a">
+
+
+
 ## Migration guide
 
-### 1.0.0-rc.x to 1.x
+### 1.0.0-rc.1 :arrow_right: 1.0.0-rc.2
 
-Prior to version 1.0.0, the overshoot effect only worked if the following conditions were satisfied:
+#### Removed the constraints on the overshoot effect
+
+Prior to version 1.0.0-rc.2, the overshoot effect only worked if the following conditions were satisfied:
 
 - `MediaQuery.padding.bottom` > 0
 - The bottom part of the `ExprollablePageView` is behind a widget like `NavigationBar` or `BottomAppBar`.
 
-Starting with version 1.0.0, the above restriction has been removed and the overshoot effect can be enabled with or without a bottom app bar. Also, `Scaffold.extendBody` is now optional.
+Starting with version 1.0.0-rc.2, the above restrictions have been removed and the overshoot effect can be enabled with or without a bottom app bar. Also, `Scaffold.extendBody` is now optional.
 
 ```dart
   controller = ExprollablePageController(
@@ -434,7 +450,7 @@ Starting with version 1.0.0, the above restriction has been removed and the over
   
   Widget build(BuildContext context) {
     return Scaffold(
-      // These two lines are no longer required in version 1.0.0 or later
+      // The next two lines are no longer required in version 1.0.0-rc.2 or later:
       // extendBody: true,
       // bottomNavigationBar: BottomNavigationBar(...),
       body: ExprollablePageView(
@@ -447,7 +463,30 @@ Starting with version 1.0.0, the above restriction has been removed and the over
 
 
 
-### 1.0.0-beta.x to 1.0.0-rc.x
+#### Introduced ModalExprollableRouteBuilder
+
+A new class `ModalExprollableRouteBuilder` have been introduced to support [hero animations](https://docs.flutter.dev/ui/animations/hero-animations), that replaces `ModalExprollable` class. Accordingly, `ModalExprollable` and `showModalExprollable` function are now deprecated. An example of using  this new class and hero animations can be found in `example/lib/src/hero_animation_example.dart`.
+
+Before:
+
+```dart
+showModalExprollable(
+  context,
+  builder: (context) => ExprollablePageView(...),
+);
+```
+
+After:
+
+```dart
+Navigator.of(context).push(
+  ModalExprollableRouteBuilder(
+    pageBuilder: (context, _, __) => ExprollablePageView(...),
+  ),
+);
+```
+
+### 1.0.0-beta.x :arrow_right: 1.0.0-rc.1
 
 With the release of version 1.0.0-rc.1, there are several breaking changes.
 
@@ -455,10 +494,10 @@ With the release of version 1.0.0-rc.1, there are several breaking changes.
 
 `PageViewportMetrics` mixin was merged into `ViewportMetrics` mixin and now deleted, and some properties were renamed. Replace the symbols in your code according to the table below:
 
-- `PageViewportMetrics`  👉  `ViewportMetrics`
-- `PageViewportMetrics.isShrunk`   👉 `ViewportMetrics.isPageShrunk`
-- `PageViewportMetrics.isExpanded`   👉 `ViewportMetrics.isPageExpanded`
-- `PageViewportMetrics.xxxOffset`   👉 `ViewportMetrics.xxxInset` (the all properties with suffix `Offset` was renamed with the new suffix `Inset`)
+- `PageViewportMetrics`  ➡️  `ViewportMetrics`
+- `PageViewportMetrics.isShrunk`  ➡️  `ViewportMetrics.isPageShrunk`
+- `PageViewportMetrics.isExpanded`  ➡️  `ViewportMetrics.isPageExpanded`
+- `PageViewportMetrics.xxxOffset`  ➡️  `ViewportMetrics.xxxInset` (the all properties with suffix `Offset` was renamed with the new suffix `Inset`)
 - `PageViewportMetrics.overshootEffect` was deleted
 
 #### ViewportController update
@@ -469,10 +508,10 @@ With the release of version 1.0.0-rc.1, there are several breaking changes.
 
 For `ViewportOffset` and its inherited classes, the suffix `Offset` was replaced with the new suffix `Inset`, and 2 new inherited classes were introduced (see [Viewport fraction and inset](#viewport-fraction-and-inset)).
 
-- `ViewportOffset`  👉  `ViewportInset`
+- `ViewportOffset`  ➡️  `ViewportInset`
 
-- `ExpandedViewportOffset`  👉  `DefaultExpandedViewportinset`
-- `ShrunkViewportOffset`  👉  `DefaultShrunkViewportInset`
+- `ExpandedViewportOffset`  ➡️  `DefaultExpandedViewportinset`
+- `ShrunkViewportOffset`  ➡️  `DefaultShrunkViewportInset`
 
 #### ExprollablePageController update
 
@@ -524,9 +563,9 @@ final controller = ExprollablePageController(
 
 #### Other renamed classes
 
-- `StaticPageViewportMetrics`  👉  `StaticViewportMetrics`
-- `PageViewportUpdateNotification`  👉  `ViewportUpdateNotification`
-- `PageViewport`  👉  `Viewport`
+- `StaticPageViewportMetrics`  ➡️  `StaticViewportMetrics`
+- `PageViewportUpdateNotification`  ➡️  `ViewportUpdateNotification`
+- `PageViewport`  ➡️  `Viewport`
 
 
 
