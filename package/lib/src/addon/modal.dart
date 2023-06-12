@@ -48,11 +48,18 @@ Future<T?> showModalExprollable<T>(
 void _defaultDismissBehavior(BuildContext context) =>
     Navigator.of(context).pop();
 
+/// A threshold viewport inset used to trigger
+/// the *drap down to dismiss* action of [ModalExprollableRouteBuilder].
 class DismissThresholdInset extends ViewportInset {
+  /// Creates a threshold inset used for *drop down do dismiss*
+  /// action of [ModalExprollableRouteBuilder]. The threshold inset
+  /// is calculated by [Viewport.shrunkInset] plus [dragMargin] pixels.
   const DismissThresholdInset({
     this.dragMargin = 86.0,
   });
 
+  /// Specifies how many pixels at least the user must drag the
+  /// fully shrunk page down to trigger the *drop down to dismiss* action.
   final double dragMargin;
 
   @override
