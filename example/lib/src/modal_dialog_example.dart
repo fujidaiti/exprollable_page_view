@@ -57,10 +57,10 @@ class _MyDialog extends StatefulWidget {
     required BuildContext context,
     required bool enableOvershootEffect,
   }) =>
-      showModalExprollable(
-        context,
-        useSafeArea: false,
-        builder: (context) => _MyDialog(enableOvershootEffect),
+      Navigator.of(context).push(
+        ModalExprollableRouteBuilder(
+          pageBuilder: (context, _, __) => _MyDialog(enableOvershootEffect),
+        ),
       );
 }
 

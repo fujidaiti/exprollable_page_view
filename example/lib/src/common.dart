@@ -20,7 +20,7 @@ class ExampleListView extends StatefulWidget {
 
 class _ExampleListViewState extends State<ExampleListView> {
   final Color color = Color.fromARGB(
-    220,
+    255,
     Random().nextInt(155) + 100,
     Random().nextInt(155) + 100,
     Random().nextInt(155) + 100,
@@ -28,8 +28,10 @@ class _ExampleListViewState extends State<ExampleListView> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Card(
       color: color,
+      margin: EdgeInsets.zero,
+      shape: const RoundedRectangleBorder(),
       child: ListView.builder(
         padding: widget.padding ?? EdgeInsets.zero,
         controller: widget.controller,
