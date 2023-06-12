@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:exprollable_page_view/src/internal/scroll.dart';
 import 'package:exprollable_page_view/src/internal/utils.dart';
@@ -505,7 +506,11 @@ class DefaultViewportFractionBehavior implements ViewportFractionBehavior {
     final delta = viewport.shrunkInset - viewport.expandedInset;
     assert(delta > 0.0);
     final t = 1.0 - (pixels / delta).clamp(0.0, 1.0);
-    return curve.transform(t) * viewport.deltaFraction + viewport.minFraction;
+    return lerpDouble(
+      viewport.minFraction,
+      viewport.maxFraction,
+      curve.transform(t),
+    )!;
   }
 }
 
@@ -753,9 +758,10 @@ class Viewport extends ChangeNotifier
     final preferredFraction =
         fractionBehavior.preferredFraction(this, newInset);
     final lowerBoundPageHeight = configuration.extendPage
-        ? dimensions.height - dimensions.padding.bottom - max(0.0, newInset)
-        : dimensions.height - max(0.0, newInset);
-    final lowerBoundFraction = lowerBoundPageHeight / pageDimensions.maxHeight;
+        ? dimensions.height - max(0.0, newInset)
+        : dimensions.height - dimensions.padding.bottom - max(0.0, newInset);
+    final lowerBoundFraction = (lowerBoundPageHeight / pageDimensions.maxHeight)
+        .clamp(minFraction, maxFraction);
     _fraction = max(lowerBoundFraction, preferredFraction);
     _inset = newInset;
   }
