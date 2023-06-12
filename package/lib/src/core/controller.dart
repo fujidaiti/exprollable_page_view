@@ -760,7 +760,8 @@ class Viewport extends ChangeNotifier
     final lowerBoundPageHeight = configuration.extendPage
         ? dimensions.height - dimensions.padding.bottom - max(0.0, newInset)
         : dimensions.height - max(0.0, newInset);
-    final lowerBoundFraction = lowerBoundPageHeight / pageDimensions.maxHeight;
+    final lowerBoundFraction = (lowerBoundPageHeight / pageDimensions.maxHeight)
+        .clamp(minFraction, maxFraction);
     _fraction = max(lowerBoundFraction, preferredFraction);
     _inset = newInset;
   }
