@@ -53,7 +53,7 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
     - [remove the empty space at the bottom of the page?](#remove-the-empty-space-at-the-bottom-of-the-page)
   - [Migration guide](#migration-guide)
     - [1.0.0-rc.1 :arrow\_right: 1.0.0-rc.2](#100-rc1-arrow_right-100-rc2)
-      - [Removed the constraints on the overshoot effect](#removed-the-constraints-on-the-overshoot-effect)
+      - [Eliminated the restrictions on the overshoot effect](#eliminated-the-restrictions-on-the-overshoot-effect)
       - [Introduced ModalExprollableRouteBuilder](#introduced-modalexprollableroutebuilder)
     - [1.0.0-beta.x :arrow\_right: 1.0.0-rc.1](#100-betax-arrow_right-100-rc1)
       - [PageViewportMetrics update](#pageviewportmetrics-update)
@@ -432,7 +432,7 @@ Here is an example of how `extendPage` works. It is disable in the left image be
 
 ### 1.0.0-rc.1 :arrow_right: 1.0.0-rc.2
 
-#### Removed the constraints on the overshoot effect
+#### Eliminated the restrictions on the overshoot effect
 
 Prior to version 1.0.0-rc.2, the overshoot effect only worked if the following conditions were satisfied:
 
