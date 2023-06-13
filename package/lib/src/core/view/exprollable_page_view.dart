@@ -111,7 +111,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
     if (widget.controller != null) {
       attach(widget.controller!);
     } else {
-      final inherited = InheritedPageConfiguration.of(context);
+      final inherited = InheritedPageConfiguration.of(context)?.controller;
       assert(inherited != null);
       attach(inherited!);
     }
@@ -120,7 +120,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
   void tryReplaceController() {
     assert(controllerIsInitialized);
     final newController =
-        widget.controller ?? InheritedPageConfiguration.of(context);
+        widget.controller ?? InheritedPageConfiguration.of(context)?.controller;
     assert(newController != null);
     if (newController != controller) {
       detach(controller);

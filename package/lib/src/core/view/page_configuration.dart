@@ -16,9 +16,8 @@ class InheritedPageConfiguration extends InheritedWidget {
   bool updateShouldNotify(InheritedPageConfiguration oldWidget) =>
       controller != oldWidget.controller;
 
-  static ExprollablePageController? of(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<InheritedPageConfiguration>()
-      ?.controller;
+  static InheritedPageConfiguration? of(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<InheritedPageConfiguration>();
 }
 
 class PageConfiguration extends StatefulWidget {
