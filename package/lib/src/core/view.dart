@@ -344,3 +344,75 @@ class _PageItem extends StatelessWidget {
     );
   }
 }
+
+class _InheritedPageController extends InheritedWidget {
+  const _InheritedPageController({
+    required this.controller,
+    required super.child,
+  });
+
+  final ExprollablePageController controller;
+
+  @override
+  bool updateShouldNotify(_InheritedPageController oldWidget) =>
+      controller != oldWidget.controller;
+}
+
+class ExprollableConfiguration extends StatefulWidget {
+  const ExprollableConfiguration({
+    super.key,
+    required this.viewportConfiguration,
+    required this.child,
+  });
+
+  final ViewportConfiguration? viewportConfiguration;
+  final Widget child;
+
+  @override
+  State<ExprollableConfiguration> createState() =>
+      _ExprollableConfigurationState();
+
+  static ExprollablePageController? of(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<_InheritedPageController>()
+      ?.controller;
+}
+
+class _ExprollableConfigurationState extends State<ExprollableConfiguration> {
+  late ExprollablePageController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = createController();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  @override
+  void didUpdateWidget(ExprollableConfiguration oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.viewportConfiguration != oldWidget.viewportConfiguration) {
+      controller.dispose();
+      controller = createController();
+    }
+  }
+
+  ExprollablePageController createController() {
+    return ExprollablePageController(
+      viewportConfiguration: widget.viewportConfiguration ??
+          ViewportConfiguration.defaultConfiguration,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _InheritedPageController(
+      controller: controller,
+      child: widget.child,
+    );
+  }
+}
