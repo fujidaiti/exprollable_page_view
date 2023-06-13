@@ -1,5 +1,5 @@
 import 'package:exprollable_page_view/src/core/controller.dart';
-import 'package:exprollable_page_view/src/core/view.dart';
+import 'package:exprollable_page_view/src/core/view/view.dart';
 import 'package:exprollable_page_view/src/internal/utils.dart';
 import 'package:flutter/widgets.dart';
 

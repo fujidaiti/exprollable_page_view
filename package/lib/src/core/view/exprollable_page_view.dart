@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:exprollable_page_view/src/core/controller.dart';
+import 'package:exprollable_page_view/src/core/view/page_configuration.dart';
 import 'package:exprollable_page_view/src/internal/paging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -110,7 +111,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
     if (widget.controller != null) {
       attach(widget.controller!);
     } else {
-      final inherited = _InheritedPageController.of(context);
+      final inherited = InheritedPageController.of(context);
       assert(inherited != null);
       attach(inherited!);
     }
@@ -119,7 +120,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
   void tryReplaceController() {
     assert(controllerIsInitialized);
     final newController =
-        widget.controller ?? _InheritedPageController.of(context);
+        widget.controller ?? InheritedPageController.of(context);
     assert(newController != null);
     if (newController != controller) {
       detach(controller);
@@ -372,78 +373,6 @@ class _PageItem extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _InheritedPageController extends InheritedWidget {
-  const _InheritedPageController({
-    required this.controller,
-    required super.child,
-  });
-
-  final ExprollablePageController controller;
-
-  @override
-  bool updateShouldNotify(_InheritedPageController oldWidget) =>
-      controller != oldWidget.controller;
-
-  static ExprollablePageController? of(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<_InheritedPageController>()
-      ?.controller;
-}
-
-class ExprollableConfiguration extends StatefulWidget {
-  const ExprollableConfiguration({
-    super.key,
-    required this.viewportConfiguration,
-    required this.child,
-  });
-
-  final ViewportConfiguration? viewportConfiguration;
-  final Widget child;
-
-  @override
-  State<ExprollableConfiguration> createState() =>
-      _ExprollableConfigurationState();
-}
-
-class _ExprollableConfigurationState extends State<ExprollableConfiguration> {
-  late ExprollablePageController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = createController();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    controller.dispose();
-  }
-
-  @override
-  void didUpdateWidget(ExprollableConfiguration oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.viewportConfiguration != oldWidget.viewportConfiguration) {
-      controller.dispose();
-      controller = createController();
-    }
-  }
-
-  ExprollablePageController createController() {
-    return ExprollablePageController(
-      viewportConfiguration: widget.viewportConfiguration ??
-          ViewportConfiguration.defaultConfiguration,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _InheritedPageController(
-      controller: controller,
-      child: widget.child,
     );
   }
 }
