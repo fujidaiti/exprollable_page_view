@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:exprollable_page_view/src/core/controller.dart';
+import 'package:exprollable_page_view/src/core/view/default_page_controller.dart';
 import 'package:exprollable_page_view/src/core/view/page_configuration.dart';
 import 'package:exprollable_page_view/src/internal/paging.dart';
 import 'package:flutter/foundation.dart';
@@ -111,16 +112,19 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
     if (widget.controller != null) {
       attach(widget.controller!);
     } else {
-      final inherited = InheritedPageConfiguration.of(context)?.controller;
-      assert(inherited != null);
-      attach(inherited!);
+      final inheritedController =
+          InheritedPageConfiguration.of(context)?.controller ??
+              InheritedDefaultPageConfiguration.of(context)?.controller;
+      assert(inheritedController != null);
+      attach(inheritedController!);
     }
   }
 
   void tryReplaceController() {
     assert(controllerIsInitialized);
-    final newController =
-        widget.controller ?? InheritedPageConfiguration.of(context)?.controller;
+    final newController = widget.controller ??
+        InheritedPageConfiguration.of(context)?.controller ??
+        InheritedDefaultPageConfiguration.of(context)?.controller;
     assert(newController != null);
     if (newController != controller) {
       detach(controller);
