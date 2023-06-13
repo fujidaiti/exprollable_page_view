@@ -512,6 +512,16 @@ class DefaultViewportFractionBehavior implements ViewportFractionBehavior {
       curve.transform(t),
     )!;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DefaultViewportFractionBehavior &&
+          runtimeType == other.runtimeType &&
+          curve == other.curve);
+
+  @override
+  int get hashCode => Object.hash(runtimeType, curve);
 }
 
 /// A configuration for the viewport.
@@ -617,6 +627,34 @@ class ViewportConfiguration {
   /// If true, the page extends to the bottom of the viewport when it fully expanded,
   /// even if the viewport has non-zero bottom padding.
   final bool extendPage;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ViewportConfiguration &&
+          runtimeType == other.runtimeType &&
+          minFraction == other.minFraction &&
+          maxFraction == other.maxFraction &&
+          minInset == other.minInset &&
+          maxInset == other.maxInset &&
+          shrunkInset == other.shrunkInset &&
+          expandedInset == other.expandedInset &&
+          initialInset == other.initialInset &&
+          listEquals(snapInsets, other.snapInsets) &&
+          extendPage == other.extendPage);
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      minFraction,
+      maxFraction,
+      minInset,
+      maxInset,
+      shrunkInset,
+      expandedInset,
+      initialInset,
+      snapInsets,
+      extendPage);
 }
 
 /// An object that represents the state of the viewport.
