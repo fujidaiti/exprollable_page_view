@@ -9,7 +9,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
 /// A page view that expands the viewport of the current page while scrolling it.
-class ExprollablePageView extends StatefulWidget {
+class ExprollablePageView extends StatelessWidget {
   /// Creates a page view.
   const ExprollablePageView({
     super.key,
@@ -95,10 +95,84 @@ class ExprollablePageView extends StatefulWidget {
   final void Function(int page)? onPageChanged;
 
   @override
-  State<ExprollablePageView> createState() => _ExprollablePageViewState();
+  Widget build(BuildContext context) {
+    if (controller != null) {
+      return _build(controller!);
+    }
+
+    final inheritedController =
+        InheritedPageConfiguration.of(context)?.controller;
+    if (inheritedController != null) {
+      return _build(inheritedController);
+    }
+
+    return DefaultPageConfiguration(
+      child: Builder(
+        builder: (context) {
+          final defaultController =
+              InheritedDefaultPageConfiguration.of(context)?.controller;
+          return _build(defaultController!);
+        },
+      ),
+    );
+  }
+
+  Widget _build(ExprollablePageController controller) {
+    return _ExprollablePageViewImpl(
+      controller: controller,
+      itemBuilder: itemBuilder,
+      itemCount: itemCount,
+      reverse: reverse,
+      physics: physics,
+      dragStartBehavior: dragStartBehavior,
+      allowImplicitScrolling: allowImplicitScrolling,
+      restorationId: restorationId,
+      clipBehavior: clipBehavior,
+      scrollBehavior: scrollBehavior,
+      padEnds: padEnds,
+      onViewportChanged: onViewportChanged,
+      onPageChanged: onPageChanged,
+    );
+  }
 }
 
-class _ExprollablePageViewState extends State<ExprollablePageView> {
+class _ExprollablePageViewImpl extends StatefulWidget {
+  const _ExprollablePageViewImpl({
+    required this.itemBuilder,
+    required this.itemCount,
+    required this.controller,
+    required this.reverse,
+    required this.physics,
+    required this.dragStartBehavior,
+    required this.allowImplicitScrolling,
+    required this.restorationId,
+    required this.clipBehavior,
+    required this.scrollBehavior,
+    required this.padEnds,
+    required this.onViewportChanged,
+    required this.onPageChanged,
+  });
+
+  final IndexedWidgetBuilder itemBuilder;
+  final int? itemCount;
+  final ExprollablePageController? controller;
+  final bool reverse;
+  final ScrollPhysics? physics;
+  final DragStartBehavior dragStartBehavior;
+  final bool allowImplicitScrolling;
+  final String? restorationId;
+  final Clip clipBehavior;
+  final ScrollBehavior? scrollBehavior;
+  final bool padEnds;
+  final void Function(ViewportMetrics metrics)? onViewportChanged;
+  final void Function(int page)? onPageChanged;
+
+  @override
+  State<_ExprollablePageViewImpl> createState() =>
+      _ExprollablePageViewImplState();
+}
+
+class _ExprollablePageViewImplState extends State<_ExprollablePageViewImpl> {
   final ValueNotifier<bool?> allowPaging = ValueNotifier(null);
 
   // Must be initialized in either of 'initState'
@@ -156,7 +230,7 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
   }
 
   @override
-  void didUpdateWidget(covariant ExprollablePageView oldWidget) {
+  void didUpdateWidget(_ExprollablePageViewImpl oldWidget) {
     super.didUpdateWidget(oldWidget);
     tryReplaceController();
   }
