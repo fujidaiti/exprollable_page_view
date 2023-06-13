@@ -1,13 +1,16 @@
 import 'dart:math';
 
 import 'package:exprollable_page_view/src/core/controller.dart';
+import 'package:exprollable_page_view/src/core/view/default_page_configuration.dart';
+import 'package:exprollable_page_view/src/core/view/page_configuration.dart';
 import 'package:exprollable_page_view/src/internal/paging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
 /// A page view that expands the viewport of the current page while scrolling it.
-class ExprollablePageView extends StatefulWidget {
+class ExprollablePageView extends StatelessWidget {
+  /// Creates a page view.
   const ExprollablePageView({
     super.key,
     required this.itemBuilder,
@@ -92,32 +95,107 @@ class ExprollablePageView extends StatefulWidget {
   final void Function(int page)? onPageChanged;
 
   @override
-  State<ExprollablePageView> createState() => _ExprollablePageViewState();
+  Widget build(BuildContext context) {
+    if (controller != null) {
+      return _build(controller!);
+    }
+
+    final inheritedController =
+        InheritedPageConfiguration.of(context)?.controller;
+    if (inheritedController != null) {
+      return _build(inheritedController);
+    }
+
+    return DefaultPageConfiguration(
+      child: Builder(
+        builder: (context) {
+          final defaultController =
+              InheritedDefaultPageConfiguration.of(context)?.controller;
+          return _build(defaultController!);
+        },
+      ),
+    );
+  }
+
+  Widget _build(ExprollablePageController controller) {
+    return _ExprollablePageViewImpl(
+      controller: controller,
+      itemBuilder: itemBuilder,
+      itemCount: itemCount,
+      reverse: reverse,
+      physics: physics,
+      dragStartBehavior: dragStartBehavior,
+      allowImplicitScrolling: allowImplicitScrolling,
+      restorationId: restorationId,
+      clipBehavior: clipBehavior,
+      scrollBehavior: scrollBehavior,
+      padEnds: padEnds,
+      onViewportChanged: onViewportChanged,
+      onPageChanged: onPageChanged,
+    );
+  }
 }
 
-class _ExprollablePageViewState extends State<ExprollablePageView> {
+class _ExprollablePageViewImpl extends StatefulWidget {
+  const _ExprollablePageViewImpl({
+    required this.itemBuilder,
+    required this.itemCount,
+    required this.controller,
+    required this.reverse,
+    required this.physics,
+    required this.dragStartBehavior,
+    required this.allowImplicitScrolling,
+    required this.restorationId,
+    required this.clipBehavior,
+    required this.scrollBehavior,
+    required this.padEnds,
+    required this.onViewportChanged,
+    required this.onPageChanged,
+  });
+
+  final IndexedWidgetBuilder itemBuilder;
+  final int? itemCount;
+  final ExprollablePageController controller;
+  final bool reverse;
+  final ScrollPhysics? physics;
+  final DragStartBehavior dragStartBehavior;
+  final bool allowImplicitScrolling;
+  final String? restorationId;
+  final Clip clipBehavior;
+  final ScrollBehavior? scrollBehavior;
+  final bool padEnds;
+  final void Function(ViewportMetrics metrics)? onViewportChanged;
+  final void Function(int page)? onPageChanged;
+
+  @override
+  State<_ExprollablePageViewImpl> createState() =>
+      _ExprollablePageViewImplState();
+}
+
+class _ExprollablePageViewImplState extends State<_ExprollablePageViewImpl> {
   final ValueNotifier<bool?> allowPaging = ValueNotifier(null);
-  late ExprollablePageController controller;
+
+  ExprollablePageController get controller => widget.controller;
 
   @override
   void initState() {
     super.initState();
-    attach(widget.controller ?? _DefaultPageController());
+    attach(widget.controller);
   }
 
   @override
   void dispose() {
     super.dispose();
     allowPaging.dispose();
-    detach(controller);
+    detach(widget.controller);
   }
 
   @override
-  void didUpdateWidget(covariant ExprollablePageView oldWidget) {
+  void didUpdateWidget(_ExprollablePageViewImpl oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!(controller is _DefaultPageController && widget.controller == null)) {
-      detach(controller);
-      attach(oldWidget.controller ?? _DefaultPageController());
+    if (widget.controller != oldWidget.controller) {
+      detach(oldWidget.controller);
+      attach(widget.controller);
     }
   }
 
@@ -125,13 +203,10 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
     controller
       ..viewport.removeListener(onViewportChanged)
       ..currentPage.removeListener(onPageChanged);
-    if (controller is _DefaultPageController) {
-      controller.dispose();
-    }
   }
 
   void attach(ExprollablePageController controller) {
-    this.controller = controller
+    controller
       ..viewport.addListener(onViewportChanged)
       ..currentPage.addListener(onPageChanged);
   }
@@ -212,10 +287,6 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
       ),
     );
   }
-}
-
-class _DefaultPageController extends ExprollablePageController {
-  _DefaultPageController();
 }
 
 class _PageItemContainer extends StatefulWidget {
