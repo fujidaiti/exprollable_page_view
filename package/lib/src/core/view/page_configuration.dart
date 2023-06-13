@@ -3,8 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 @internal
-class InheritedPageController extends InheritedWidget {
-  const InheritedPageController({
+class InheritedPageConfiguration extends InheritedWidget {
+  const InheritedPageConfiguration({
     super.key,
     required this.controller,
     required super.child,
@@ -13,11 +13,11 @@ class InheritedPageController extends InheritedWidget {
   final ExprollablePageController controller;
 
   @override
-  bool updateShouldNotify(InheritedPageController oldWidget) =>
+  bool updateShouldNotify(InheritedPageConfiguration oldWidget) =>
       controller != oldWidget.controller;
 
   static ExprollablePageController? of(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<InheritedPageController>()
+      .dependOnInheritedWidgetOfExactType<InheritedPageConfiguration>()
       ?.controller;
 }
 
@@ -68,7 +68,7 @@ class _PageConfigurationState extends State<PageConfiguration> {
 
   @override
   Widget build(BuildContext context) {
-    return InheritedPageController(
+    return InheritedPageConfiguration(
       controller: controller,
       child: widget.child,
     );
