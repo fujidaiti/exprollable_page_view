@@ -16,18 +16,24 @@ class InheritedPageConfiguration extends InheritedWidget {
   bool updateShouldNotify(InheritedPageConfiguration oldWidget) =>
       controller != oldWidget.controller;
 
-  static InheritedPageConfiguration? of(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<InheritedPageConfiguration>();
+  static InheritedPageConfiguration? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<InheritedPageConfiguration>();
 }
 
 class PageConfiguration extends StatefulWidget {
   const PageConfiguration({
     super.key,
-    required this.viewportConfiguration,
+    this.viewportConfiguration = ViewportConfiguration.defaultConfiguration,
+    this.viewportFractionBehavior = const DefaultViewportFractionBehavior(),
+    this.keepPage = true,
+    this.initialPage = 0,
     required this.child,
   });
 
-  final ViewportConfiguration? viewportConfiguration;
+  final ViewportConfiguration viewportConfiguration;
+  final ViewportFractionBehavior viewportFractionBehavior;
+  final bool keepPage;
+  final int initialPage;
   final Widget child;
 
   @override
@@ -52,7 +58,10 @@ class _PageConfigurationState extends State<PageConfiguration> {
   @override
   void didUpdateWidget(PageConfiguration oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.viewportConfiguration != oldWidget.viewportConfiguration) {
+    if (widget.keepPage != oldWidget.keepPage ||
+        widget.initialPage != oldWidget.initialPage ||
+        widget.viewportConfiguration != oldWidget.viewportConfiguration ||
+        widget.viewportFractionBehavior != oldWidget.viewportFractionBehavior) {
       controller.dispose();
       controller = createController();
     }
@@ -60,8 +69,10 @@ class _PageConfigurationState extends State<PageConfiguration> {
 
   ExprollablePageController createController() {
     return ExprollablePageController(
-      viewportConfiguration: widget.viewportConfiguration ??
-          ViewportConfiguration.defaultConfiguration,
+      initialPage: widget.initialPage,
+      keepPage: widget.keepPage,
+      viewportConfiguration: widget.viewportConfiguration,
+      viewportFractionBehavior: widget.viewportFractionBehavior,
     );
   }
 
