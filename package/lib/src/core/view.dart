@@ -98,12 +98,49 @@ class ExprollablePageView extends StatefulWidget {
 
 class _ExprollablePageViewState extends State<ExprollablePageView> {
   final ValueNotifier<bool?> allowPaging = ValueNotifier(null);
-  late ExprollablePageController controller;
+
+  // Must be initialized in either of 'initState'
+  // or 'didChangeDependencies', and must not be null after that.
+  ExprollablePageController? _controller;
+  ExprollablePageController get controller => _controller!;
+  bool get controllerIsInitialized => _controller != null;
+
+  void initController() {
+    assert(!controllerIsInitialized);
+    if (widget.controller != null) {
+      attach(widget.controller!);
+    } else {
+      final inherited = _InheritedPageController.of(context);
+      assert(inherited != null);
+      attach(inherited!);
+    }
+  }
+
+  void tryReplaceController() {
+    assert(controllerIsInitialized);
+    final newController =
+        widget.controller ?? _InheritedPageController.of(context);
+    assert(newController != null);
+    if (newController != controller) {
+      detach(controller);
+      attach(newController!);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    attach(widget.controller ?? _DefaultPageController());
+    if (widget.controller != null) initController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (controllerIsInitialized) {
+      tryReplaceController();
+    } else {
+      initController();
+    }
   }
 
   @override
@@ -116,23 +153,20 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
   @override
   void didUpdateWidget(covariant ExprollablePageView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!(controller is _DefaultPageController && widget.controller == null)) {
-      detach(controller);
-      attach(oldWidget.controller ?? _DefaultPageController());
-    }
+    tryReplaceController();
   }
 
   void detach(ExprollablePageController controller) {
+    assert(controller == _controller);
     controller
       ..viewport.removeListener(onViewportChanged)
       ..currentPage.removeListener(onPageChanged);
-    if (controller is _DefaultPageController) {
-      controller.dispose();
-    }
+    _controller = null;
   }
 
   void attach(ExprollablePageController controller) {
-    this.controller = controller
+    assert(controller != _controller);
+    _controller = controller
       ..viewport.addListener(onViewportChanged)
       ..currentPage.addListener(onPageChanged);
   }
@@ -213,10 +247,6 @@ class _ExprollablePageViewState extends State<ExprollablePageView> {
       ),
     );
   }
-}
-
-class _DefaultPageController extends ExprollablePageController {
-  _DefaultPageController();
 }
 
 class _PageItemContainer extends StatefulWidget {
@@ -357,6 +387,10 @@ class _InheritedPageController extends InheritedWidget {
   @override
   bool updateShouldNotify(_InheritedPageController oldWidget) =>
       controller != oldWidget.controller;
+
+  static ExprollablePageController? of(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<_InheritedPageController>()
+      ?.controller;
 }
 
 class ExprollableConfiguration extends StatefulWidget {
@@ -372,10 +406,6 @@ class ExprollableConfiguration extends StatefulWidget {
   @override
   State<ExprollableConfiguration> createState() =>
       _ExprollableConfigurationState();
-
-  static ExprollablePageController? of(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<_InheritedPageController>()
-      ?.controller;
 }
 
 class _ExprollableConfigurationState extends State<ExprollableConfiguration> {
