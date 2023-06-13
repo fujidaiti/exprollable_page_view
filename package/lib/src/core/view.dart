@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 
 /// A page view that expands the viewport of the current page while scrolling it.
 class ExprollablePageView extends StatefulWidget {
+  /// Creates a page view.
   const ExprollablePageView({
     super.key,
     required this.itemBuilder,
