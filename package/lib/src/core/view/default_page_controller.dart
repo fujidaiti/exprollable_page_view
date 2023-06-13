@@ -15,6 +15,9 @@ class InheritedDefaultPageConfiguration extends InheritedWidget {
   @override
   bool updateShouldNotify(InheritedDefaultPageConfiguration oldWidget) =>
       controller != oldWidget.controller;
+
+  static InheritedDefaultPageConfiguration? of(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<InheritedDefaultPageConfiguration>();
 }
 
 class DefaultPageConfiguration extends StatefulWidget {
