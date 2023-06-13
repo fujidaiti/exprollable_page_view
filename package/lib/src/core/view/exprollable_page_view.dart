@@ -155,7 +155,7 @@ class _ExprollablePageViewImpl extends StatefulWidget {
 
   final IndexedWidgetBuilder itemBuilder;
   final int? itemCount;
-  final ExprollablePageController? controller;
+  final ExprollablePageController controller;
   final bool reverse;
   final ScrollPhysics? physics;
   final DragStartBehavior dragStartBehavior;
@@ -175,77 +175,38 @@ class _ExprollablePageViewImpl extends StatefulWidget {
 class _ExprollablePageViewImplState extends State<_ExprollablePageViewImpl> {
   final ValueNotifier<bool?> allowPaging = ValueNotifier(null);
 
-  // Must be initialized in either of 'initState'
-  // or 'didChangeDependencies', and must not be null after that.
-  ExprollablePageController? _controller;
-  ExprollablePageController get controller => _controller!;
-  bool get controllerIsInitialized => _controller != null;
-
-  void initController() {
-    assert(!controllerIsInitialized);
-    if (widget.controller != null) {
-      attach(widget.controller!);
-    } else {
-      final inheritedController =
-          InheritedPageConfiguration.of(context)?.controller ??
-              InheritedDefaultPageConfiguration.of(context)?.controller;
-      assert(inheritedController != null);
-      attach(inheritedController!);
-    }
-  }
-
-  void tryReplaceController() {
-    assert(controllerIsInitialized);
-    final newController = widget.controller ??
-        InheritedPageConfiguration.of(context)?.controller ??
-        InheritedDefaultPageConfiguration.of(context)?.controller;
-    assert(newController != null);
-    if (newController != controller) {
-      detach(controller);
-      attach(newController!);
-    }
-  }
+  ExprollablePageController get controller => widget.controller;
 
   @override
   void initState() {
     super.initState();
-    if (widget.controller != null) initController();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (controllerIsInitialized) {
-      tryReplaceController();
-    } else {
-      initController();
-    }
+    attach(widget.controller);
   }
 
   @override
   void dispose() {
     super.dispose();
     allowPaging.dispose();
-    detach(controller);
+    detach(widget.controller);
   }
 
   @override
   void didUpdateWidget(_ExprollablePageViewImpl oldWidget) {
     super.didUpdateWidget(oldWidget);
-    tryReplaceController();
+    if (widget.controller != oldWidget.controller) {
+      detach(oldWidget.controller);
+      attach(widget.controller);
+    }
   }
 
   void detach(ExprollablePageController controller) {
-    assert(controller == _controller);
     controller
       ..viewport.removeListener(onViewportChanged)
       ..currentPage.removeListener(onPageChanged);
-    _controller = null;
   }
 
   void attach(ExprollablePageController controller) {
-    assert(controller != _controller);
-    _controller = controller
+    controller
       ..viewport.addListener(onViewportChanged)
       ..currentPage.addListener(onPageChanged);
   }
