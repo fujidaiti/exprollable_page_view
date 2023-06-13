@@ -16,6 +16,11 @@ Here is an example of what you can do with this widget:
 
 Version 1.0.0-rc.2 has been released. This update contains some changes that require migration from previous versions. See [the migration guild](#100-rc1-arrow_right-100-rc2) for more information.
 
+Several new features have also been added. Please see the sections below:
+
+- [PageConfiguration](#pageconfiguration)
+- [Hero animations](#hero-animations)
+
 ### 2023-05-17
 
 Version 1.0.0-rc.1 has been released 🎉. This version includes several breaking changes, so if you are already using ^1.0.0-beta, you may need to migrate according to [the migration guide](#100-betax-arrow_right-100-rc1).
@@ -37,6 +42,7 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
       - [Viewport fraction and inset](#viewport-fraction-and-inset)
       - [Overshoot effect](#overshoot-effect)
     - [ViewportConfiguration](#viewportconfiguration)
+    - [PageConfiguration](#pageconfiguration)
     - [ModalExprollableRouteBuilder](#modalexprollableroutebuilder)
     - [Slidable list items](#slidable-list-items)
     - [Hero animations](#hero-animations)
@@ -245,6 +251,46 @@ final controller = ExprollablePageController(
 ```
 
 <img width="260" src="https://github.com/fujidaiti/exprollable_page_view/assets/68946713/1e848ad0-5111-4d5a-8663-ee0b07d813c6">
+
+### PageConfiguration
+
+This is a utility widget that would be useful if you want to use an `ExprollablePageView` with custom configurations in a `StatelessWidget` without explicitly creating a controller.
+For example, the following code can be replaced:
+
+```dart
+// In the initState method:
+controller = ExprollablePageController(
+  initialPage: 0,
+  viewportConfiguration: ViewportConfiguration(
+    overshootEffect: true,
+  ),
+);
+
+// In the build method:
+return ExprollablePageView(
+  controller: controller,
+  ...,
+);
+```
+
+with as follows:
+
+```dart
+return PageConfiguration(
+  initialPage: 0,
+  viewportConfiguration: ViewportConfiguration(
+    overshootEffect: true,
+  ),
+  child: ExprollablePageView(...),
+);
+```
+
+You can still get the controller from anywhere in the page view subtree using `ExprollablePageController.of` method.
+
+```dart
+// e.g. In the build method of a page
+final controller = ExprollablePageController.of(context);
+```
 
 ### ModalExprollableRouteBuilder
 
