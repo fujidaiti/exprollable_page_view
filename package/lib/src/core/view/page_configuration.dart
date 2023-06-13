@@ -1,4 +1,5 @@
 import 'package:exprollable_page_view/src/core/controller.dart';
+import 'package:exprollable_page_view/src/core/view/exprollable_page_view.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
@@ -20,7 +21,17 @@ class InheritedPageConfiguration extends InheritedWidget {
       context.dependOnInheritedWidgetOfExactType<InheritedPageConfiguration>();
 }
 
+/// A widget that provides an [ExprollablePageController]
+/// configured with the given parameters to the descendants in the tree.
+///
+/// This is useful if you want to use an [ExprollablePageView]
+/// with a custom configuration in a [StatelessWidget] without
+/// explicitly creating a controller.
+/// The controller given by this widget and attached to the descendant
+/// page view can be obtained by using [ExprollablePageController.of]
+/// from anywhere in the subtree of the page view.
 class PageConfiguration extends StatefulWidget {
+  /// Creates a provider of a page controller configured with the given parameters.
   const PageConfiguration({
     super.key,
     this.viewportConfiguration = ViewportConfiguration.defaultConfiguration,
@@ -30,10 +41,22 @@ class PageConfiguration extends StatefulWidget {
     required this.child,
   });
 
+  /// A configuration object that is passed to [ExprollablePageController.new].
   final ViewportConfiguration viewportConfiguration;
+
+  /// A behavior object that is passed to [ExprollablePageController.new].
   final ViewportFractionBehavior viewportFractionBehavior;
+
+  /// The `keepPage` flag that is passed to [ExprollablePageController.new].
   final bool keepPage;
+
+  /// The `initialPage` value that is passed to [ExprollablePageController.new].
   final int initialPage;
+
+  /// The widget below this widget in the tree.
+  /// 
+  /// Typically, this will be an [ExprollablePageView] or
+  /// a widget that contains an [ExprollablePageView] in its descendants.
   final Widget child;
 
   @override
