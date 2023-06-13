@@ -48,7 +48,24 @@ void showDetailsPage(BuildContext context, int page) =>
       // See [https://docs.flutter.dev/ui/animations/hero-animations#radial-hero-animations].
       ModalExprollableRouteBuilder(
         // This is the only required paramter.
-        pageBuilder: (context, _, __) => ModalPageView(initialPage: page),
+        pageBuilder: (context, _, __) {
+          return PageConfiguration(
+            initialPage: page,
+            viewportConfiguration: ViewportConfiguration(
+              extendPage: true,
+              overshootEffect: true,
+            ),
+            child: ExprollablePageView(
+              itemCount: colors.length,
+              itemBuilder: (context, page) {
+                return PageGutter(
+                  gutterWidth: 12,
+                  child: DetailsPage(page: page),
+                );
+              },
+            ),
+          );
+        },
         // Increase the transition durations and take a closer look at what's going on!
         transitionDuration: const Duration(milliseconds: 500),
         reverseTransitionDuration: const Duration(milliseconds: 300),
@@ -57,51 +74,6 @@ void showDetailsPage(BuildContext context, int page) =>
         opaque: true,
       ),
     );
-
-class ModalPageView extends StatefulWidget {
-  ModalPageView({required this.initialPage});
-
-  final int initialPage;
-
-  @override
-  State<ModalPageView> createState() => _ModalPageViewState();
-}
-
-class _ModalPageViewState extends State<ModalPageView> {
-  late final ExprollablePageController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = ExprollablePageController(
-      initialPage: widget.initialPage,
-      viewportConfiguration: ViewportConfiguration(
-        extendPage: true,
-        overshootEffect: true,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    controller.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ExprollablePageView(
-      itemCount: colors.length,
-      controller: controller,
-      itemBuilder: (context, page) {
-        return PageGutter(
-          gutterWidth: 12,
-          child: DetailsPage(page: page),
-        );
-      },
-    );
-  }
-}
 
 class DetailsPage extends StatelessWidget {
   const DetailsPage({
