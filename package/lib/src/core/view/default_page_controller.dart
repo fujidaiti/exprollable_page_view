@@ -20,6 +20,7 @@ class InheritedDefaultPageConfiguration extends InheritedWidget {
       .dependOnInheritedWidgetOfExactType<InheritedDefaultPageConfiguration>();
 }
 
+@internal
 class DefaultPageConfiguration extends StatefulWidget {
   const DefaultPageConfiguration({
     super.key,
