@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:exprollable_page_view/src/core/controller.dart';
-import 'package:exprollable_page_view/src/core/view/default_page_controller.dart';
+import 'package:exprollable_page_view/src/core/view/default_page_configuration.dart';
 import 'package:exprollable_page_view/src/core/view/page_configuration.dart';
 import 'package:exprollable_page_view/src/internal/paging.dart';
 import 'package:flutter/foundation.dart';
