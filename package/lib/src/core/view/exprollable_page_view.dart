@@ -223,7 +223,8 @@ class _ExprollablePageViewImplState extends State<_ExprollablePageViewImpl> {
     widget.onPageChanged?.call(controller.currentPage.value);
   }
 
-  bool checkIfPagingIsAllowed() => controller.viewport.isPageShrunk;
+  // bool checkIfPagingIsAllowed() => controller.viewport.isPageShrunk;
+  bool checkIfPagingIsAllowed() => true;
 
   @override
   Widget build(BuildContext context) {

@@ -859,12 +859,14 @@ class PageViewport extends ChangeNotifier {
   /// This value will be equal to [Viewport.inset] if [page] is the current page.
   double get offset => _isPageActive
       ? _pageController.viewport.inset
-      : max(0.0, _pageController.viewport.inset) + translation.dy;
+      // : max(0.0, _pageController.viewport.inset) + translation.dy;
+      : _pageController.viewport.inset;
 
   /// The lower bound of [offset].
   double get minOffset => _isPageActive
       ? _pageController.viewport.minInset
-      : _pageController.viewport.dimensions.padding.top;
+      // : _pageController.viewport.dimensions.padding.top;
+      : _pageController.viewport.minInset;
 
   /// The upper bound of [offset].
   double get maxOffset => _pageController.viewport.inset;
@@ -881,8 +883,9 @@ class PageViewport extends ChangeNotifier {
     if (_isPageActive) {
       return min(vp.inset, 0.0);
     } else {
-      return (vp.dimensions.padding.top - vp.inset)
-          .clamp(0.0, vp.dimensions.padding.top);
+      return min(vp.inset, 0.0);
+      // return (vp.dimensions.padding.top - vp.inset)
+      // .clamp(0.0, vp.dimensions.padding.top);
     }
   }
 
