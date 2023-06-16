@@ -1,0 +1,39 @@
+name: Release Validation
+run-name: Validation for ${{ github.event.pull_request.title }}
+on:
+  pull_request:
+    branches: [master]
+env:
+  package_dir: ./package
+  example_dir: ./example
+jobs:
+  validation:
+    name: Release validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Flutter versioin
+        run: flutter --version
+
+      - name: Install dependencies
+        working-directory: ${{ env.package_dir }}
+        run: flutter pub get
+
+      - name: Analize
+        working-directory: ${{ env.package_dir }}
+        run: flutter analyze
+
+      - name: Build web app
+        working-directory: ${{ env.example_dir }}
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+
+      - name: Dry publish
+        working-directory: ${{ env.package_dir }}
+        run: flutter pub publish --dry-run
