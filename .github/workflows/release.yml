@@ -1,0 +1,87 @@
+name: Release new version
+run-name: ${{ github.ref_name }} published by ${{ github.event.head_commit.author.name }}
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+env:
+  package_dir: ./package
+  example_dir: ./example
+jobs:
+  publish:
+    name: Publish the package to pub.dev
+    if: github.event.base_ref == 'refs/heads/master' && startsWith(github.event.ref, 'refs/tags/v')
+    permissions:
+      id-token: write
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Package version
+        id: version
+        working-directory: ${{ env.package_dir }}
+        run: >
+          VERSION=$(cat ${{ env.package_dir }}/pubspec.yaml
+          | grep version | sed 's/version:\s*//') &&
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Flutter versioin
+        run: flutter --version
+
+      - name: Install dependencies
+        working-directory: ${{ env.package_dir }}
+        run: flutter pub get
+
+      - name: Analize
+        working-directory: ${{ env.package_dir }}
+        run: flutter analyze
+
+      - name: Dry run
+        working-directory: ${{ env.package_dir }}
+        run: flutter pub publish --dry-run
+
+      - name: Publish
+        working-directory: ${{ env.package_dir }}
+        if: success()
+        run: flutter pub publish --force
+
+  deploy-example:
+    name: Deploy the example app to GitHub Pages
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Install dependencies
+        working-directory: ${{ env.example_dir }}
+        run: flutter pub get
+
+      - name: Build web app
+        working-directory: ${{ env.example_dir }}
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: success()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.example_dir }}/build/web
