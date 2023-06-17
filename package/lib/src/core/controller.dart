@@ -1,8 +1,9 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:exprollable_page_view/src/internal/scroll.dart';
 import 'package:exprollable_page_view/src/internal/utils.dart';
-import 'package:exprollable_page_view/src/core/view.dart';
+import 'package:exprollable_page_view/src/core/view/view.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Viewport;
@@ -505,8 +506,22 @@ class DefaultViewportFractionBehavior implements ViewportFractionBehavior {
     final delta = viewport.shrunkInset - viewport.expandedInset;
     assert(delta > 0.0);
     final t = 1.0 - (pixels / delta).clamp(0.0, 1.0);
-    return curve.transform(t) * viewport.deltaFraction + viewport.minFraction;
+    return lerpDouble(
+      viewport.minFraction,
+      viewport.maxFraction,
+      curve.transform(t),
+    )!;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DefaultViewportFractionBehavior &&
+          runtimeType == other.runtimeType &&
+          curve == other.curve);
+
+  @override
+  int get hashCode => Object.hash(runtimeType, curve);
 }
 
 /// A configuration for the viewport.
@@ -612,6 +627,34 @@ class ViewportConfiguration {
   /// If true, the page extends to the bottom of the viewport when it fully expanded,
   /// even if the viewport has non-zero bottom padding.
   final bool extendPage;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ViewportConfiguration &&
+          runtimeType == other.runtimeType &&
+          minFraction == other.minFraction &&
+          maxFraction == other.maxFraction &&
+          minInset == other.minInset &&
+          maxInset == other.maxInset &&
+          shrunkInset == other.shrunkInset &&
+          expandedInset == other.expandedInset &&
+          initialInset == other.initialInset &&
+          listEquals(snapInsets, other.snapInsets) &&
+          extendPage == other.extendPage);
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      minFraction,
+      maxFraction,
+      minInset,
+      maxInset,
+      shrunkInset,
+      expandedInset,
+      initialInset,
+      snapInsets,
+      extendPage);
 }
 
 /// An object that represents the state of the viewport.
@@ -753,9 +796,10 @@ class Viewport extends ChangeNotifier
     final preferredFraction =
         fractionBehavior.preferredFraction(this, newInset);
     final lowerBoundPageHeight = configuration.extendPage
-        ? dimensions.height - dimensions.padding.bottom - max(0.0, newInset)
-        : dimensions.height - max(0.0, newInset);
-    final lowerBoundFraction = lowerBoundPageHeight / pageDimensions.maxHeight;
+        ? dimensions.height - max(0.0, newInset)
+        : dimensions.height - dimensions.padding.bottom - max(0.0, newInset);
+    final lowerBoundFraction = (lowerBoundPageHeight / pageDimensions.maxHeight)
+        .clamp(minFraction, maxFraction);
     _fraction = max(lowerBoundFraction, preferredFraction);
     _inset = newInset;
   }
