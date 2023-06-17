@@ -822,7 +822,8 @@ class PageViewport extends ChangeNotifier {
     required ExprollablePageController pageController,
   }) : _pageController = pageController {
     _pageController
-      ..currentPage.addListener(_invalidateState)
+      // ..currentPage.addListener(_invalidateState)
+      ..addListener(_invalidateState)
       ..viewport.addListener(_invalidateState);
   }
 
@@ -830,7 +831,8 @@ class PageViewport extends ChangeNotifier {
   void dispose() {
     super.dispose();
     _pageController
-      ..currentPage.removeListener(_invalidateState)
+      // ..currentPage.removeListener(_invalidateState)
+      ..removeListener(_invalidateState)
       ..viewport.removeListener(_invalidateState);
   }
 
@@ -890,15 +892,27 @@ class PageViewport extends ChangeNotifier {
   }
 
   double _computeHorizontalTranslation() {
-    final vp = _pageController.viewport;
-    if (_isPageActive) {
-      return vp.dimensions.width * (vp.fraction - vp.minFraction) / -2.0;
-    } else {
-      final isOnLeftSide = page < _pageController.currentPage.value;
-      return isOnLeftSide
-          ? -vp.dimensions.width * (vp.fraction - vp.minFraction) * 1.5
-          : vp.dimensions.width * (vp.fraction - vp.minFraction) / 2.0;
-    }
+    // final vp = _pageController.viewport;
+    // if (_isPageActive) {
+    //   return vp.dimensions.width * (vp.fraction - vp.minFraction) / -2.0;
+    // } else {
+    //   final isOnLeftSide = page < _pageController.currentPage.value;
+    //   return isOnLeftSide
+    //       ? -vp.dimensions.width * (vp.fraction - vp.minFraction) * 1.5
+    //       : vp.dimensions.width * (vp.fraction - vp.minFraction) / 2.0;
+    // }
+
+    final metrics = _pageController.viewport;
+    final width = metrics.pageDimensions.maxWidth;
+    final dxCenter = width * (minFraction - fraction) / 2.0;
+    final relativePage = _pageController.hasClients &&
+            (_pageController.position.hasPixels &&
+                _pageController.position.hasContentDimensions)
+        ? page - _pageController.page!
+        : (page - _pageController.initialPage).toDouble();
+    final dxLR = width * (fraction - minFraction) * relativePage;
+
+    return dxCenter + dxLR;
   }
 
   double _computeFraction() => _pageController.viewport.fraction;
