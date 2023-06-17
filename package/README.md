@@ -86,7 +86,7 @@ Unfortunately, `PageView` widget in flutter framework does not provide ways to d
 
 ## Try it
 
-Run the example application and explore the all features of this package. It is also available on [web](https://fujidaiti.github.io/exprollable_page_view/#/) (⚠️ desktop browsers are not currently supported, see [#37](https://github.com/fujidaiti/exprollable_page_view/issues/37)).
+Run the example application and explore the all features of this package. It is also available on [web](https://fujidaiti.github.io/exprollable_page_view/#/) (⚠️ **mouse wheel scrolling is not currently supported**, see [#37](https://github.com/fujidaiti/exprollable_page_view/issues/37)).
 
 ```shell
 git clone git@github.com:fujidaiti/exprollable_page_view.git
