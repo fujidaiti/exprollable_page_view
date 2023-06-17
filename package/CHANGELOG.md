@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0-rc.2 Jun XX, 2023
+## 1.0.0-rc.2 Jun 17, 2023
 
 - `PageConfiguration` has been added for implicit definition of page controllers (issue #41)
 - The limitations of the overshoot effect have been removed
@@ -9,7 +9,6 @@
 - Fixed issue #39
 
 See the migration guide in the README for more information.
-
 
 ## 1.0.0-rc.1 May 17, 2023
 
