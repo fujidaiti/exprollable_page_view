@@ -12,7 +12,7 @@ Here is an example of what you can do with this widget:
 
 ## Announcement
 
-### 2023-06-XX
+### Jun. 17, 2023
 
 Version 1.0.0-rc.2 has been released. This update contains some changes that require migration from previous versions. See [the migration guild](#100-rc1-arrow_right-100-rc2) for more information.
 
@@ -21,7 +21,7 @@ Several new features have also been added. Please see the sections below:
 - [PageConfiguration](#pageconfiguration)
 - [Hero animations](#hero-animations)
 
-### 2023-05-17
+### May. 17, 2023
 
 Version 1.0.0-rc.1 has been released 🎉. This version includes several breaking changes, so if you are already using ^1.0.0-beta, you may need to migrate according to [the migration guide](#100-betax-arrow_right-100-rc1).
 
@@ -29,8 +29,8 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
 
 - [exprollable\_page\_view :bird:](#exprollable_page_view-bird)
   - [Announcement](#announcement)
-    - [2023-06-XX](#2023-06-xx)
-    - [2023-05-17](#2023-05-17)
+    - [Jun. 17, 2023](#jun-17-2023)
+    - [May. 17, 2023](#may-17-2023)
   - [Index](#index)
   - [Background](#background)
   - [Try it](#try-it)
@@ -70,7 +70,6 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
   - [Questions](#questions)
   - [Contributing](#contributing)
 
-
 ## Background
 
 Books, an e-book reading application from Apple, has a unique user interface; tapping a book cover image displays its details page as a modal view, and the user can swpie the pages back and forth to explore the details of different books, and if the user scrolls vertically up the page, the width of the page gradually expands (or shrinks). The beauty of this UI is that:
@@ -87,7 +86,7 @@ Unfortunately, `PageView` widget in flutter framework does not provide ways to d
 
 ## Try it
 
-Run the example application and explore the all features of this package. It is also available on [web](https://fujidaiti.github.io/exprollable_page_view/#/) (⚠️ access from a **mobile browser** is recommended).
+Run the example application and explore the all features of this package. It is also available on [web](https://fujidaiti.github.io/exprollable_page_view/#/) (⚠️ desktop browsers are not currently supported, see [#37](https://github.com/fujidaiti/exprollable_page_view/issues/37)).
 
 ```shell
 git clone git@github.com:fujidaiti/exprollable_page_view.git
