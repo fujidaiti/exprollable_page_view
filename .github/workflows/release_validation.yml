@@ -26,9 +26,17 @@ jobs:
         working-directory: ${{ env.package_dir }}
         run: flutter pub get
 
-      - name: Analize
-        working-directory: ${{ env.package_dir }}
-        run: flutter analyze
+      - uses: axel-op/dart-package-analyzer@v3
+        id: analysis
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          relativePath: ${{ env.package_dir }}
+
+      - uses: fujidaiti/dart-package-inspector@v1.0.0
+        with:
+          report: ${{ steps.analysis.outputs.json_output }}
+          min-pub-points: 130
+          supported-platforms: ios, android, linux, windows, macos, web
 
       - name: Build web app
         working-directory: ${{ env.example_dir }}
