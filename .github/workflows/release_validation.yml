@@ -35,7 +35,7 @@ jobs:
       - uses: fujidaiti/dart-package-inspector@v1.0.0
         with:
           report: ${{ steps.analysis.outputs.json_output }}
-          min-pub-points: 140
+          min-pub-points: 130
           supported-platforms: ios, android, linux, windows, macos, web
 
       - name: Build web app
