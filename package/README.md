@@ -12,6 +12,10 @@ Here is an example of what you can do with this widget:
 
 ## Announcement
 
+### Feb. 24, 2024
+
+As of 1.0.0, Dart3 is now required.
+
 ### Jun. 17, 2023
 
 Version 1.0.0-rc.2 has been released. This update contains some changes that require migration from previous versions. See [the migration guild](#100-rc1-arrow_right-100-rc2) for more information.
@@ -29,6 +33,7 @@ Version 1.0.0-rc.1 has been released 🎉. This version includes several breakin
 
 - [exprollable\_page\_view :bird:](#exprollable_page_view-bird)
   - [Announcement](#announcement)
+    - [Feb. 24, 2024](#feb-24-2024)
     - [Jun. 17, 2023](#jun-17-2023)
     - [May. 17, 2023](#may-17-2023)
   - [Index](#index)
