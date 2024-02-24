@@ -376,7 +376,7 @@ class OverflowPageView extends PageView {
     super.key,
     super.scrollDirection,
     super.reverse,
-    super.controller,
+    required PageController controller,
     super.physics,
     super.pageSnapping,
     super.onPageChanged,
@@ -390,7 +390,7 @@ class OverflowPageView extends PageView {
     super.scrollBehavior,
     super.padEnds,
     required this.childConstraints,
-  }) : super.builder();
+  }) : super.builder(controller: controller);
 
   final BoxConstraints childConstraints;
 
@@ -408,7 +408,9 @@ class _PageViewState extends State<OverflowPageView> {
   @override
   void initState() {
     super.initState();
-    _lastReportedPage = widget.controller.initialPage;
+    // FIXME: Workaround to pass the static analysis on pub.dev
+    // ignore: unnecessary_non_null_assertion
+    _lastReportedPage = widget.controller!.initialPage;
   }
 
   AxisDirection _getDirection(BuildContext context) {
@@ -469,7 +471,9 @@ class _PageViewState extends State<OverflowPageView> {
             clipBehavior: widget.clipBehavior,
             slivers: <Widget>[
               _SliverFillViewport(
-                viewportFraction: widget.controller.viewportFraction,
+                // FIXME: Workaround to pass the static analysis on pub.dev
+                // ignore: unnecessary_non_null_assertion
+                viewportFraction: widget.controller!.viewportFraction,
                 delegate: widget.childrenDelegate,
                 padEnds: widget.padEnds,
                 childConstraints: widget.childConstraints,
