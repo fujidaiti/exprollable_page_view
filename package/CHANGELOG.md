@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0 Feb 24, 2024
+
+- Dart3 is now required.
+
 ## 1.0.0-rc.2 Jun 17, 2023
 
 - `PageConfiguration` has been added for implicit definition of page controllers (issue #41)
