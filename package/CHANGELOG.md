@@ -1,8 +1,12 @@
 # Changelog
 
+## 1.0.1 Feb 24, 2024
+
+Temporarily add the upper constraint of the Flutter SDK version to 3.20.0, since the current SDK used to analyze packages on pub.dev is 3.20.0-1.1.pre, which has a breaking change in the `PageView' class and is not compatible with the current version of this package, resulting in static analysis errors on pub.dev.
+
 ## 1.0.0 Feb 24, 2024
 
-- Dart3 is now required.
+Dart3 is now required.
 
 ## 1.0.0-rc.2 Jun 17, 2023
 
