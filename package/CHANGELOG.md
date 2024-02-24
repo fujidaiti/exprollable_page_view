@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 Feb 25, 2024
+
+- Small refactoring (no functional changes).
+
 ## 1.0.0 Feb 24, 2024
 
 - Dart3 is now required.
