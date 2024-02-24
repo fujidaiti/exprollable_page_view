@@ -235,9 +235,7 @@ class ModalExprollableScrollPhysics extends ScrollPhysics {
   /// This physics will delegate its logic to a [BouncingScrollPhysics]
   /// while the user is overscrolling, so that the *drag down to dismiss* action is available
   /// on every platform. Otherwise, it delegates to the given [parent].
-  const ModalExprollableScrollPhysics({
-    ScrollPhysics? parent,
-  }) : super(parent: parent);
+  const ModalExprollableScrollPhysics({super.parent});
 
   @override
   ModalExprollableScrollPhysics applyTo(ScrollPhysics? ancestor) {

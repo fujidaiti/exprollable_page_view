@@ -1,11 +1,11 @@
-/// Copied and modified from:
-/// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/widgets/page_view.dart
-/// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/rendering/sliver_fill.dart
-///
-/// Changes done:
-/// - Replace [SliverFillViewport] with [_SliverFillViewport] in [_PageViewState.build]
-/// - In [_RenderSliverFillViewport.performLayout], force the children to always occupy the parent viewport,
-///   regardless of [_RenderSliverFillViewport.itemExtent].
+// Copied and modified from:
+// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/widgets/page_view.dart
+// - https://github.com/flutter/flutter/tree/master/packages/flutter/lib/src/rendering/sliver_fill.dart
+//
+// Changes done:
+// - Replace [SliverFillViewport] with [_SliverFillViewport] in [_PageViewState.build]
+// - In [_RenderSliverFillViewport.performLayout], force the children to always occupy the parent viewport,
+//   regardless of [_RenderSliverFillViewport.itemExtent].
 
 // Copyright 2014 The Flutter Authors. All rights reserved.
 //
