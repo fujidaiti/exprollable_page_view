@@ -126,6 +126,7 @@ class ModalExprollable extends StatefulWidget {
 
 // ignore: deprecated_member_use_from_same_package
 class _ModalExprollableState extends State<ModalExprollable> {
+  late final _scrollBehavior = _ModalExprollableScrollBehavior(shouldDismiss);
   final ValueNotifier<double?> barrierColorFraction = ValueNotifier(null);
   ViewportMetrics? lastViewportMetrics;
 
@@ -205,7 +206,7 @@ class _ModalExprollableState extends State<ModalExprollable> {
     );
 
     return ScrollConfiguration(
-      behavior: const _ModalExprollableScrollBehavior(),
+      behavior: _scrollBehavior,
       child: Stack(
         children: [
           Positioned.fill(child: barrier),
@@ -316,17 +317,48 @@ class ModalExprollableScrollPhysics extends ScrollPhysics {
   }
 }
 
+/// A scroll physics used to abort the ballistic when the modal is dismiss
+class _AbortScrollPhysics extends ScrollPhysics {
+  const _AbortScrollPhysics({super.parent, required this.shouldAbort});
+
+  @override
+  ScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return _AbortScrollPhysics(
+      parent: buildParent(ancestor),
+      shouldAbort: shouldAbort,
+    );
+  }
+
+  /// Whether to abort the ballistic
+  final ValueGetter<bool> shouldAbort;
+
+  @override
+  Simulation? createBallisticSimulation(
+    ScrollMetrics position,
+    double velocity,
+  ) {
+    if (shouldAbort()) {
+      return null;
+    }
+    return super.createBallisticSimulation(position, velocity);
+  }
+}
+
 /// Provides [BouncingScrollPhysics] or [ModalExprollableScrollPhysics]
 /// as the default scroll physics for descendants.
 class _ModalExprollableScrollBehavior extends ScrollBehavior {
-  const _ModalExprollableScrollBehavior();
+  const _ModalExprollableScrollBehavior(this.shouldAbort);
+
+  /// Whether to abort the ballistic
+  final ValueGetter<bool> shouldAbort;
 
   @override
   ScrollPhysics getScrollPhysics(BuildContext context) {
-    final defaultPhysics = super.getScrollPhysics(context);
-    return defaultPhysics is BouncingScrollPhysics
-        ? defaultPhysics
-        : ModalExprollableScrollPhysics(parent: defaultPhysics);
+    ScrollPhysics physics = super.getScrollPhysics(context);
+    physics = physics is BouncingScrollPhysics
+        ? physics
+        : ModalExprollableScrollPhysics(parent: physics);
+    return _AbortScrollPhysics(parent: physics, shouldAbort: shouldAbort);
   }
 }
 
@@ -734,6 +766,7 @@ class _ModalExprollableDismissible extends StatefulWidget {
 
 class _ModalExprollableDismissibleState
     extends State<_ModalExprollableDismissible> {
+  late final _scrollBehavior = _ModalExprollableScrollBehavior(shouldDismiss);
   ViewportMetrics? _lastReportedViewportMetrics;
 
   bool _handleViewportMetricsUpdate(ViewportUpdateNotification notification) {
@@ -767,7 +800,7 @@ class _ModalExprollableDismissibleState
     return Listener(
       onPointerUp: _handlePointerUp,
       child: ScrollConfiguration(
-        behavior: const _ModalExprollableScrollBehavior(),
+        behavior: _scrollBehavior,
         child: NotificationListener<ViewportUpdateNotification>(
           onNotification: _handleViewportMetricsUpdate,
           child: widget.child,
